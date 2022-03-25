@@ -3,29 +3,25 @@ const { sensitiveHeaders } = require("http2");
 require("dotenv").config();
 
 const token = process.env.token;
-const prefix = "keef"
+var prefix = "keef"
 var sesh
-var regex = /[0-9]/
 
 const client = new Discord.Client();
 
 client.on("ready", () => {
-    console.log(`Logged in as ${client.user.tag}`);
+    console.log(`ayyooo it's ${client.user.tag}`);
 });
 
 client.on("message", message => {
-    if(message.content == "bowl") {
-        message.reply({content: "yes"})
-    }
-});
-
-client.on("message", message => {
-    if (message.content.match(new RegExp(prefix + " " + "[0-9]"))) {
+    var voiceChannel = message.member.voice.channel;
+    if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
         var time = message.content.split(" ")[1]
-        console.log(time)
+        if (time < 1) {
+            message.channel.send({content:"woah slow down buddy"})
+            return
+        }
         message.channel.send({content:`schmoke a bowl every ${time} min`})
-        var voiceChannel = message.member.voice.channel; //check if user in channel
-        // clearInterval(sesh)
+        clearInterval(sesh)
         voiceChannel.join().then(connection =>{
             sesh = setInterval(() => {
                 connection.play('./audio/smoke_a_bowl.mp3');
@@ -35,10 +31,10 @@ client.on("message", message => {
             }, time * 1000 * 60)
         }).catch(err => console.log(err));
     } 
-    if (message.content == "keef stop") {
+    if (message.content == prefix + " " + "stop") {
         message.channel.send({content:"okay :3"})
         clearInterval(sesh)
-        // voiceChannel.leave()//TODO try this
+        voiceChannel.leave()
     }
 })
 

@@ -1,0 +1,10 @@
+:root {
+    --darkgreen: rgb(0, 44, 0);
+    --lightgreen: gray;
+    --yellow: yellow;
+    --brown: brown;
+}
+
+body {
+    background-color: var(--darkgreen);
+}
