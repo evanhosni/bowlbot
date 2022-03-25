@@ -3,8 +3,9 @@ const { sensitiveHeaders } = require("http2");
 require("dotenv").config();
 
 const token = process.env.token;
-const prefix = "keef "
+const prefix = "keef"
 var sesh
+var regex = /[0-9]/
 
 const client = new Discord.Client();
 
@@ -19,11 +20,12 @@ client.on("message", message => {
 });
 
 client.on("message", message => {
-    if (message.content.match(/^keef ([0-9])/)) {//TODO use prefix var instead
+    if (message.content.match(new RegExp(prefix + " " + "[0-9]"))) {
         var time = message.content.split(" ")[1]
+        console.log(time)
         message.channel.send({content:`schmoke a bowl every ${time} min`})
-        var voiceChannel = message.member.voice.channel;
-        clearInterval(sesh)
+        var voiceChannel = message.member.voice.channel; //check if user in channel
+        // clearInterval(sesh)
         voiceChannel.join().then(connection =>{
             sesh = setInterval(() => {
                 connection.play('./audio/smoke_a_bowl.mp3');
@@ -36,16 +38,9 @@ client.on("message", message => {
     if (message.content == "keef stop") {
         message.channel.send({content:"okay :3"})
         clearInterval(sesh)
+        // voiceChannel.leave()//TODO try this
     }
 })
-
-// function sesh() {
-//     var voiceChannel = message.member.voice.channel;
-//     voiceChannel.join().then(connection =>{
-//         const dispatcher = connection.play('./audio/wait.wav');
-//         dispatcher.on("end", end => {voiceChannel.leave();});
-//     }).catch(err => console.log(err));
-// }
 
 client.login(token);
 
