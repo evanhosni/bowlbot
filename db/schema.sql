@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS bowlbot_db;
+CREATE DATABASE bowlbot_db;

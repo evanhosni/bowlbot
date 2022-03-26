@@ -1,10 +1,33 @@
 :root {
-    --darkgreen: rgb(0, 44, 0);
+    --darkgreen: rgb(0, 29, 0);
     --lightgreen: gray;
-    --yellow: yellow;
-    --brown: brown;
+    --yellow: rgb(236, 226, 87);
+    --brown: rgb(117, 53, 37);
+}
+
+* {
+    font-family: 'Nanum Pen Script', cursive;
 }
 
 body {
     background-color: var(--darkgreen);
+    color: var(--yellow);
+}
+
+p {
+    font-size: 3vw;
+    text-align: center;
+}
+
+#temp {
+    width: 10vw;
+    height: 10vw;
+    background-color: var(--brown);
+    margin: auto;
+    border-radius: 50%;
+}
+
+h1 {
+    font-size: 5vw;
+    text-align: center;
 }
