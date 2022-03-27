@@ -34,7 +34,7 @@ client.on("message", message => {
     var voiceChannel = message.member.voice.channel;
     if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
         var time = message.content.split(" ")[1]
-        if (time < 0.1) {//TODO change to 1
+        if (time < 1) {//TODO change to 1
             message.channel.send({content:"woah slow down buddy"})
             return
         }
@@ -67,7 +67,7 @@ client.on("message", message => {
     }
     if (message.content == prefix + " " + "stats") {
         Bowl.count({where: {serverstatId: message.guild.id}}).then(bowl => { //TODO better formatting?
-            message.channel.send({content:"you've schmoked a total of " + bowl + " bowls"})
+            message.channel.send({content:"you've schmoked a total of " + bowl + " bowls:"})
         })
         Bowl.count({where: {serverstatId: message.guild.id, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}}).then(bowl => {
             message.channel.send({content:bowl + " bowls in the past year"})
