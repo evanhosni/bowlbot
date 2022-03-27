@@ -1,10 +1,14 @@
 const Discord = require("discord.js");
+const { Server } = require("http");//TODO: is this used?
 const { sensitiveHeaders } = require("http2");//TODO: is this used?
 
 // const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const sequelize = require('./db/connection')
-const ServerStats = require('./db/ServerStats')
-//TODO add bowls as separate table? that way u can use dates for stats
+const Op = sequelize.Op 
+const moment = require("moment")
+const {ServerStats} = require('./db/models')
+const {Bowl} = require('./db/models')
+// Bowl.belongsTo(ServerStats, {foreignKey: 'id'})
 
 require("dotenv").config();
 
@@ -26,11 +30,12 @@ client.on("guildCreate", guild => {
     ServerStats.create({id: guild.id, serverName: guild.name }).then(res=>{console.log(res)})
 });
 
+
 client.on("message", message => {
     var voiceChannel = message.member.voice.channel;
     if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
         var time = message.content.split(" ")[1]
-        if (time < 1) {
+        if (time < 0.1) {//TODO change to 1
             message.channel.send({content:"woah slow down buddy"})
             return
         }
@@ -42,10 +47,15 @@ client.on("message", message => {
             message.channel.send({content:"ayyy lmao"})
         }
         message.channel.send({content:`schmoke a bowl every ${time} min`})
+
         clearInterval(sesh)
         voiceChannel.join().then(connection =>{
             sesh = setInterval(() => {
                 connection.play('./audio/smoke_a_bowl.mp3');
+                ServerStats.findByPk(message.guild.id).then(serv => {
+                    console.log(serv)
+                    serv.createBowl().then(res=>console.log(res))
+                })
                 if (message.content == "keef stop") {
                     clearInterval(sesh)
                 }
@@ -58,20 +68,36 @@ client.on("message", message => {
         voiceChannel.leave()
     }
     if (message.content == prefix + " " + "stats") {
-        ServerStats.findByPk(message.guild.id).then(res => {
-            message.channel.send({content:"you've schmoked " + res.dataValues.bowls + " bowls"})
+        Bowl.count({where: {serverstatId: message.guild.id}}).then(bowl => { //TODO better formatting?
+            message.channel.send({content:"you've schmoked a total of " + bowl + " bowls"})
+        })
+        Bowl.count({where: {serverstatId: message.guild.id, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}}).then(bowl => {
+            message.channel.send({content:bowl + " bowls in the past year"})
+        })
+        Bowl.count({where: {serverstatId: message.guild.id, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}}).then(bowl => {
+            message.channel.send({content:bowl + " bowls in the past month"})
+        })
+        Bowl.count({where: {serverstatId: message.guild.id, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}}).then(bowl => {
+            message.channel.send({content:bowl + " bowls in the past week"})
+        })
+        Bowl.count({where: {serverstatId: message.guild.id, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}}).then(bowl => {
+            message.channel.send({content:bowl + " bowls in the past day"})
+        })
+        Bowl.count({where: {serverstatId: message.guild.id, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}}).then(bowl => {//TODO why does the last one always take forever? its only because this is the 6th. it can do 5 without issue
+            message.channel.send({content:bowl + " bowls in the past hour"})
+        })
+    }
+    if (message.content == prefix + " " + "b") {//TODO temp
+        Bowl.count().then(bow => {
+            console.log(bow)
+            // console.log(bow.count)
+            // message.channel.send({content: bow + " bowls have been smoked"})
+            message.channel.send({content:"you've schmoked " + bow + " bowls"})
         })
     }
 })
 
 client.login(token);
-
-//add leaves on/off
-// sequelize.sync({force:false}).then(function() {
-//     app.listen(PORT, function() {
-//         console.log(`App listening on http://localhost:${PORT}`)
-//     })
-// })
 
 sequelize.sync({
 
