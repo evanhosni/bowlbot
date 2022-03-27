@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
-const { Server } = require("http");//TODO: is this used?
-const { sensitiveHeaders } = require("http2");//TODO: is this used?
+const http = require("http");//TODO: is this used?
+// const { sensitiveHeaders } = require("http2");//TODO: is this used?
+http.createServer().listen(process.env.PORT)
 
 // const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const sequelize = require('./db/connection')
@@ -25,8 +26,6 @@ client.on("ready", () => {
 
 client.on("guildCreate", guild => {
     // guild.owner.send('Thanks! You can use +help to discover commands.')
-    console.log(guild.id)
-    console.log(guild.name)
     ServerStats.create({id: guild.id, serverName: guild.name }).then(res=>{console.log(res)})
 });
 
@@ -53,8 +52,7 @@ client.on("message", message => {
             sesh = setInterval(() => {
                 connection.play('./audio/smoke_a_bowl.mp3');
                 ServerStats.findByPk(message.guild.id).then(serv => {
-                    console.log(serv)
-                    serv.createBowl().then(res=>console.log(res))
+                    serv.createBowl()
                 })
                 if (message.content == "keef stop") {
                     clearInterval(sesh)
@@ -87,14 +85,6 @@ client.on("message", message => {
             message.channel.send({content:bowl + " bowls in the past hour"})
         })
     }
-    if (message.content == prefix + " " + "b") {//TODO temp
-        Bowl.count().then(bow => {
-            console.log(bow)
-            // console.log(bow.count)
-            // message.channel.send({content: bow + " bowls have been smoked"})
-            message.channel.send({content:"you've schmoked " + bow + " bowls"})
-        })
-    }
 })
 
 client.login(token);
@@ -102,7 +92,7 @@ client.login(token);
 sequelize.sync({
 
 }).then((res) => {
-    console.log(res)
+    // console.log(res)
 }).catch((err) => {
     console.log(err)
 })
