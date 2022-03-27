@@ -1,4 +1,4 @@
-const socket = io("wss://bowlbot-server.herokuapp.com/")
+const socket = io("https://bowlbot-server.herokuapp.com:80/")
 var bowls = document.querySelector("#bowls")
 
 socket.on("bowlcount", (message) => {
