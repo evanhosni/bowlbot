@@ -1,17 +1,25 @@
 const Discord = require("discord.js");
-const http = require("http");//TODO: is this used?
+require("dotenv").config();
+const http = require("http").createServer().listen(process.env.PORT || 3000);
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
-http.createServer().listen(process.env.PORT)
+// const io = require("socket.io")(http, {cors: {origin: '*'}});
+const io = require("socket.io")(http, {cors: {origin: '*'}});
 
-// const SequelizeStore = require('connect-session-sequelize')(session.Store)
+// console.log("hey" + JSON.stringify(http))
+
+io.on("connection", (socket) => {
+    console.log("we're one, brother")
+    Bowl.count().then(bowl => {
+        io.emit('bowlcount', bowl)
+    })
+});
+
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
 const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
-// Bowl.belongsTo(ServerStats, {foreignKey: 'id'})
 
-require("dotenv").config();
 
 const token = process.env.token;
 var prefix = "keef"
@@ -29,12 +37,11 @@ client.on("guildCreate", guild => {
     ServerStats.create({id: guild.id, serverName: guild.name }).then(res=>{console.log(res)})
 });
 
-
 client.on("message", message => {
     var voiceChannel = message.member.voice.channel;
     if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
         var time = message.content.split(" ")[1]
-        if (time < 1) {//TODO change to 1
+        if (time < 0.1) {//TODO change to 1
             message.channel.send({content:"woah slow down buddy"})
             return
         }
@@ -52,7 +59,11 @@ client.on("message", message => {
             sesh = setInterval(() => {
                 connection.play('./audio/smoke_a_bowl.mp3');
                 ServerStats.findByPk(message.guild.id).then(serv => {
-                    serv.createBowl()
+                    serv.createBowl().then(() => {
+                        Bowl.count().then(bowl => {
+                            io.emit('bowlcount', bowl)
+                        })
+                    })
                 })
                 if (message.content == "keef stop") {
                     clearInterval(sesh)
@@ -85,12 +96,18 @@ client.on("message", message => {
             message.channel.send({content:bowl + " bowls in the past hour"})
         })
     }
+    if (message.content == prefix + " " + "b") {
+        Bowl.count().then(bowl => {
+            message.channel.send({content:bowl + " bowls have been schmoked globally"})
+            io.emit('bowlcount', bowl)
+        })
+    }
 })
 
 client.login(token);
 
 sequelize.sync({
-
+// force: true
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {

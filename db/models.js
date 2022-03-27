@@ -11,6 +11,11 @@ const ServerStats = sequelize.define("serverstats", {
         type: Sequelize.STRING,
         allowNull: false
     },
+    prefix: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'keef'
+    },
     public: {
         type: Sequelize.BOOLEAN,
         defaultValue: true

@@ -22,10 +22,12 @@
     "discord.js": "^12.5.3",
     "dotenv": "^16.0.0",
     "ffmpeg-static": "^4.4.1",
+    "fs": "^0.0.1-security",
     "libsodium-wrappers": "^0.7.10",
     "moment": "^2.29.1",
     "mysql2": "^2.3.3",
     "nodemon": "^2.0.15",
-    "sequelize": "^4.13.5"
+    "sequelize": "^4.13.5",
+    "socket.io": "^4.4.1"
   }
 }
