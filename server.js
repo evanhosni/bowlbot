@@ -17,10 +17,6 @@ const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
-function trigger() {
-    console.log('triggered -----------------------------')
-}
-
 sequelize.sync({
 // force: true
 }).then((res) => {
@@ -28,5 +24,3 @@ sequelize.sync({
 }).catch((err) => {
     console.log(err)
 })
-
-module.exports = trigger()

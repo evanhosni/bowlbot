@@ -18,7 +18,6 @@ const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models');
 const { triggerAsyncId } = require("async_hooks");
-// const trigger = require('./server')
 
 
 const token = process.env.token;
@@ -101,7 +100,6 @@ client.on("message", message => {
             message.channel.send({content:bowl + " bowls have been schmoked globally"})
             io.emit('bowlcount', bowl)
         })
-        trigger()
     }
 })
 
