@@ -5,7 +5,9 @@ var bowls
 
 io.on("connection", () => {
     console.log("we're one, brother")
-    io.emit('bowlcount', bowls)
+    setInterval(() => {
+        io.emit('bowlcount', bowls)
+    }, 100)
 });
 server.listen(process.env.PORT || 3000);
 
@@ -18,7 +20,8 @@ const {Bowl} = require('./db/models')
 // refresh("default")
 function refresh() {
     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
-        io.emit('bowlcount', 'test')
+        bowls = bowl
+        console.log(bowls)
     })
 }
 
