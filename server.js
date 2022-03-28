@@ -6,16 +6,19 @@ const io = require("socket.io")(server, options);
 // var refresh
 io.on("connection", () => {
     console.log("we're one, brother")
-    setInterval(() => {
-        console.log("refreshing")
-        Bowl.count({logging: false}).then(bowl => {
+            Bowl.count({logging: false}).then(bowl => {
             io.emit('bowlcount', bowl)
         })
-    }, 100)
+    // setInterval(() => {
+    //     console.log("refreshing")
+    //     Bowl.count({logging: false}).then(bowl => {
+    //         io.emit('bowlcount', bowl)
+    //     })
+    // }, 1000)
 });
-// io.on('disconnect', () => {
-//     clearInterval(refresh)
-// })
+io.on('disconnect', () => {
+    clearInterval(refresh)
+})
 server.listen(process.env.PORT || 3000);
 
 const sequelize = require('./db/connection')
