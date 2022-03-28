@@ -3,9 +3,9 @@ require("dotenv").config();
 const http = require("http").createServer().listen(process.env.PORT || 3000);
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
 var cors = require('cors');
-const io = require("socket.io").listen(http, {
+const io = require("socket.io")(http, {
     cors: {
-        origin: `http://fart-game.herokuapp.com`, // I copied the origin in the error message and pasted here
+        origin: "*",
         methods: ["GET", "POST"],
         // credentials: true
       }
