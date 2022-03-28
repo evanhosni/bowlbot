@@ -17,7 +17,7 @@ const Op = sequelize.Op
 const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
-const trigger = require('./server')
+// const trigger = require('./server')
 
 
 const token = process.env.token;
