@@ -15,8 +15,8 @@ const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
 // refresh("default")
-function refresh() {
-    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
+async function refresh() {
+    await Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
         console.log(bowl)
         return bowl
     })
