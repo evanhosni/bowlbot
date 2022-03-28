@@ -8,6 +8,9 @@ io.on("connection", () => {
     // setInterval(() => {
     //     io.emit('bowlcount', bowls)
     // }, 100)
+    socket.on("doit", bowls => {
+        console.log(bowls)
+    })
 });
 server.listen(process.env.PORT || 3000);
 
@@ -22,7 +25,7 @@ function refresh() {
     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
         bowls = bowl
         console.log(bowls)
-        io.broadcast('bowlcount', bowls)
+        io.emit('doit', bowls)
     })
 }
 
