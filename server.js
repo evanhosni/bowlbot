@@ -3,8 +3,8 @@ const options = {cors: {origin: "*"}}//TODO: change to only deployed link when w
 const io = require("socket.io")(server, options);
 io.on("connection", () => {
     console.log("we're one, brother")
-    // var bowl = refresh(bowl)
-    io.emit('bowlcount', refresh())
+    var bowl = await refresh()
+    io.emit('bowlcount', bowl)
 });
 server.listen(process.env.PORT || 3000);
 
