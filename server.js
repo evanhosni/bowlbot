@@ -15,6 +15,11 @@ const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
+bingus("default")
+function bingus(bong) {
+    console.log("chimp bingus " + bong)
+}
+
 sequelize.sync({
 // force: true
 }).then((res) => {
