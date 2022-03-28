@@ -6,9 +6,9 @@ const io = require("socket.io")(server, options);
 // var refresh
 io.on("connection", () => {
     console.log("we're one, brother")
-            Bowl.count({logging: false}).then(bowl => {
-            io.emit('bowlcount', bowl)
-        })
+    Bowl.count({logging: false}).then(bowl => {
+        io.emit('bowlcount', bowl)
+    })
     // setInterval(() => {
     //     console.log("refreshing")
     //     Bowl.count({logging: false}).then(bowl => {
