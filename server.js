@@ -8,7 +8,7 @@ io.on("connection", (socket) => {
     // setInterval(() => {
     //     io.emit('bowlcount', bowls)
     // }, 100)
-    socket.on("doit", bowls => {
+    io.on("doit", bowls => {
         console.log(bowls)
     })
 });
