@@ -1,1 +1,0 @@
-worker: node bowlbot.js
