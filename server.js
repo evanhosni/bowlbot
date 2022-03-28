@@ -5,6 +5,12 @@ const options = {cors: {origin: "*"}}
 const io = require("socket.io")(server, options);
 io.on("connection", (socket) => {
     console.log("we're one, brother")
+    setInterval(() => {
+        console.log("refreshing")
+        Bowl.count().then(bowl => {
+            io.emit('bowlcount', bowl)
+        })
+    }, 100)
 });
 server.listen(process.env.PORT || 3000);
 
@@ -13,13 +19,6 @@ const Op = sequelize.Op
 const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
-
-setInterval(() => {
-    console.log("refreshing")
-    Bowl.count().then(bowl => {
-        io.emit('bowlcount', bowl)
-    })
-}, 100)
 
 sequelize.sync({
 // force: true
