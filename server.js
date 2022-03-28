@@ -105,7 +105,7 @@ client.on("message", message => {
 client.login(token);
 
 sequelize.sync({
-force: true
+// force: true
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {
