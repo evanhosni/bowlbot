@@ -18,7 +18,7 @@ const {Bowl} = require('./db/models')
 // refresh("default")
 function refresh() {
     console.log("chimp bingus")
-    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
+    Bowl.count().then(bowl => {//TODO: logging false doing anything?
         io.emit('bowlcount', bowl)
     })
 }
