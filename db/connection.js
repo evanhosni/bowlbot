@@ -13,7 +13,6 @@ if (process.env.JAWSDB_URL) {
             dialect: 'mysql',
             host: 'localhost',
             // port: 3306
-            logging: false
         }
     )
 }
