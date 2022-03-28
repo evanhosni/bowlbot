@@ -36,4 +36,4 @@ sequelize.sync({
     console.log(err)
 })
 
-module.exports = refresh
+// module.exports = refresh
