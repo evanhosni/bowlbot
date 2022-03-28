@@ -24,7 +24,7 @@ const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
 sequelize.sync({
-force: true
+// force: true
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {
