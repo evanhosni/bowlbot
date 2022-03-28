@@ -6,6 +6,13 @@ io.on("connection", () => {
     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
         io.emit('bowlcount', bowl)
     })
+    function refresh() {
+        Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
+            console.log(bowl)
+            // io.emit('bowlcount', bowl)
+        })
+    }
+    module.exports = refresh
 });
 server.listen(process.env.PORT || 3000);
 
@@ -15,14 +22,6 @@ const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
-// refresh("default")
-function refresh() {
-    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
-        console.log(bowl)
-        // io.emit('bowlcount', bowl)
-    })
-}
-
 sequelize.sync({
 // force: true
 }).then((res) => {
@@ -31,4 +30,4 @@ sequelize.sync({
     console.log(err)
 })
 
-module.exports = refresh
+// module.exports = refresh
