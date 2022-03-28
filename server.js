@@ -4,7 +4,7 @@ const io = require("socket.io")(server, options);
 io.on("connection", () => {
     console.log("we're one, brother")
     // var bowl = refresh(bowl)
-    io.emit('bowlcount', refresh(bowl))
+    io.emit('bowlcount', refresh())
 });
 server.listen(process.env.PORT || 3000);
 
