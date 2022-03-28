@@ -5,4 +5,3 @@ socket.on("bowlcount", (message) => {
     console.log(message)
     bowls.innerHTML = message
 })
-
