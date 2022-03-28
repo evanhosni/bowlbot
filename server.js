@@ -22,6 +22,7 @@ function refresh() {
     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
         bowls = bowl
         console.log(bowls)
+        io.broadcast('bowlcount', bowls)
     })
 }
 
