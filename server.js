@@ -1,10 +1,11 @@
 const server = require("http").createServer()
 const options = {cors: {origin: "*"}}//TODO: change to only deployed link when website is done
 const io = require("socket.io")(server, options);
+var bowls
 io.on("connection", () => {
     console.log("we're one, brother")
     // var bowl = refresh(bowl)
-    io.emit('bowlcount', refresh())
+    io.emit('bowlcount', bowls)
 });
 server.listen(process.env.PORT || 3000);
 
@@ -17,8 +18,7 @@ const {Bowl} = require('./db/models')
 // refresh("default")
 function refresh() {
     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
-        console.log(bowl)
-        return bowl
+        bowls = bowl
     })
 }
 
