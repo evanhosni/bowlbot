@@ -1,19 +1,11 @@
-// require("dotenv").config();
 const server = require("http").createServer()
-// const { sensitiveHeaders } = require("http2");//TODO: is this used?
-const options = {cors: {origin: "*"}}
+const options = {cors: {origin: "*"}}//TODO: change to only deployed link when website is done
 const io = require("socket.io")(server, options);
 io.on("connection", () => {
     console.log("we're one, brother")
-    Bowl.count({logging: false}).then(bowl => {
+    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
         io.emit('bowlcount', bowl)
     })
-    // setInterval(() => {
-    //     console.log("refreshing")
-    //     Bowl.count({logging: false}).then(bowl => {
-    //         io.emit('bowlcount', bowl)
-    //     })
-    // }, 1000)
 });
 server.listen(process.env.PORT || 3000);
 
