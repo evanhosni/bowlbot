@@ -1,16 +1,6 @@
 const Discord = require("discord.js");
 require("dotenv").config();
 const server = require("http").createServer()
-// const { sensitiveHeaders } = require("http2");//TODO: is this used?
-// const options = {cors: {origin: "*"}}
-// const io = require("socket.io")(server, options);
-// io.on("connection", (socket) => {
-//     console.log("we're one, brother")
-//     Bowl.count().then(bowl => {
-//         io.emit('bowlcount', bowl)
-//     })
-// });
-// server.listen(process.env.PORT || 3000);
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
@@ -29,7 +19,7 @@ const client = new Discord.Client();
 
 client.on("ready", () => {
     console.log(`ayyooo it's ${client.user.tag}`);
-    console.log(client.guilds.cache.map(g => g.name).join('\n'))
+    (client.guilds.cache.map(g => g.id).join('\n'))
 });
 
 client.on("guildCreate", guild => {
@@ -97,10 +87,10 @@ client.on("message", message => {
         })
     }
     if (message.content == prefix + " " + "b") {
-        Bowl.count().then(bowl => {
-            message.channel.send({content:bowl + " bowls have been schmoked globally"})
-            io.emit('bowlcount', bowl)
-        })
+        // Bowl.count().then(bowl => {
+        //     message.channel.send({content:bowl + " bowls have been schmoked globally"})
+        //     io.emit('bowlcount', bowl)
+        // })
     }
 })
 
