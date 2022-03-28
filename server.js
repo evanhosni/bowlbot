@@ -16,12 +16,12 @@ io.on("connection", () => {
     })
 });
 
-// io.on("refresh", () => {
-//     console.log("refreshing")
-//     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
-//         io.emit("bowlcount", bowl)
-//     })
-// });
+io.on("refresh", () => {
+    console.log("refreshing")
+    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
+        io.emit("bowlcount", bowl)
+    })
+});
 
 // function refresh() {
 //     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
