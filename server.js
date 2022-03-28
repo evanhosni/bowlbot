@@ -16,18 +16,18 @@ io.on("connection", () => {
     })
 });
 
-io.on("refresh", () => {
-    console.log("refreshing")
-    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
-        io.emit("bowlcount", bowl)
-    })
-});
-
-// function refresh() {
+// io.on("refresh", () => {
+//     console.log("refreshing")
 //     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
-//         io.emit("bowlcount", bowl)//TODO doesn't work
+//         io.emit("bowlcount", bowl)
 //     })
-// }
+// });
+
+function refresh() {
+    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
+        io.emit("bowlcount", bowl)//TODO doesn't work
+    })
+}
 
 sequelize.sync({
 }).then((res) => {
@@ -36,4 +36,4 @@ sequelize.sync({
     console.log(err)
 })
 
-// module.exports = refresh
+module.exports = refresh

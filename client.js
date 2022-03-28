@@ -6,8 +6,8 @@ socket.on("bowlcount", (message) => {
     bowls.innerHTML = message
 })
 
-function refresh() {
-    socket.emit("refresh","test")
-}
+// function refresh() {
+//     socket.emit("refresh","test")
+// }
 
-module.exports = refresh
+// module.exports = refresh
