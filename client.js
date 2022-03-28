@@ -7,6 +7,5 @@ socket.on("bowlcount", (message) => {
 })
 
 function refresh() {
-
     socket.emit("refresh","test")
 }
