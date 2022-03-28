@@ -13,7 +13,7 @@ const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
 refresh("default")
-export function refresh(data) {
+function refresh(data) {
     console.log("chimp bingus " + data)
     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
         io.emit('bowlcount', bowl)
@@ -27,3 +27,5 @@ sequelize.sync({
 }).catch((err) => {
     console.log(err)
 })
+
+module.exports = refresh()

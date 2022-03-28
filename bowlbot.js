@@ -18,7 +18,7 @@ const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models');
 
-import { refresh } from "./server"
+const {refresh} = require('./server')
 
 refresh("connectiooooooooooooooooon")
 
