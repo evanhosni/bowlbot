@@ -3,7 +3,7 @@ const options = {cors: {origin: "*"}}//TODO: change to only deployed link when w
 const io = require("socket.io")(server, options);
 var bowls
 
-io.on("connection", () => {
+io.on("connection", (socket) => {
     console.log("we're one, brother")
     // setInterval(() => {
     //     io.emit('bowlcount', bowls)
