@@ -19,7 +19,7 @@ const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models');
 require('./server')
 
-refresh("connectiooooooooooooooooon")
+refresh()
 
 const token = process.env.token;
 var prefix = "keef"
