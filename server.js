@@ -1,25 +1,20 @@
 const Discord = require("discord.js");
 require("dotenv").config();
-const http = require("http").createServer().listen(process.env.PORT || 3000);
+const server = require("http").createServer()
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
-var cors = require('cors');
-const io = require("socket.io")(http, {
+const io = require("socket.io")(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"],
-        // credentials: true
       }
 });
-// io.listen(process.env.PORT || 3000)
-
-// console.log("hey" + JSON.stringify(http))
-
 io.on("connection", (socket) => {
     console.log("we're one, brother")
     Bowl.count().then(bowl => {
         io.emit('bowlcount', bowl)
     })
 });
+server.listen(process.env.PORT || 3000);
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
