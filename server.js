@@ -3,6 +3,9 @@ const options = {cors: {origin: "*"}}//TODO: change to only deployed link when w
 const io = require("socket.io")(server, options);
 io.on("connection", () => {
     console.log("we're one, brother")
+    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
+        io.emit('bowlcount', bowl)
+    })
 });
 server.listen(process.env.PORT || 3000);
 
