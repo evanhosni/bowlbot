@@ -3,8 +3,8 @@ const options = {cors: {origin: "*"}}//TODO: change to only deployed link when w
 const io = require("socket.io")(server, options);
 io.on("connection", () => {
     console.log("we're one, brother")
-    var bowl = await refresh()
-    io.emit('bowlcount', bowl)
+    // var bowl = refresh(bowl)
+    io.emit('bowlcount', refresh())
 });
 server.listen(process.env.PORT || 3000);
 
@@ -15,8 +15,8 @@ const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
 // refresh("default")
-async function refresh() {
-    await Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
+function refresh() {
+    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
         console.log(bowl)
         return bowl
     })
