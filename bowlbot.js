@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 require("dotenv").config();
-const server = require("http").createServer()
+// const server = require("http").createServer()
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
@@ -8,8 +8,6 @@ const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models');
 const refresh = require('./server')
-
-refresh()
 
 const token = process.env.token;
 var prefix = "keef"
@@ -50,9 +48,7 @@ client.on("message", message => {
                 connection.play('./audio/smoke_a_bowl.mp3');
                 ServerStats.findByPk(message.guild.id).then(serv => {
                     serv.createBowl().then(() => {
-                        Bowl.count().then(bowl => {
-                            io.emit('bowlcount', bowl)
-                        })
+                        refresh()
                     })
                 })
                 if (message.content == "keef stop") {
@@ -89,7 +85,6 @@ client.on("message", message => {
     if (message.content == prefix + " " + "b") {
         // Bowl.count().then(bowl => {
         //     message.channel.send({content:bowl + " bowls have been schmoked globally"})
-        //     io.emit('bowlcount', bowl)
         // })
     }
 })
