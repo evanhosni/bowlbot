@@ -18,8 +18,7 @@ const {Bowl} = require('./db/models')
 // refresh("default")
 function refresh() {
     Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
-        bowls = bowl
-        console.log(bowls)
+        io.emit('bowlcount', 'test')
     })
 }
 
