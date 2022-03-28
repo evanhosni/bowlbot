@@ -3,10 +3,8 @@ require("dotenv").config();
 const server = require("http").createServer()
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
 const io = require("socket.io")(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-      }
+    cors: true,
+    origins: ["*"]
 });
 io.on("connection", (socket) => {
     console.log("we're one, brother")
