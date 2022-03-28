@@ -5,9 +5,9 @@ var bowls
 
 io.on("connection", () => {
     console.log("we're one, brother")
-    setInterval(() => {
-        io.emit('bowlcount', bowls)
-    }, 100)
+    // setInterval(() => {
+    //     io.emit('bowlcount', bowls)
+    // }, 100)
 });
 server.listen(process.env.PORT || 3000);
 
