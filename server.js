@@ -8,7 +8,7 @@ io.on("connection", () => {
     console.log("we're one, brother")
     refresh = setInterval(() => {
         console.log("refreshing")
-        Bowl.count({logging: false}).then(bowl => {
+        Bowl.count().then(bowl => {
             io.emit('bowlcount', bowl)
         })
     }, 100)
