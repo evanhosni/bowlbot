@@ -3,9 +3,6 @@ const options = {cors: {origin: "*"}}//TODO: change to only deployed link when w
 const io = require("socket.io")(server, options);
 io.on("connection", () => {
     console.log("we're one, brother")
-    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
-        io.emit('bowlcount', bowl)
-    })
 });
 server.listen(process.env.PORT || 3000);
 
@@ -15,9 +12,12 @@ const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
-bingus("default")
-function bingus(bong) {
-    console.log("chimp bingus " + bong)
+refresh("default")
+export function refresh(data) {
+    console.log("chimp bingus " + data)
+    Bowl.count({logging: false}).then(bowl => {//TODO: logging false doing anything?
+        io.emit('bowlcount', bowl)
+    })
 }
 
 sequelize.sync({

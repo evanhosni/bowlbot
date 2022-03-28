@@ -18,6 +18,9 @@ const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models');
 
+import { refresh } from "./server"
+
+refresh("connectiooooooooooooooooon")
 
 const token = process.env.token;
 var prefix = "keef"
