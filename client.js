@@ -1,10 +1,4 @@
-const socket = io("https://bowlbot-server.herokuapp.com/", {
-    cors: {
-        origin: `http://fart-game.herokuapp.com`, // I copied the origin in the error message and pasted here
-        methods: ["GET", "POST"],
-        credentials: true
-      }
-})
+const socket = io("https://bowlbot-server.herokuapp.com/")
 var bowls = document.querySelector("#bowls")
 
 socket.on("bowlcount", (message) => {
