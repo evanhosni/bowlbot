@@ -16,7 +16,8 @@ const sequelize = require('./db/connection')
 const Op = sequelize.Op 
 const moment = require("moment")
 const {ServerStats} = require('./db/models')
-const {Bowl} = require('./db/models')
+const {Bowl} = require('./db/models');
+const { triggerAsyncId } = require("async_hooks");
 // const trigger = require('./server')
 
 
@@ -100,6 +101,7 @@ client.on("message", message => {
             message.channel.send({content:bowl + " bowls have been schmoked globally"})
             io.emit('bowlcount', bowl)
         })
+        trigger()
     }
 })
 
