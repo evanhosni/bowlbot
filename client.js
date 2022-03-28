@@ -9,3 +9,5 @@ socket.on("bowlcount", (message) => {
 function refresh() {
     socket.emit("refresh","test")
 }
+
+module.exports = refresh
