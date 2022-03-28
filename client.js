@@ -5,3 +5,8 @@ socket.on("bowlcount", (message) => {
     console.log(message)
     bowls.innerHTML = message
 })
+
+function refresh() {
+
+    socket.emit("refresh","test")
+}
