@@ -1,1 +1,1 @@
-worker: node bowlbot.js
+worker: node server.js
