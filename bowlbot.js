@@ -7,7 +7,7 @@ const Op = sequelize.Op
 const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models');
-const refresh = require('./client')
+// const refresh = require('./client')
 
 const token = process.env.token;
 var prefix = "keef"
@@ -83,7 +83,7 @@ client.on("message", message => {
         })
     }
     if ("b") {
-        refresh("stringgggg")
+        // refresh("stringgggg")
         message.channel.send({content:bowl + " bowls have been schmoked globally"})
     }
     //     // Bowl.count().then(bowl => {
