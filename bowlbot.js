@@ -7,7 +7,7 @@ const Op = sequelize.Op
 const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models');
-// const refresh = require('./client')
+const refresh = require('./server')
 
 const token = process.env.token;
 var prefix = "keef"
@@ -48,7 +48,7 @@ client.on("message", message => {
                 connection.play('./audio/smoke_a_bowl.mp3');
                 ServerStats.findByPk(message.guild.id).then(serv => {
                     serv.createBowl().then(() => {
-                        // refresh()
+                        refresh()
                     })
                 })
                 if (message.content == "keef stop") {
@@ -82,14 +82,12 @@ client.on("message", message => {
             message.channel.send({content:bowl + " bowls in the past hour"})
         })
     }
-    if (message.content == prefix + " " + "b") {
-            // refresh()
-            Bowl.count().then(bowl => {
-                message.channel.send({content:bowl + " bowls have been schmoked globally"})
-            })
-        }
-    }
-)
+    // if (message.content == prefix + " " + "b") {
+    //     // Bowl.count().then(bowl => {
+    //     //     message.channel.send({content:bowl + " bowls have been schmoked globally"})
+    //     // })
+    // }
+})
 
 client.login(token);
 
