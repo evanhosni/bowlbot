@@ -59,7 +59,7 @@ client.on("message", message => {
                 ServerStats.findByPk(message.guild.id).then(serv => {
                     serv.createBowl().then(() => {
                         Bowl.count().then(bowl => {
-                            io.emit('bowlcount', bowl)
+                            io.emit('bowlcount', bowl)//TODO - get this working
                         })
                     })
                 })
