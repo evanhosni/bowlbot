@@ -82,11 +82,11 @@ client.on("message", message => {
             message.channel.send({content:bowl + " bowls in the past hour"})
         })
     }
-    if (message.content == prefix + " " + "b") {
-        refresh()
+    if ("b") {
+        refresh("stringgggg")
+        message.channel.send({content:bowl + " bowls have been schmoked globally"})
     }
     //     // Bowl.count().then(bowl => {
-    //     //     message.channel.send({content:bowl + " bowls have been schmoked globally"})
     //     // })
     // }
 })
