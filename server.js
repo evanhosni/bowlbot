@@ -55,6 +55,7 @@ client.on("message", message => {
         clearInterval(sesh)
         voiceChannel.join().then(connection =>{
             sesh = setInterval(() => {
+                voiceChannel.join()//TEST THIS, remove if he still auto leaves
                 connection.play('./audio/smoke_a_bowl.mp3');
                 ServerStats.findByPk(message.guild.id).then(serv => {
                     serv.createBowl().then(() => {
