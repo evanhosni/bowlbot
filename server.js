@@ -35,8 +35,8 @@ client.on("guildCreate", guild => {
     ServerStats.create({id: guild.id, serverName: guild.name }).then(res=>{console.log(res)})
 });
 
+var sesh
 client.on("message", message => {
-    var sesh
     var voiceChannel = message.member.voice.channel;
     if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
         var time = message.content.split(" ")[1]
