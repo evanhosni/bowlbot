@@ -1,9 +1,7 @@
-const socket = io("https://bowlbot-server.herokuapp.com/")
-var bowls = document.querySelector("#bowls")
+// const socket = io("https://bowlbot-server.herokuapp.com/")
+const socket = io("http://localhost:3000/")
 
-setInterval(()=> {
-console.log(number)
-},1000)
+var bowls = document.querySelector("#bowls")
 
 socket.on("bowlcount", (message) => {
     console.log(message)

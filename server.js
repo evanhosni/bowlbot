@@ -11,6 +11,7 @@ io.on("connection", (socket) => {
     })
 });
 server.listen(process.env.PORT || 3000);
+console.log("server listenin on http://localhost:3000")//TODO yeet this
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
@@ -21,7 +22,6 @@ const {Bowl} = require('./db/models')
 
 const token = process.env.token;
 var prefix = "keef"
-var sesh
 
 const client = new Discord.Client();
 
@@ -35,6 +35,7 @@ client.on("guildCreate", guild => {
     ServerStats.create({id: guild.id, serverName: guild.name }).then(res=>{console.log(res)})
 });
 
+var sesh
 client.on("message", message => {
     var voiceChannel = message.member.voice.channel;
     if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
@@ -55,17 +56,16 @@ client.on("message", message => {
         clearInterval(sesh)
         voiceChannel.join().then(connection =>{
             sesh = setInterval(() => {
+                console.log(sesh)
                 connection.play('./audio/smoke_a_bowl.mp3');
-                ServerStats.findByPk(message.guild.id).then(serv => {
+                // ServerStats.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, serverName: message.guild.name}}).then(serv => {//TODO something like this but higher, so the server is accessible in all parts of client.on("message")
+                ServerStats.findByPk(message.guild.id).then(serv => {//TODO if server not in db, create it
                     serv.createBowl().then(() => {
                         Bowl.count().then(bowl => {
                             io.emit('bowlcount', bowl)
                         })
                     })
                 })
-                if (message.content == "keef stop") {
-                    clearInterval(sesh)
-                }
             }, time * 1000 * 60)
         }).catch(err => console.log(err));
     } 
