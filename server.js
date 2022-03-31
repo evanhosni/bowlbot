@@ -1,3 +1,4 @@
+require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");
 const Discord = require("discord.js");
 require("dotenv").config();
 const server = require("http").createServer()
@@ -11,6 +12,7 @@ io.on("connection", (socket) => {
     })
 });
 server.listen(process.env.PORT || 3000);
+require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");
 // require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com/");
 // console.log("server listenin on http://localhost:3000")//TODO yeet this
 // var ping = require('periodic-ping').ping;
