@@ -1,6 +1,6 @@
 const socket = io("https://bowlbot-server.herokuapp.com")
 // const socket = io("http://localhost:3000/")
-require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");
+require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");//TODO yeet
 var bowls = document.querySelector("#bowls")
 
 socket.on("bowlcount", (message) => {

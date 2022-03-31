@@ -1,4 +1,4 @@
-require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");
+require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");//TODO yeet
 const Discord = require("discord.js");
 require("dotenv").config();
 const server = require("http").createServer()
@@ -10,13 +10,21 @@ io.on("connection", (socket) => {
     Bowl.count().then(bowl => {
         io.emit('bowlcount', bowl)
     })
+    setInterval(()=> {
+        io.emit('bowlcount', bowl)
+    },10 * 1000 * 60)
 });
 server.listen(process.env.PORT || 3000);
-require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");
+require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");//TODO yeet
 // require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com/");
 // console.log("server listenin on http://localhost:3000")//TODO yeet this
 // var ping = require('periodic-ping').ping;
 // ping({appName: "https://bowlbot-server.herokuapp.com/"});
+
+
+setInterval(()=> {
+    io.emit('bowlcount', bowl)
+},10 * 1000 * 60)
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
@@ -33,6 +41,9 @@ const client = new Discord.Client();
 client.on("ready", () => {
     console.log(`ayyooo it's ${client.user.tag}`);
     console.log(client.guilds.cache.map(g => g.name).join('\n'))
+
+
+
 });
 
 client.on("guildCreate", guild => {
