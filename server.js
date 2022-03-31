@@ -23,7 +23,7 @@ const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
 setInterval(() => { // To keep Heroku live
-    http.get("https://bowlbot-server.herokuapp.com");
+    server.get("https://bowlbot-server.herokuapp.com");
 }, 300000); // every 5 minutes
 
 const token = process.env.token;
