@@ -11,8 +11,10 @@ io.on("connection", (socket) => {
     })
 });
 server.listen(process.env.PORT || 3000);
-require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com/");
+// require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com/");
 // console.log("server listenin on http://localhost:3000")//TODO yeet this
+var ping = require('periodic-ping').ping;
+ping({appName: "https://bowlbot-server.herokuapp.com/"});
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
