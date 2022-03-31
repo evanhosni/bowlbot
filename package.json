@@ -24,11 +24,13 @@
     "dotenv": "^16.0.0",
     "ffmpeg-static": "^4.4.1",
     "heroku-self-ping": "^2.0.1",
+    "is-heroku": "^3.0.0",
     "libsodium-wrappers": "^0.7.10",
     "moment": "^2.29.1",
     "mysql2": "^2.3.3",
     "nodemon": "^2.0.15",
     "sequelize": "^4.13.5",
-    "socket.io": "^4.4.1"
+    "socket.io": "^4.4.1",
+    "superagent": "^7.1.2"
   }
 }
