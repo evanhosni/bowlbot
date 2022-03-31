@@ -22,10 +22,6 @@ const moment = require("moment")
 const {ServerStats} = require('./db/models')
 const {Bowl} = require('./db/models')
 
-setInterval(() => { // To keep Heroku live
-    server.get("https://bowlbot-server.herokuapp.com");
-}, 300000); // every 5 minutes
-
 const token = process.env.token;
 let sesh = new Map()
 var prefix = "keef"
