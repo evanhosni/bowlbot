@@ -21,6 +21,7 @@ const {Bowl} = require('./db/models')
 
 
 const token = process.env.token;
+let sesh = new Map()
 var prefix = "keef"
 
 const client = new Discord.Client();
@@ -35,7 +36,6 @@ client.on("guildCreate", guild => {
     ServerStats.create({id: guild.id, serverName: guild.name }).then(res=>{console.log(res)})
 });
 
-var sesh
 client.on("message", message => {
     var voiceChannel = message.member.voice.channel;
     if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
@@ -53,10 +53,10 @@ client.on("message", message => {
         }
         message.channel.send({content:`schmoke a bowl every ${time} min`})
 
-        clearInterval(sesh)
+        clearInterval(sesh.get(message.guild.id))//more safetys to ensure loop doesn't continue past keef leaving
         voiceChannel.join().then(connection =>{
-            sesh = setInterval(() => {
-                console.log(sesh)
+            sesh.set(message.guild.id,setInterval(() => {
+                console.log(sesh.get(message.guild.id))
                 connection.play('./audio/smoke_a_bowl.mp3');
                 // ServerStats.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, serverName: message.guild.name}}).then(serv => {//TODO something like this but higher, so the server is accessible in all parts of client.on("message")
                 ServerStats.findByPk(message.guild.id).then(serv => {//TODO if server not in db, create it
@@ -66,12 +66,13 @@ client.on("message", message => {
                         })
                     })
                 })
-            }, time * 1000 * 60)
+            }, time * 1000 * 60))
         }).catch(err => console.log(err));
     } 
     if (message.content == prefix + " " + "stop") {
         message.channel.send({content:"okay :3"})
-        clearInterval(sesh)
+        clearInterval(sesh.get(message.guild.id))
+        sesh.delete(message.guild.id)//more safetys to ensure loop doesn't continue/map deleted past keef leaving
         voiceChannel.leave()
     }
     if (message.content == prefix + " " + "stats") {
@@ -94,12 +95,9 @@ client.on("message", message => {
             message.channel.send({content:bowl + " bowls in the past hour"})
         })
     }
-    // if (message.content == prefix + " " + "b") {
-    //     Bowl.count().then(bowl => {
-    //         message.channel.send({content:bowl + " bowls have been schmoked globally"})
-    //         io.emit('bowlcount', bowl)
-    //     })
-    // }
+    if (message.content == prefix + " " + "b") {
+        console.log(sesh)
+    }
 })
 
 client.login(token);
