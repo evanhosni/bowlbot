@@ -1,7 +1,23 @@
 const Discord = require("discord.js");
 require("dotenv").config();
-const server = require("http").createServer()
+// const server = require("http").createServer()
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
+
+//NEW SERVER STUFF (EXPRESS)
+const express = require('express');
+const path = require('path');
+const app = express();
+const PORT = process.env.PORT || 3000
+// app.use(express.static("public"))
+app.use(express.urlencoded({extended:true}))//
+app.use(express.json())//
+app.get('*', (req, res) =>
+  res.sendFile(path.join(__dirname, '/index.html'))
+);
+app.listen(PORT,()=>{
+    console.log(`listening at http://localhost:${PORT} 🚀`)
+})
+
 const options = {cors: {origin: "*"}}
 const io = require("socket.io")(server, options);
 io.on("connection", (socket) => {
@@ -10,11 +26,7 @@ io.on("connection", (socket) => {
         io.emit('bowlcount', bowl)
     })
 });
-server.listen(process.env.PORT || 3000);
-
-server.get('/', (req,res) => { //TODO, maybe this will work
-    res.sendFile('./index.html')
-})
+// server.listen(process.env.PORT || 3000);
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
@@ -31,9 +43,6 @@ const client = new Discord.Client();
 client.on("ready", () => {
     console.log(`ayyooo it's ${client.user.tag}`);
     console.log(client.guilds.cache.map(g => g.name).join('\n'))
-
-
-
 });
 
 client.on("guildCreate", guild => {
