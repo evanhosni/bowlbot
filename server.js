@@ -13,12 +13,9 @@ app.use(express.json())//
 app.get('/', (req, res) =>
 res.sendFile(path.join(__dirname, '/index.html'))
 );
-app.listen(PORT,()=>{
-    console.log(`listening at http://localhost:${PORT} 🚀`)
-})
 // https://console.cron-job.org/jobs (for ping scheduling maintenance)
 
-const server = require("http").createServer()
+const server = require("http").createServer(app)
 const options = {cors: {origin: "*"}}
 const io = require("socket.io")(server, options);
 io.on("connection", (socket) => {
@@ -27,7 +24,9 @@ io.on("connection", (socket) => {
         io.emit('bowlcount', bowl)
     })
 });
-server.listen(PORT);
+server.listen(PORT,()=>{
+    console.log(`listening at http://localhost:${PORT} 🚀`)
+})
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
