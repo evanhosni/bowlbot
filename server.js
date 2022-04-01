@@ -1,7 +1,9 @@
 const Discord = require("discord.js");
 require("dotenv").config();
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
-require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");
+// require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");
+var ping = require('periodic-ping').ping;
+ping({appName: "https://bowlbot-server.herokuapp.com"});// will take the default 'frequency' variable of 300000 (every 5 minutes)
 
 //NEW SERVER STUFF (EXPRESS)
 const express = require('express');
