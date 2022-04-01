@@ -19,7 +19,7 @@ app.listen(PORT,()=>{
 })
 
 const options = {cors: {origin: "*"}}
-const io = require("socket.io")(server, options);
+const io = require("socket.io")(app, options);
 io.on("connection", (socket) => {
     console.log("we're one, brother")
     Bowl.count().then(bowl => {
