@@ -1,9 +1,6 @@
 const Discord = require("discord.js");
 require("dotenv").config();
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
-// require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");
-var ping = require('periodic-ping').ping;
-ping({appName: "https://bowlbot-server.herokuapp.com"});// will take the default 'frequency' variable of 300000 (every 5 minutes)
 
 //NEW SERVER STUFF (EXPRESS)
 const express = require('express');
@@ -19,6 +16,7 @@ res.sendFile(path.join(__dirname, '/index.html'))
 app.listen(PORT,()=>{
     console.log(`listening at http://localhost:${PORT} 🚀`)
 })
+//https://console.cron-job.org/jobs (for ping scheduling maintenance)
 
 const server = require("http").createServer()
 const options = {cors: {origin: "*"}}
@@ -29,7 +27,6 @@ io.on("connection", (socket) => {
         io.emit('bowlcount', bowl)
     })
 });
-// server.listen(process.env.PORT || 3000);
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
@@ -57,7 +54,7 @@ client.on("message", message => {
     var voiceChannel = message.member.voice.channel;
     if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
         var time = message.content.split(" ")[1]
-        if (time < 0.1) {//TODO change to 1
+        if (time < 1) {//TODO change to 1
             message.channel.send({content:"woah slow down buddy"})
             return
         }
