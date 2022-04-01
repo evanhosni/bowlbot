@@ -16,7 +16,7 @@ res.sendFile(path.join(__dirname, '/index.html'))
 app.listen(PORT,()=>{
     console.log(`listening at http://localhost:${PORT} 🚀`)
 })
-//https://console.cron-job.org/jobs (for ping scheduling maintenance)
+// https://console.cron-job.org/jobs (for ping scheduling maintenance)
 
 const server = require("http").createServer()
 const options = {cors: {origin: "*"}}
@@ -27,6 +27,7 @@ io.on("connection", (socket) => {
         io.emit('bowlcount', bowl)
     })
 });
+server.listen(PORT);
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
