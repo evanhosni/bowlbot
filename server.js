@@ -12,6 +12,9 @@ io.on("connection", (socket) => {
 });
 server.listen(process.env.PORT || 3000);
 
+server.get('/', (req,res) => { //TODO, maybe this will work
+    res.sendFile('./index.html')
+})
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
