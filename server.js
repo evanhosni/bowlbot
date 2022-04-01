@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 require("dotenv").config();
-// const server = require("http").createServer()
+const server = require("http").createServer()
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
 
 //NEW SERVER STUFF (EXPRESS)
@@ -19,7 +19,7 @@ app.listen(PORT,()=>{
 })
 
 const options = {cors: {origin: "*"}}
-const io = require("socket.io")(app, options);
+const io = require("socket.io")(server, options);
 io.on("connection", (socket) => {
     console.log("we're one, brother")
     Bowl.count().then(bowl => {
