@@ -1,6 +1,5 @@
 const Discord = require("discord.js");
 require("dotenv").config();
-const server = require("http").createServer()
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
 require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");
 
@@ -13,12 +12,13 @@ const PORT = process.env.PORT || 3000
 app.use(express.urlencoded({extended:true}))//
 app.use(express.json())//
 app.get('/', (req, res) =>
-  res.sendFile(path.join(__dirname, '/index.html'))
+res.sendFile(path.join(__dirname, '/index.html'))
 );
 app.listen(PORT,()=>{
     console.log(`listening at http://localhost:${PORT} 🚀`)
 })
 
+const server = require("http").createServer()
 const options = {cors: {origin: "*"}}
 const io = require("socket.io")(server, options);
 io.on("connection", (socket) => {
