@@ -1,4 +1,3 @@
-// require('heroku-self-ping').default("https://evanhosni.github.io/bowlbot");//TODO yeet
 const Discord = require("discord.js");
 require("dotenv").config();
 const server = require("http").createServer()
@@ -12,11 +11,7 @@ io.on("connection", (socket) => {
     })
 });
 server.listen(process.env.PORT || 3000);
-// require('heroku-self-ping').default("https://evanhosni.github.io/bowlbot");//TODO yeet
-// require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com/");
-// console.log("server listenin on http://localhost:3000")//TODO yeet this
-// var ping = require('periodic-ping').ping;
-// ping({appName: "https://bowlbot-server.herokuapp.com/"});
+
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
@@ -76,7 +71,7 @@ client.on("message", message => {
             }, time * 1000 * 60))
         }).catch(err => console.log(err));
     } 
-    if (message.content == prefix + " " + "stop") {
+    if (message.content == prefix + " " + "stop") {//TODO glitches/crashes if nobody in call
         message.channel.send({content:"okay :3"})
         clearInterval(sesh.get(message.guild.id))
         sesh.delete(message.guild.id)//more safetys to ensure loop doesn't continue/map deleted past keef leaving
