@@ -10,8 +10,10 @@ io.on("connection", (socket) => {
     Bowl.count().then(bowl => {
         io.emit('bowlcount', bowl)
     })
-    setInterval(()=> {
-        io.emit('bowlcount', bowl)
+    setInterval(()=> {//TODO yeet if dont work
+        Bowl.count().then(bowl => {
+            io.emit('bowlcount', bowl)
+        })
     },10 * 1000 * 60)
 });
 server.listen(process.env.PORT || 3000);
@@ -22,8 +24,10 @@ require('heroku-self-ping').default("https://bowlbot-server.herokuapp.com");//TO
 // ping({appName: "https://bowlbot-server.herokuapp.com/"});
 
 
-setInterval(()=> {
-    io.emit('bowlcount', bowl)
+setInterval(()=> {//TODO yeet if dont work
+    Bowl.count().then(bowl => {
+        io.emit('bowlcount', bowl)
+    })
 },10 * 1000 * 60)
 
 const sequelize = require('./db/connection')
