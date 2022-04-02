@@ -67,10 +67,12 @@ client.on("message", message => {
         message.channel.send({content:`schmoke a bowl every ${time} min`})
 
         clearInterval(sesh.get(message.guild.id))//more safetys to ensure loop doesn't continue past keef leaving
+        var bytes = ['./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl1.mp3']//TODO cleaner
+        var byte = bytes[Math.floor(Math.random)()*bytes.length]
         voiceChannel.join().then(connection =>{
             sesh.set(message.guild.id,setInterval(() => {
                 console.log(sesh.get(message.guild.id))
-                connection.play('./audio/smoke_a_bowl.mp3');
+                connection.play(byte);
                 // ServerStats.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, serverName: message.guild.name}}).then(serv => {//TODO something like this but higher, so the server is accessible in all parts of client.on("message")
                 ServerStats.findByPk(message.guild.id).then(serv => {//TODO if server not in db, create it
                     serv.createBowl().then(() => {
