@@ -68,7 +68,7 @@ client.on("message", message => {
 
         clearInterval(sesh.get(message.guild.id))//more safetys to ensure loop doesn't continue past keef leaving
         var bytes = ['./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl0.mp3','./audio/smoke_a_bowl1.mp3']//TODO cleaner
-        var byte = bytes[Math.floor(Math.random)()*bytes.length]
+        var byte = bytes[Math.floor(Math.random()*bytes.length)]
         voiceChannel.join().then(connection =>{
             sesh.set(message.guild.id,setInterval(() => {
                 console.log(sesh.get(message.guild.id))
