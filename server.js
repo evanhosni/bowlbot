@@ -108,8 +108,8 @@ client.on("message", message => {
             message.channel.send({content:bowl + " bowls in the past hour"})
         })
     }
-    if (message.content == prefix + " " + "b") {
-        console.log(sesh)
+    if (message.content == prefix + " " + "server list") {
+        message.channel.send({content:client.guilds.cache.map(g => g.name).join('\n')})
     }
 })
 
