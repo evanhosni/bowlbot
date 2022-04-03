@@ -50,7 +50,7 @@ client.on("guildCreate", guild => {
 });
 
 client.on("message", message => {
-    var voiceChannel = message.member.voice.channel;
+    var voiceChannel = message.member.voice.channel;//Cannot read properties of null (reading 'voice')
     if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
         var time = message.content.split(" ")[1]
         if (time < 1) {
