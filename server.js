@@ -108,7 +108,7 @@ client.on("message", message => {
             message.channel.send({content:bowl + " bowls in the past hour"})
         })
     }
-    if (message.content == prefix + " " + "server list") {
+    if (message.content == prefix + " " + "server list") {//TODO only for testing. remove eventually
         message.channel.send({content:client.guilds.cache.map(g => g.name).join('\n')})
     }
 })
