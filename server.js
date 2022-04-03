@@ -53,7 +53,7 @@ client.on("message", message => {
     var voiceChannel = message.member.voice.channel;
     if (message.content.match(new RegExp(prefix + " " + "[0-9]")) && message.member.voice.channel) {//TODO regex for unknown amount of spaces?
         var time = message.content.split(" ")[1]
-        if (time < 1) {//TODO change to 1
+        if (time < 1) {
             message.channel.send({content:"woah slow down buddy"})
             return
         }
