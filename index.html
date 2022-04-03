@@ -9,19 +9,29 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./counter.css">
 </head>
 <body>
     <nav>
-        <p>bowlbot.gg</p>
-        <a id="add-btn">add me to your discord server!</a>
+        <p>bowlbot.<span id="suffix">app</span></p>
+        <a id="add-btn" href="https://discord.com/oauth2/authorize?client_id=956758656370769920&permissions=3147776&scope=bot">toke up with me!</a>
     </nav>
     <main>
         <p>sometimes, you need a bud.</p>
-        <img id="keef" src="./images/keef.png" alt="keef">
         <h1>hi, i'm keef.</h1>
-        <p><span id="bowls">...</span> bowls have been schmoked worldwide</p>
+        <img id="keef" src="./images/keef.png" alt="keef">
+        <div id="container">
+            <div class="counter"></div>
+        </div>
+        <p>bowls have been schmoked worldwide.</p>
     </main>
+    <footer>
+        <a href="https://github.com/evanhosni/bowlbot">github</a>
+        <p>DISCLAIMER:<br>bowlbot is for cannabis patients and adults only.</p>
+        <a href="mailto:evankhaledhosni@gmail.com?subject=bowlbot" target="blank">contact</a>
+    </footer>
 </body>
 <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+<script src="./counter.js"></script>
 <script src="./client.js"></script>
 </html>

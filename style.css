@@ -1,23 +1,28 @@
 :root {
-    --darkgreen: rgb(0, 29, 0);
-    --lightgreen: rgb(16, 115, 16);
+    --darkgreen: rgb(3, 18, 3);
+    --lightgreen: rgb(4, 48, 4);
     --yellow: rgb(236, 226, 87);
+    --yellowwhite: rgb(255, 249, 165);
     --brown: rgb(78, 52, 33);
     --darkbrown: rgb(58, 38, 24);
+    --darkdarkbrown: rgb(17, 12, 8);
 }
 
 * {
-    font-family: 'Nanum Pen Script', cursive;
     margin: 0;
 }
 
 body {
-    background-color: var(--darkgreen);
-    color: var(--yellow);
+    font-family: 'Nanum Pen Script', cursive;
+    background: linear-gradient(to bottom, var(--darkgreen) 0%, var(--lightgreen) 50%, var(--darkgreen) 100%);
+    background-attachment: fixed;
 }
 
 nav {
-    background-color: var(--brown);
+    /* background-color: var(--brown); */
+    background-image: url("./images/papers.png");
+    /* box-shadow: inset -15em -10px 50px rgba(55, 36, 22, 0.3); */
+    box-shadow: 0 0 20px black;
     font-weight: bolder;
     position: fixed;
     width: 100%;
@@ -29,42 +34,98 @@ nav {
 
 nav p {
     color: var(--darkbrown);
-    margin-left: 15px;
+    margin-left: 30px;
+    font-size: xx-large;
+    user-select: none;
+}
+
+#suffix {
+    font-size: large;
 }
 
 nav a {
-    margin-right: 15px;
+    margin-right: 30px;
     /* height: 50%; */
     font-size: xx-large;
-    color: var(--darkgreen);
+    color: var(--lightgreen);
+    text-decoration: none;
+    /* background-color: transparent; */
     /* background-color: var(--lightgreen); */
+    /* animation: smoke 6s infinite; */
+    transition: text-shadow 1s, color 1s;
 }
 
 nav a:hover {
-    color: var(--lightgreen);
+    color: rgb(174, 32, 0);
+    cursor: pointer;
+    text-shadow: 0 0 20px whitesmoke;
 }
 
 main {
     padding-top: 100px;
+    display: flex;
+    flex-direction: column;
+    color: var(--yellowwhite);
 }
 
-p {
-    font-size: 2vw;
+main p {
+    text-shadow: -2px 3px 5px black;
+    font-size: 2.5em;
+    text-align: center;
+}
+
+main h1 {
+    text-shadow: -2px 3px 5px black;
+    font-size: 4em;
     text-align: center;
 }
 
 #keef {
-    width: 10vw;
-    height: 10vw;
-    /* background-color: var(--brown);
-    box-shadow: 0 0 5vw var(--brown); */
+    width: 15em;
+    height: 15em;
     margin: auto;
     display: block;
-    /* text-align: center; */
     border-radius: 50%;
+    transform: rotate(-12deg);
+    animation: shake 2s infinite linear;
+    padding: 10px 0 20px;
 }
 
-h1 {
-    font-size: 3vw;
+#container {
+    margin: 0 auto 10px;
+}
+
+#about {
+    color: var(--yellowwhite);
+    text-shadow: -2px 3px 5px black;
+    font-size: 1.5em;
+}
+
+footer {
+    position: fixed;
+    width: 100%;
+    height: 80px;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     text-align: center;
+}
+
+footer a {
+    margin: 0 30px;
+    font-size: xx-large;
+    text-decoration: none;
+    text-shadow: -1px 2px 3px rgba(0,0,0,0.8);
+    color: rgb(68, 0, 113);
+    width: 110px
+}
+
+footer p {
+    color: rgba(0,0,0,0.8);
+    font-size: 1.2em;
+}
+
+@keyframes shake {
+    50% {transform: rotate(18deg)}
 }
