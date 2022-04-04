@@ -35,7 +35,6 @@ const {Bowl} = require('./db/models')
 
 const token = process.env.token;
 let sesh = new Map()
-var prefix = "keef"
 
 const client = new Discord.Client();
 
@@ -154,7 +153,7 @@ client.on("message", message => {
 client.login(token);
 
 sequelize.sync({
-// force: true
+force: true
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {
