@@ -54,14 +54,14 @@ client.on("guildCreate", guild => {
 client.on("message", message => {
     
     if (message.channel.type == "dm") {
-        console.log('dm')
+        // console.log(message)
         return;
     }
 
     Server.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, name: message.guild.name}}).then(serv => { //returns an array. find just one?
         var serverName = serv[0].dataValues.name
         var serverId = serv[0].dataValues.id
-        var prefix = serv[0].dataValues.prefix.toLowerCase()//when storing prefix, make sure to trim.
+        var prefix = serv[0].dataValues.prefix.toLowerCase()//when storing prefix, make sure to trim. //TODO: allow @tags?
         var userVoiceChannel = message.member.voice.channel
         var msg = message.content.toLowerCase().trim()//NOTE: message changes to remove prefix down below
         if (!msg.startsWith(prefix + " ")) {
@@ -75,7 +75,7 @@ client.on("message", message => {
         }
 
         if (userVoiceChannel && !isNaN(msg)) {
-            if (msg < 0.1) {
+            if (msg < 1) {
                 message.channel.send({content:"woah slow down buddy"})
                 return
             }
@@ -112,16 +112,18 @@ client.on("message", message => {
 
         if (msg === "stop") {//TODO glitches/crashes if nobody in call
             var botVoiceChannel = message.guild.me.voice.channel
-            message.channel.send({content:"okay :3"})
-            clearInterval(sesh.get(serverId))
-            sesh.delete(serverId)
-            botVoiceChannel.leave()
+            if (botVoiceChannel) {
+                message.channel.send({content:"okay :3"})
+                clearInterval(sesh.get(serverId))
+                sesh.delete(serverId)
+                botVoiceChannel.leave()
+            } else {
+                message.channel.send({content:"i wasn't doing anything!"})
+            }
         }
         //now(optional)
         //freestyle(optional) has same requirements as above
         //keef * returns 'huh?'
-
-        //keef leaves channel if nobody in it (also makes sure interval gets cleared) - or any 'schmoke a bowl' that happens with nobody else in call does not count as a bowl
 
         if (msg === "stats") {//TODO: rework this so it looks better. maybe a graph
             Bowl.count({where: {serverId: serverId}}).then(bowl => { //TODO better formatting?
