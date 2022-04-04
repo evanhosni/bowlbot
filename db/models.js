@@ -1,13 +1,13 @@
 const Sequelize = require("sequelize")
 const sequelize = require('./connection')
 
-const ServerStats = sequelize.define("serverstats", {
+const Server = sequelize.define("server", {
     id: {
         type: Sequelize.BIGINT,
         allowNull: false,
         primaryKey: true
     },
-    serverName: {
+    name: {
         type: Sequelize.STRING,
         allowNull: false
     },
@@ -24,6 +24,6 @@ const ServerStats = sequelize.define("serverstats", {
 
 const Bowl = sequelize.define("bowl", {})
 
-ServerStats.hasMany(Bowl)
+Server.hasMany(Bowl)
 
-module.exports = {ServerStats, Bowl}
+module.exports = {Server, Bowl}
