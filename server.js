@@ -123,6 +123,7 @@ client.on("message", message => {
         //now(optional)
         //freestyle(optional) has same requirements as above
         //keef * returns 'huh?'
+        //keef when (tells you when next will be)
 
         if (msg === "stats") {//TODO: rework this so it looks better. maybe a graph
             Bowl.count({where: {serverId: serverId}}).then(bowl => { //TODO better formatting?
@@ -153,7 +154,7 @@ client.on("message", message => {
 client.login(token);
 
 sequelize.sync({
-force: true
+// force: true
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {
