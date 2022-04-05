@@ -44,36 +44,45 @@ client.on("ready", () => {
 });
 
 client.on("guildCreate", guild => {
-    // guild.owner.send('Thanks! You can use +help to discover commands.')
+    //TODO: welcome message
     Server.create({id: guild.id, name: guild.name }).then(res=>{console.log(res)})
 });
 
-//on someone leaving voice channel (to check if keef is alone)
-
 client.on("message", message => {
+
+    var prefix = "keef"
+    var msg = message.content.toLowerCase().trim()
     
-    if (message.channel.type == "dm") {
+    if (message.channel.type == "dm") { //ignores direct messages
         // console.log(message)
+        message.channel.send({content:"sup baby"})
         return;
     }
 
+    if (!msg.startsWith(prefix + " ")) { //ignores messages that don't start with prefix
+        return
+    } else {
+        msg = message.content.toLowerCase().replace(prefix, "").trim()
+    }
+
     Server.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, name: message.guild.name}}).then(serv => { //returns an array. find just one?
+
         var serverName = serv[0].dataValues.name
         var serverId = serv[0].dataValues.id
-        var prefix = serv[0].dataValues.prefix.toLowerCase()//when storing prefix, make sure to trim. //TODO: allow @tags?
         var userVoiceChannel = message.member.voice.channel
-        var msg = message.content.toLowerCase().trim()//NOTE: message changes to remove prefix down below
-        if (!msg.startsWith(prefix + " ")) {
-            return
-        } else {
-            msg = message.content.toLowerCase().replace(prefix, "").trim()
-        }
-        
-        if (msg === "help") {//TODO: help command
+
+        if (msg === "help" || msg === "commands") {//TODO: help command
             console.log('help')
+            return
         }
 
-        if (userVoiceChannel && !isNaN(msg)) {
+        if (!isNaN(msg)) {
+
+            if (!userVoiceChannel) {
+                message.channel.send({content:"it's no sesh without u, " + message.author.toString() + " <3"}) //TODO: ask the boys. should i tag users or just say "buddy"?
+                return
+            }
+
             if (msg < 1) {
                 message.channel.send({content:"woah slow down buddy"})
                 return
@@ -107,9 +116,17 @@ client.on("message", message => {
                     }
                 }, msg * 1000 * 60))
             }).catch(err => console.log(err));
+            return
         }
 
-        if (msg === "stop") {//TODO glitches/crashes if nobody in call
+        //TODO: "keef when" - tells users time remaining until next rip
+        //TODO: "keef freestyle" - random intervals between 0 and 10 min (maybe users can set range) (maybe reggae playing quietly in background)
+        //TODO: reggae music upon entry? Optional feature that can be turned on/off per server settings
+
+        //TODO: "keef enable/disable ranking" to toggle ranked boolean
+        //TODO: when servers kick keef, set their server to ranked = false
+
+        if (msg === "stop") { //ends sesh
             var botVoiceChannel = message.guild.me.voice.channel
             if (botVoiceChannel) {
                 message.channel.send({content:"okay :3"})
@@ -119,14 +136,11 @@ client.on("message", message => {
             } else {
                 message.channel.send({content:"i wasn't doing anything!"})
             }
+            return
         }
-        //now(optional)
-        //freestyle(optional) has same requirements as above
-        //keef * returns 'huh?'
-        //keef when (tells you when next will be)
 
         if (msg === "stats") {//TODO: rework this so it looks better. maybe a graph
-            Bowl.count({where: {serverId: serverId}}).then(bowl => { //TODO better formatting?
+            Bowl.count({where: {serverId: serverId}}).then(bowl => {
                 message.channel.send({content:"you've schmoked a total of " + bowl + " bowls:"})
             })
             Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}}).then(bowl => {
@@ -144,17 +158,18 @@ client.on("message", message => {
             Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}}).then(bowl => {//TODO why does the last one always take forever? its only because this is the 6th. it can do 5 without issue
                 message.channel.send({content:bowl + " bowls in the past hour"})
             })
+            return
         }
-        if (message.content == prefix + " " + "server list") {//TODO only for testing. remove eventually
-            message.channel.send({content:client.guilds.cache.map(g => g.name).join('\n')})
-        }
+
+        message.channel.send({content:"huh?"}) //all unknown commands return "huh?"
+
     })
 })
 
 client.login(token);
 
 sequelize.sync({
-// force: true
+force: true
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {

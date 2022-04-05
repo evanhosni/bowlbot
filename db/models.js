@@ -11,14 +11,9 @@ const Server = sequelize.define("server", {
         type: Sequelize.STRING,
         allowNull: false
     },
-    prefix: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: 'keef'
-    },
-    public: {
+    ranked: {
         type: Sequelize.BOOLEAN,
-        defaultValue: true
+        defaultValue: false
     }
 })
 

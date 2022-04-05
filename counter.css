@@ -14,7 +14,7 @@
     *zoom: 1;
     *display: inline;
     position: relative;
-    border: 5px solid var(--darkdarkbrown);
+    border: 5px solid var(--darkbrown);
     background-color: var(--yellowwhite);
     box-shadow: 0 0 15px black;
   }
@@ -101,7 +101,7 @@
     -webkit-border-radius: 0.1em;
     border-radius: 0.1em;
     padding: 0 0.03em;
-    color: var(--darkbrown);
+    color: var(--brown);
   }
   .counter.counter-auto-theme .counter-digit .counter-digit-inner, .counter.counter-theme-plaza .counter-digit .counter-digit-inner {
     left: 0.03em;
