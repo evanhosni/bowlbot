@@ -7,15 +7,15 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000
-// app.use(express.urlencoded({extended:true}))//
-// app.use(express.json())//
+// app.use(express.urlencoded({extended:true})) //TODO: what does this do?
+// app.use(express.json()) //TODO: what does this do?
 app.get('/', (req, res) =>
 res.sendFile(path.join(__dirname, '/index.html'))
 );
 // https://console.cron-job.org/jobs (for ping scheduling maintenance)
 
 const server = require("http").createServer(app)
-const options = {cors: {origin: "*"}}
+const options = {cors: {origin: "*"}} //TODO: only allow from specific url or set methods to GET only
 const io = require("socket.io")(server, options);
 io.on("connection", (socket) => {
     console.log("we're one, brother")
@@ -169,7 +169,7 @@ client.on("message", message => {
 client.login(token);
 
 sequelize.sync({
-// force: true
+force: true
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {
