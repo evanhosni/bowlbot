@@ -1,4 +1,4 @@
-const socket = io("https://bowlbot-server.herokuapp.com")
+const socket = io(process.env.SERVER_URL)
 // const socket = io("http://localhost:3000/")
 var bowls = document.querySelector(".counter")
 
