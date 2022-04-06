@@ -71,7 +71,7 @@ client.on("message", message => {
         var serverId = serv[0].dataValues.id
         var userVoiceChannel = message.member.voice.channel
 
-        if (msg === "help" || msg === "commands") {//TODO: help command
+        if (msg === "help" || msg === "commands") { //TODO: help command
             console.log('help')
             return
         }
@@ -126,6 +126,8 @@ client.on("message", message => {
         //TODO: "keef enable/disable ranking" to toggle ranked boolean
         //TODO: when servers kick keef, set their server to ranked = false
 
+        //TODO: monthly awards (like The Platinum Lung). "keef awards" shows all your awards. permanent on leaderboards history
+
         if (msg === "stop") { //ends sesh
             var botVoiceChannel = message.guild.me.voice.channel
             if (botVoiceChannel) {
@@ -161,7 +163,7 @@ client.on("message", message => {
             return
         }
 
-        message.channel.send({content:"huh?"}) //all unknown commands return "huh?"
+        message.channel.send({content:"huh?"}) //all unknown commands return "huh?" //TODO: array ["huh?","what?","hmm?"]
 
     })
 })
@@ -169,7 +171,7 @@ client.on("message", message => {
 client.login(token);
 
 sequelize.sync({
-// force: true
+force: true
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {

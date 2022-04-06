@@ -11,7 +11,7 @@ const Server = sequelize.define("server", {
         type: Sequelize.STRING,
         allowNull: false
     },
-    ranked: {
+    rank: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
     }
