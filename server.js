@@ -55,7 +55,7 @@ client.on("message", message => {
     
     if (message.channel.type == "dm") { //ignores direct messages
         // console.log(message)
-        // message.channel.send({content:"sup baby"})
+        // message.channel.send({content:"sup baby"}) //TODO: spams pierce for some reason
         return;
     }
 
