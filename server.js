@@ -128,7 +128,7 @@ client.on("message", message => {
 
         //TODO: monthly awards (like The Platinum Lung). "keef awards" shows all your awards. permanent on leaderboards history
 
-        if (msg === "stop") { //ends sesh
+        if (msg === "stop") { //ends sesh //TODO: do you want to be able to stop keef if other people are in the call but you are not?
             var botVoiceChannel = message.guild.me.voice.channel
             if (botVoiceChannel) {
                 message.channel.send({content:"okay :3"})
