@@ -16,7 +16,7 @@
     <div id="fade"></div>
     <nav>
         <p>bowlbot.<span id="suffix">app</span></p>
-        <a id="add-btn" href="https://discord.com/oauth2/authorize?client_id=956758656370769920&permissions=3147776&scope=bot">toke up with me!</a>
+        <a href="https://discord.com/oauth2/authorize?client_id=956758656370769920&permissions=3147776&scope=bot">toke up with me!</a>
     </nav>
     <main>
         <div id="sometimes"><p>sometimes, you need a bud...</p></div>
@@ -35,13 +35,12 @@
         </div>
     </main>
     <footer>
-        <a onclick="leaderboards('week')">leaderboards</a>
+        <a id="btn-leaderboards">leaderboards</a>
         <p>DISCLAIMER:<br>bowlbot is for cannabis patients and adults only.</p>
-        <a onclick="feedback()">feedback</a>
+        <a id="btn-feedback">feedback</a>
     </footer>
     <div id="modal">
         <div id="leaderboards">
-            <!-- <div id="x">X</div> -->
             <div id="tabs">
                 <a id="tab-total" onclick="leaderboards('total')">total</a>
                 <a id="tab-year" onclick="leaderboards('year')">year</a>
@@ -51,16 +50,25 @@
                 <a id="tab-hour" onclick="leaderboards('hour')">hour</a>
             </div>
             <div id="tables">
-                <table id="list-total"></table>
-                <table id="list-year"></table>
-                <table id="list-month"></table>
-                <table id="list-week"></table>
-                <table id="list-day"></table>
-                <table id="list-hour"></table>
+                <table id="table-total"></table>
+                <table id="table-year"></table>
+                <table id="table-month"></table>
+                <table id="table-week"></table>
+                <table id="table-day"></table>
+                <table id="table-hour"></table>
             </div>
+            <div class="close">(close)</div>
             <!-- <p>Use command "keef enable rank" to include your server on the leaderboards!</p> -->
         </div>
-        <div id="feedback"></div>
+        <div id="feedback">
+            <!-- <p>I'd love to hear what you think!</p> -->
+            <p>(coming soon)</p>
+            <form action="https://formsubmit.co/evankhaledhosni@gmail.com" method="POST">
+                <input type="hidden" name="_subject" value="bowlbot">
+                <button type="submit">yeet</button>
+            </form>
+            <div class="close">(close)</div>
+        </div>
     </div>
 </body>
 <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script> <!--TODO: alternative to cdn?-->

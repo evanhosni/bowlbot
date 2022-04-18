@@ -95,28 +95,71 @@ socket.on("leaderboards", (data) => {
     }
 })
 
+var leaderboardsOpen = false
+var feedbackOpen = false
+
 function leaderboards(range) {
-    socket.emit('leaderboards')//TODO: not really necessary
+    // socket.emit('leaderboards')//TODO: not really necessary
+    feedbackOpen = false
+    leaderboardsOpen = true;
     modal.style.display = 'flex'
+    document.querySelector('#feedback').style.display = 'none'
+    document.querySelector('#leaderboards').style.display = 'flex'
+    document.querySelector('body').style.overflowY = 'hidden'
+    document.querySelector('main').style.visibility = 'hidden'
     for (let i = 0; i < listArray.length; i++) {
         listArray[i].style.display = 'none'
     }
-    var tabArray = document.getElementById('tabs').children
+    var tabArray = document.querySelector('#tabs').children
     for (let i = 0; i < tabArray.length; i++) {
         tabArray[i].style.textDecoration = 'none'
     }
-    document.getElementById(`list-${range}`).style.display = 'table'
-    document.getElementById(`tab-${range}`).style.textDecoration = 'underline'
-    document.querySelector('body').style.overflowY = 'hidden'
+    document.querySelector(`#table-${range}`).style.display = 'table'
+    document.querySelector(`#tab-${range}`).style.textDecoration = 'underline'
 }
 
 function feedback() {
-    
+    leaderboardsOpen = false
+    feedbackOpen = true;
+    modal.style.display = 'flex'
+    document.querySelector('#leaderboards').style.display = 'none'
+    document.querySelector('#feedback').style.display = 'flex'
+    document.querySelector('body').style.overflowY = 'hidden'
+    document.querySelector('main').style.visibility = 'hidden'
 }
 
-modal.addEventListener('click',(e)=>{
-    if (e.target.id === "modal") {
-        modal.style.display = 'none'
-        document.querySelector('body').style.overflowY = 'visible'
+document.querySelector('#btn-leaderboards').addEventListener('click',()=>{
+    if (!leaderboardsOpen) {
+        leaderboards('week')
+    } else {
+        closeModal()
     }
 })
+
+document.querySelector('#btn-feedback').addEventListener('click',()=>{
+    if (!feedbackOpen) {
+        feedback()
+    } else {
+        closeModal()
+    }
+})
+
+var closeButtons = document.querySelectorAll('.close')
+for (let i = 0; i < closeButtons.length; i++) {
+    closeButtons[i].addEventListener('click',closeModal)
+}
+
+function closeModal() {
+    modal.style.display = 'none'
+    document.querySelector('body').style.overflowY = 'visible'
+    document.querySelector('main').style.visibility = 'visible'
+    leaderboardsOpen = false
+    feedbackOpen = false
+}
+
+// modal.addEventListener('click',(e)=>{
+//     if (e.target.id === "modal") {
+//         modal.style.display = 'none'
+//         document.querySelector('body').style.overflowY = 'visible'
+//     }
+// })

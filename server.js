@@ -235,12 +235,6 @@ io.on("connection", (socket) => {
                             return {name, bowls}
                         })
 
-                        console.log(totalSorted)
-                        console.log(yearSorted)
-                        console.log(monthSorted)
-                        console.log(weekSorted)
-                        console.log(daySorted)
-                        console.log(hourSorted)
                         socket.emit("leaderboards",[totalSorted,yearSorted,monthSorted,weekSorted,daySorted,hourSorted])
                     }
                 })
