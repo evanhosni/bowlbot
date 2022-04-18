@@ -36,7 +36,7 @@ socket.on("leaderboards", (data) => {
         thBowls.className = 'bowls'
         thRow.append(thRank,thName,thBowls)
         listArray[i].append(thRow)
-        for (let test = 0; test < 5; test++) {//TODO yeet
+        // for (let test = 0; test < 5; test++) {//TODO yeet
 
             
 
@@ -68,7 +68,7 @@ socket.on("leaderboards", (data) => {
             row.append(rank,name,bowls)
             listArray[i].append(row)
         }
-                }// TODO yeet
+                // }// TODO yeet
     }
 
     let servernames = document.querySelectorAll('.name')
