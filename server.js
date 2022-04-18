@@ -86,7 +86,7 @@ client.on("message", message => {
     
     if (message.channel.type == "dm") { //ignores direct messages
         // console.log(message)
-        // message.channel.send({content:"sup baby"}) //TODO: spams pierce for some reason
+        // message.channel.send({content:"sup baby"}) //TODO: spams pierce for some reason. do something else?
         return;
     }
 
@@ -162,6 +162,7 @@ client.on("message", message => {
             return
         }
 
+        //TODO: "keef website" - opens http://bowlbot.app
         //TODO: "keef when" - tells users time remaining until next rip
         //TODO: "keef freestyle" - random intervals between 0 and 10 min (maybe users can set range) (maybe reggae playing quietly in background)
         //TODO: coughing + reggae music upon entry? Optional feature that can be turned on/off per server settings
@@ -191,7 +192,7 @@ client.on("message", message => {
             var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
 
             Promise.all([total,year,month,week,day,hour]).then(data => { //TODO: emojis based on amount of bowls
-                message.channel.send({content:"you've schmoked a total of " + data[0] + " bowls\n----------------------\n" + data[1] + " bowls in the past year\n" + data[2] + " bowls in the past month\n" + data[3] + " bowls in the past week\n" + data[4] + " bowls in the past day\n" + data[5] + " bowls in the past hour\n----------------------\nkeep up the great work!"})
+                message.channel.send({content:"you've schmoked a total of " + data[0] + " bowls\n- - - - - - - - - - - - - - - - - - - - - -\n" + data[1] + " bowls in the past year\n" + data[2] + " bowls in the past month\n" + data[3] + " bowls in the past week\n" + data[4] + " bowls in the past day\n" + data[5] + " bowls in the past hour\n- - - - - - - - - - - - - - - - - - - - - -\nkeep up the great work!"})
             })
             return
         }
@@ -201,7 +202,7 @@ client.on("message", message => {
             console.log(sesh)
         }
 
-        message.channel.send({content:"huh?"}) //all unknown commands return "huh?" //TODO: array ["huh?","what?","hmm?"]
+        message.channel.send({content:"huh?"}) //all unknown commands return "huh?" //TODO: array ["huh?","what?","hmm?"]?
 
     })
 })

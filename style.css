@@ -275,12 +275,12 @@ table {
     background-color: aqua;
 }
 
-tr {
+/* tr { */
     /* border: 3px solid black; */
     /* padding: 3px; */
     /* margin: 5px; */
     /* margin-top: 50px; */
-}
+/* } */
 
 th {
     position: sticky;
