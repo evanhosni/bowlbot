@@ -5,7 +5,7 @@ var modal = document.querySelector('#modal')
 var listArray = document.querySelector('#leaderboards').querySelectorAll('table')
 
 socket.on("bowlcount", (data) => {//TODO separate bowlcount for connection
-    socket.emit("leaderboards")
+    socket.emit("leaderboards")//TODO: delay this from bowlcount, but not from connection
     setTimeout(() => {
         bowls.innerHTML = data
     },3500)

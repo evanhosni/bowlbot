@@ -34,10 +34,45 @@ server.listen(PORT,()=>{
 const client = new Discord.Client();
 const token = process.env.token;
 let sesh = new Map()
+let leaderboardsMap = new Map()
+
+function vibeCheck(data) {
+    Server.findAll().then(servs => {
+    
+        var idArray = []
+        var connectedClients = data
+    
+        for (let i = 0; i < servs.length; i++) {
+    
+            idArray.push(servs[i].id)
+    
+            var total = Bowl.count({where: {serverId: servs[i].id}})
+            var year = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+            var month = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+            var week = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+            var day = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+            var hour = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+    
+            Promise.all([total,year,month,week,day,hour]).then(data => {
+                leaderboardsMap.set(servs[i].name,[data[0],data[1],data[2],data[3],data[4],data[5]])
+            })
+        }
+    
+        for (let i = 0; i < connectedClients.length; i++) {
+            if (!idArray.includes(connectedClients[i])) {
+                //TODO: set connectedClients[i] to ranked = false
+                console.log('yooooooooooooooooooooooooooooooooooooooooooooooooooo', connectedClients[i])
+            }
+        }
+    
+    })
+}
 
 client.on("ready", () => {
     console.log(`ayyooo it's ${client.user.tag}`);
     console.log(client.guilds.cache.map(g => g.name).join('\n'))
+    var connectedClients = client.guilds.cache.map(g => g.id)
+    Promise.all(connectedClients).then(data=>{vibeCheck(data)})
 });
 
 client.on("guildCreate", guild => {
@@ -76,7 +111,7 @@ client.on("message", message => {
         if (!isNaN(msg)) {
 
             if (!userVoiceChannel) {
-                message.channel.send({content:"it's no sesh without u, " + message.author.toString() + " <3"}) //TODO: ask the boys. should i tag users or just say "buddy"?
+                message.channel.send({content:"it's no sesh without u, " + message.author.toString() + " <3"})
                 return
             }
 
@@ -106,7 +141,19 @@ client.on("message", message => {
                         Server.findByPk(serverId).then(serv => {//TODO: better way to hold onto server, as you found it earlier?
                             serv.createBowl().then(() => {
                                 Bowl.count().then(bowl => {
-                                    io.emit('bowlcount', bowl)
+
+                                    var total = Bowl.count({where: {serverId: serverId}})
+                                    var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+                                    var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+                                    var week = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+                                    var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+                                    var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+                    
+                                    Promise.all([total,year,month,week,day,hour]).then(data => {
+                                        leaderboardsMap.set(serv.name,[data[0],data[1],data[2],data[3],data[4],data[5]])
+                                    }).then(()=>{
+                                        io.emit('bowlcount', bowl)
+                                    })
                                 })
                             })
                         })
@@ -119,11 +166,9 @@ client.on("message", message => {
         //TODO: "keef when" - tells users time remaining until next rip
         //TODO: "keef freestyle" - random intervals between 0 and 10 min (maybe users can set range) (maybe reggae playing quietly in background)
         //TODO: coughing + reggae music upon entry? Optional feature that can be turned on/off per server settings
+        //TODO: monthly awards (like The Platinum Lung). "keef awards" shows all your awards. permanent on leaderboards history
 
         //TODO: "keef enable/disable ranking" to toggle ranked boolean
-        //TODO: when servers kick keef, set their server to ranked = false
-
-        //TODO: monthly awards (like The Platinum Lung). "keef awards" shows all your awards. permanent on leaderboards history
 
         if (msg === "stop") { //ends sesh //TODO: do you want to be able to stop keef if other people are in the call but you are not?
             var botVoiceChannel = message.guild.me.voice.channel
@@ -138,7 +183,7 @@ client.on("message", message => {
             return
         }
 
-        if (msg === "stats") {//TODO: rework this so it looks better. maybe a graph
+        if (msg === "stats") { //displays server stats via message //TODO: better formatting? maybe table
             var total = Bowl.count({where: {serverId: serverId}})
             var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
             var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
@@ -146,14 +191,14 @@ client.on("message", message => {
             var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
             var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
 
-            Promise.all([total,year,month,week,day,hour]).then(data => {
-                message.channel.send({content:"you've schmoked a total of " + data[0] + " bowls\n" + data[1] + " bowls in the past year\n" + data[2] + " bowls in the past month\n" + data[3] + " bowls in the past week\n" + data[4] + " bowls in the past day\n" + data[5] + " bowls in the past hour\nkeep up the great work!"})
+            Promise.all([total,year,month,week,day,hour]).then(data => { //TODO: emojis based on amount of bowls
+                message.channel.send({content:"you've schmoked a total of " + data[0] + " bowls\n----------------------\n" + data[1] + " bowls in the past year\n" + data[2] + " bowls in the past month\n" + data[3] + " bowls in the past week\n" + data[4] + " bowls in the past day\n" + data[5] + " bowls in the past hour\n----------------------\nkeep up the great work!"})
             })
             return
         }
 
         if (msg === "server list") {
-            console.log(client.guilds.cache.map(g => g.name).join('\n'))
+            console.log(client.guilds.cache.map(g => [g.name, g.id]))
             console.log(sesh)
         }
 
@@ -174,64 +219,44 @@ io.on("connection", (socket) => {
         io.emit('bowlcount', bowl)
     })
     socket.on('leaderboards', () => {
-        Server.findAll().then(servs => {
-
-            let leaderboardsMap = new Map()
-
-            for (let i = 0; i < servs.length; i++) {
-                var total = Bowl.count({where: {serverId: servs[i].id}})
-                var year = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
-                var month = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
-                var week = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
-                var day = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
-                var hour = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
-
-                Promise.all([total,year,month,week,day,hour]).then(data => {
-                    leaderboardsMap.set(servs[i].name,[data[0],data[1],data[2],data[3],data[4],data[5]])
-                }).then(()=>{
-                    if (i === servs.length - 1) {
-                        var totalSorted = Array.from(leaderboardsMap).sort((a,b) => {
-                            return b[1][0] - a[1][0]
-                        }).map(([name,bowls])=>{
-                            bowls = bowls[0]
-                            return {name, bowls}
-                        })
-                        var yearSorted = Array.from(leaderboardsMap).sort((a,b) => {
-                            return b[1][1] - a[1][1] || b[1][0] - a[1][0]
-                        }).map(([name,bowls])=>{
-                            bowls = bowls[1]
-                            return {name, bowls}
-                        })
-                        var monthSorted = Array.from(leaderboardsMap).sort((a,b) => {
-                            return b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
-                        }).map(([name,bowls])=>{
-                            bowls = bowls[2]
-                            return {name, bowls}
-                        })
-                        var weekSorted = Array.from(leaderboardsMap).sort((a,b) => {
-                            return b[1][3] - a[1][3] || b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
-                        }).map(([name,bowls])=>{
-                            bowls = bowls[3]
-                            return {name, bowls}
-                        })
-                        var daySorted = Array.from(leaderboardsMap).sort((a,b) => {
-                            return b[1][4] - a[1][4] || b[1][3] - a[1][3] || b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
-                        }).map(([name,bowls])=>{
-                            bowls = bowls[4]
-                            return {name, bowls}
-                        })
-                        var hourSorted = Array.from(leaderboardsMap).sort((a,b) => {
-                            return b[1][5] - a[1][5] || b[1][4] - a[1][4] || b[1][3] - a[1][3] || b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
-                        }).map(([name,bowls])=>{
-                            bowls = bowls[5]
-                            return {name, bowls}
-                        })
-
-                        socket.emit("leaderboards",[totalSorted,yearSorted,monthSorted,weekSorted,daySorted,hourSorted])
-                    }
-                })
-            }
+        var totalSorted = Array.from(leaderboardsMap).sort((a,b) => {
+            return b[1][0] - a[1][0]
+        }).map(([name,bowls])=>{
+            bowls = bowls[0]
+            return {name, bowls}
         })
+        var yearSorted = Array.from(leaderboardsMap).sort((a,b) => {
+            return b[1][1] - a[1][1] || b[1][0] - a[1][0]
+        }).map(([name,bowls])=>{
+            bowls = bowls[1]
+            return {name, bowls}
+        })
+        var monthSorted = Array.from(leaderboardsMap).sort((a,b) => {
+            return b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
+        }).map(([name,bowls])=>{
+            bowls = bowls[2]
+            return {name, bowls}
+        })
+        var weekSorted = Array.from(leaderboardsMap).sort((a,b) => {
+            return b[1][3] - a[1][3] || b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
+        }).map(([name,bowls])=>{
+            bowls = bowls[3]
+            return {name, bowls}
+        })
+        var daySorted = Array.from(leaderboardsMap).sort((a,b) => {
+            return b[1][4] - a[1][4] || b[1][3] - a[1][3] || b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
+        }).map(([name,bowls])=>{
+            bowls = bowls[4]
+            return {name, bowls}
+        })
+        var hourSorted = Array.from(leaderboardsMap).sort((a,b) => {
+            return b[1][5] - a[1][5] || b[1][4] - a[1][4] || b[1][3] - a[1][3] || b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
+        }).map(([name,bowls])=>{
+            bowls = bowls[5]
+            return {name, bowls}
+        })
+
+        socket.emit("leaderboards",[totalSorted,yearSorted,monthSorted,weekSorted,daySorted,hourSorted])
     })
 });
 
