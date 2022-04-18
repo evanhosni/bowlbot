@@ -14,29 +14,26 @@ res.sendFile(path.join(__dirname, '/index.html'))
 );
 // https://console.cron-job.org/jobs (for ping scheduling maintenance)
 
-const server = require("http").createServer(app)
-const options = {cors: {origin: "*"}} //TODO: only allow from specific url or set methods to GET only
-const io = require("socket.io")(server, options);
-io.on("connection", (socket) => {
-    console.log("we're one, brother")
-    Bowl.count().then(bowl => {
-        io.emit('bowlcount', bowl)
-    })
-});
-server.listen(PORT,()=>{
-    console.log(`listening at http://localhost:${PORT} 🚀`)
-})
-
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
 const moment = require("moment")
 const {Server} = require('./db/models')
 const {Bowl} = require('./db/models')
 
-const token = process.env.token;
-let sesh = new Map()
+const server = require("http").createServer(app)
+const options = {cors: {origin: "*"}} //TODO: only allow from specific url or set methods to GET only
+const io = require("socket.io")(server, options);
+server.listen(PORT,()=>{
+    console.log(`listening at http://localhost:${PORT} 🚀`)
+})
+
+
+
+//DISCORD STUFF----------------------------------------------------------------------------------------
 
 const client = new Discord.Client();
+const token = process.env.token;
+let sesh = new Map()
 
 client.on("ready", () => {
     console.log(`ayyooo it's ${client.user.tag}`);
@@ -163,6 +160,11 @@ client.on("message", message => {
             return
         }
 
+        if (msg === "server list") {
+            console.log(client.guilds.cache.map(g => g.name).join('\n'))
+            console.log(sesh)
+        }
+
         message.channel.send({content:"huh?"}) //all unknown commands return "huh?" //TODO: array ["huh?","what?","hmm?"]
 
     })
@@ -170,8 +172,86 @@ client.on("message", message => {
 
 client.login(token);
 
+
+
+//SOCKETIO STUFF----------------------------------------------------------------------------------------
+
+io.on("connection", (socket) => {
+    console.log("we're one, brother")
+    Bowl.count().then(bowl => {
+        io.emit('bowlcount', bowl)
+    })
+    socket.on('leaderboards', () => {
+        Server.findAll().then(servs => {
+
+            let leaderboardsMap = new Map()
+
+            for (let i = 0; i < servs.length; i++) {
+                var total = Bowl.count({where: {serverId: servs[i].id}})
+                var year = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+                var month = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+                var week = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+                var day = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+                var hour = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+
+                Promise.all([total,year,month,week,day,hour]).then(data => {
+                    leaderboardsMap.set(servs[i].name,[data[0],data[1],data[2],data[3],data[4],data[5]])
+                }).then(()=>{
+                    if (i === servs.length - 1) {
+                        var totalSorted = Array.from(leaderboardsMap).sort((a,b) => {
+                            return b[1][0] - a[1][0]
+                        }).map(([name,bowls])=>{
+                            bowls = bowls[0]
+                            return {name, bowls}
+                        })
+                        var yearSorted = Array.from(leaderboardsMap).sort((a,b) => {
+                            return b[1][1] - a[1][1] || b[1][0] - a[1][0]
+                        }).map(([name,bowls])=>{
+                            bowls = bowls[1]
+                            return {name, bowls}
+                        })
+                        var monthSorted = Array.from(leaderboardsMap).sort((a,b) => {
+                            return b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
+                        }).map(([name,bowls])=>{
+                            bowls = bowls[2]
+                            return {name, bowls}
+                        })
+                        var weekSorted = Array.from(leaderboardsMap).sort((a,b) => {
+                            return b[1][3] - a[1][3] || b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
+                        }).map(([name,bowls])=>{
+                            bowls = bowls[3]
+                            return {name, bowls}
+                        })
+                        var daySorted = Array.from(leaderboardsMap).sort((a,b) => {
+                            return b[1][4] - a[1][4] || b[1][3] - a[1][3] || b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
+                        }).map(([name,bowls])=>{
+                            bowls = bowls[4]
+                            return {name, bowls}
+                        })
+                        var hourSorted = Array.from(leaderboardsMap).sort((a,b) => {
+                            return b[1][5] - a[1][5] || b[1][4] - a[1][4] || b[1][3] - a[1][3] || b[1][2] - a[1][2] || b[1][1] - a[1][1] || b[1][0] - a[1][0]
+                        }).map(([name,bowls])=>{
+                            bowls = bowls[5]
+                            return {name, bowls}
+                        })
+
+                        console.log(totalSorted)
+                        console.log(yearSorted)
+                        console.log(monthSorted)
+                        console.log(weekSorted)
+                        console.log(daySorted)
+                        console.log(hourSorted)
+                        socket.emit("leaderboards",[totalSorted,yearSorted,monthSorted,weekSorted,daySorted,hourSorted])
+                    }
+                })
+            }
+        })
+    })
+});
+
+
 sequelize.sync({
-// force: true
+// /*force: true*/
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {
