@@ -147,7 +147,7 @@ client.on("message", message => {
             var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
 
             Promise.all([total,year,month,week,day,hour]).then(data => {
-                message.channel.send({content:"you've schmoked a total of " + data[0] + " bowls.\n" + data[1] + " bowls in the past year,\n" + data[2] + " bowls in the past month,\n" + data[3] + " bowls in the past week,\n" + data[4] + " bowls in the past day,\n" + data[5] + " bowls in the past hour.\nKeep up the great work!"})
+                message.channel.send({content:"you've schmoked a total of " + data[0] + " bowls\n" + data[1] + " bowls in the past year\n" + data[2] + " bowls in the past month\n" + data[3] + " bowls in the past week\n" + data[4] + " bowls in the past day\n" + data[5] + " bowls in the past hour\nkeep up the great work!"})
             })
             return
         }
