@@ -211,6 +211,7 @@ footer p {
     height: 100%;
     justify-content: center;
     align-items: center;
+    user-select: none;
     /* background: var(--darkgreen); */
 }
 
@@ -316,12 +317,18 @@ td {
 }
 
 .close {
+    width: 50px;
     font-size: x-large;
     text-align: center;
     user-select: none;
     cursor: pointer;
-    margin-top: auto;
+    margin: auto auto 0;
+    /* margin-top: auto; */
     padding: 20px 5px 10px;
+}
+
+.close:hover {
+    color: var(--orange);
 }
 
 
@@ -361,5 +368,9 @@ td {
 
     .bowls {
         width: 37px;
+    }
+
+    .close {
+        font-size: larger;
     }
 }

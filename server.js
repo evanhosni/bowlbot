@@ -118,7 +118,7 @@ client.on("message", message => {
 
         //TODO: "keef when" - tells users time remaining until next rip
         //TODO: "keef freestyle" - random intervals between 0 and 10 min (maybe users can set range) (maybe reggae playing quietly in background)
-        //TODO: reggae music upon entry? Optional feature that can be turned on/off per server settings
+        //TODO: coughing + reggae music upon entry? Optional feature that can be turned on/off per server settings
 
         //TODO: "keef enable/disable ranking" to toggle ranked boolean
         //TODO: when servers kick keef, set their server to ranked = false
@@ -139,23 +139,17 @@ client.on("message", message => {
         }
 
         if (msg === "stats") {//TODO: rework this so it looks better. maybe a graph
-            Bowl.count({where: {serverId: serverId}}).then(bowl => {
-                message.channel.send({content:"you've schmoked a total of " + bowl + " bowls:"})
-            })
-            Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}}).then(bowl => {
-                message.channel.send({content:bowl + " bowls in the past year"})
-            })
-            Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}}).then(bowl => {
-                message.channel.send({content:bowl + " bowls in the past month"})
-            })
-            Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}}).then(bowl => {
-                message.channel.send({content:bowl + " bowls in the past week"})
-            })
-            Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}}).then(bowl => {
-                message.channel.send({content:bowl + " bowls in the past day"})
-            })
-            Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}}).then(bowl => {//TODO why does the last one always take forever? its only because this is the 6th. it can do 5 without issue
-                message.channel.send({content:bowl + " bowls in the past hour"})
+            var total = Bowl.count({where: {serverId: serverId}})
+            var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+            var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+            var week = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+            var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+            var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+
+            Promise.all([total,year,month,week,day,hour]).then(data => {
+                leaderboardsMap.set(servs[i].name,[data[0],data[1],data[2],data[3],data[4],data[5]])
+            }).then(()=>{
+                message.channel.send({content:"you've schmoked a total of " + total + " bowls.\n" + year + " bowls in the past year,\n" + month + " bowls in the past month,\n" + week + " bowls in the past week,\n" + day + " bowls in the past day,\n" + hour + " bowls in the past hour.\nKeep up the great work!"})
             })
             return
         }

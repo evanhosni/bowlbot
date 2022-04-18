@@ -20,7 +20,6 @@ socket.on("leaderboards", (data) => {
     var day = data[4] || []
     var hour = data[5] || []
     var dataArray = [total,year,month,week,day,hour]
-    console.log(total,year,month,week,day,hour)
 
     for (let i = 0; i < listArray.length; i++) {
         listArray[i].innerHTML = ''
@@ -36,7 +35,7 @@ socket.on("leaderboards", (data) => {
         thBowls.className = 'bowls'
         thRow.append(thRank,thName,thBowls)
         listArray[i].append(thRow)
-        // for (let test = 0; test < 5; test++) {//TODO yeet
+        // for (let test = 0; test < 5; test++) {//TODO yeet (this is for testing leaderboard scrolling)
 
             
 
@@ -68,12 +67,11 @@ socket.on("leaderboards", (data) => {
             row.append(rank,name,bowls)
             listArray[i].append(row)
         }
-                // }// TODO yeet
+                // }// TODO yeet (this is for testing leaderboard scrolling)
     }
 
     let servernames = document.querySelectorAll('.name')
     for (let i = 0; i < servernames.length; i++) {
-        console.log(servernames[i].scrollWidth)
         timeout()
         function timeout(){
             servernames[i].scrollLeft = 0
