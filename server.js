@@ -36,31 +36,30 @@ const token = process.env.token;
 let sesh = new Map()
 let leaderboardsMap = new Map()
 
-function vibeCheck(data) {
-    Server.findAll().then(servs => {
+function vibeCheck(clients) {
+    Server.findAll().then(servers => {
     
         var idArray = []
-        var connectedClients = data
     
-        for (let i = 0; i < servs.length; i++) {
+        for (let i = 0; i < servers.length; i++) {
     
-            idArray.push(servs[i].id)
+            idArray.push(servers[i].id)
     
-            var total = Bowl.count({where: {serverId: servs[i].id}})
-            var year = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
-            var month = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
-            var week = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
-            var day = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
-            var hour = Bowl.count({where: {serverId: servs[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+            var total = Bowl.count({where: {serverId: servers[i].id}})
+            var year = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+            var month = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+            var week = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+            var day = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+            var hour = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
     
             Promise.all([total,year,month,week,day,hour]).then(data => {
-                leaderboardsMap.set(servs[i].name,[data[0],data[1],data[2],data[3],data[4],data[5]])
+                leaderboardsMap.set(servers[i].name,[data[0],data[1],data[2],data[3],data[4],data[5]])
             })
         }
     
-        for (let i = 0; i < connectedClients.length; i++) {
-            if (!idArray.includes(connectedClients[i])) {
-                //TODO: set connectedClients[i] to ranked = false
+        for (let i = 0; i < clients.length; i++) {
+            if (!idArray.includes(clients[i])) {
+                //TODO: set clients[i] to ranked = false
                 console.log('yooooooooooooooooooooooooooooooooooooooooooooooooooo', connectedClients[i])
             }
         }
@@ -71,8 +70,8 @@ function vibeCheck(data) {
 client.on("ready", () => {
     console.log(`ayyooo it's ${client.user.tag}`);
     console.log(client.guilds.cache.map(g => g.name).join('\n'))
-    var connectedClients = client.guilds.cache.map(g => g.id)
-    Promise.all(connectedClients).then(data=>{vibeCheck(data)})
+    var clientIds = client.guilds.cache.map(g => g.id)
+    Promise.all(clientIds).then(data=>{vibeCheck(data)})
 });
 
 client.on("guildCreate", guild => {
