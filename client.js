@@ -1,5 +1,5 @@
-const socket = io("http://localhost:3000/")
-// const socket = io("https://bowlbot-server.herokuapp.com")
+// const socket = io("http://localhost:3000/")
+const socket = io("https://bowlbot-server.herokuapp.com")
 var connectedToServer
 var bowls = document.querySelector(".counter")
 var modal = document.querySelector('#modal')
