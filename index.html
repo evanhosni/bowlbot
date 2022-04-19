@@ -37,10 +37,12 @@
     <footer>
         <a id="btn-leaderboards">leaderboards</a>
         <p>DISCLAIMER:<br>bowlbot is for cannabis patients and adults only.</p>
+        <!-- TODO: add text scroll effect on disclaimer -->
         <a id="btn-feedback">feedback</a>
     </footer>
     <div id="modal">
         <div id="leaderboards">
+            <p class="error">hmm...looks like the server is down. my bad.</p>
             <div id="tabs">
                 <a id="tab-total" onclick="leaderboards('total')">total</a>
                 <a id="tab-year" onclick="leaderboards('year')">year</a>
@@ -61,23 +63,23 @@
             <!-- <p>Use command "keef enable rank" to include your server on the leaderboards!</p> -->
         </div>
         <div id="feedback">
-            <!-- <p>I'd love to hear what you think!</p> -->
-            <p>(coming soon)</p>
-            <!-- <form method="post" name="myemailform" action="send-feedback.php">
-
-                Enter Name:	<input type="text" name="name">
-                
-                Enter Email Address:	<input type="text" name="email">
-                
-                Enter Message:	<textarea name="message"></textarea>
-                
-                <input type="submit" value="Send Form">
-            </form> -->
+            <!-- <p>(coming soon)</p> -->
+            <p class="error">hmm...looks like the server is down. my bad.</p>
+            <form id="feedback-form">
+                <p>let me know what u think!</p>
+                <label for="subject">subject:</label><br>
+                <input type="text" id="subject" name="subject"><br>
+                <label for="body">body:</label><br>
+                <textarea id="body" name="body" rows="8"></textarea><br>
+                <!-- <p>plz include both subject and body thx</p> -->
+                <button type="submit" id="yeet">yeet</button>
+            </form>
             <div class="close">(close)</div>
         </div>
     </div>
 </body>
-<script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script> <!--TODO: alternative to cdn?-->
+<script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="./counter.js"></script>
 <script src="./client.js"></script>
 </html>

@@ -1,11 +1,22 @@
-// const socket = io("http://localhost:3000/")
-const socket = io("https://bowlbot-server.herokuapp.com")
+const socket = io("http://localhost:3000/")
+// const socket = io("https://bowlbot-server.herokuapp.com")
+var connectedToServer
 var bowls = document.querySelector(".counter")
 var modal = document.querySelector('#modal')
 var listArray = document.querySelector('#leaderboards').querySelectorAll('table')
+var form = document.querySelector('#feedback-form')
 
-socket.on("bowlcount", (data) => {//TODO separate bowlcount for connection
-    socket.emit("leaderboards")//TODO: delay this from bowlcount, but not from connection
+socket.on("init", (data) => {
+    connectedToServer = true
+    emailjs.init(data[1]);
+    socket.emit("leaderboards")
+    setTimeout(() => {
+        bowls.innerHTML = data[0]
+    },2500)
+})
+
+socket.on("bowlcount", (data) => {
+    socket.emit("leaderboards")
     setTimeout(() => {
         bowls.innerHTML = data
     },3500)
@@ -13,12 +24,12 @@ socket.on("bowlcount", (data) => {//TODO separate bowlcount for connection
 
 socket.on("leaderboards", (data) => {
     console.log('hello from server')
-    var total = data[0] || []
-    var year = data[1] || []
-    var month = data[2] || []
-    var week = data[3] || []
-    var day = data[4] || []
-    var hour = data[5] || []
+    var total = data[0]
+    var year = data[1]
+    var month = data[2]
+    var week = data[3]
+    var day = data[4]
+    var hour = data[5]
     var dataArray = [total,year,month,week,day,hour]
 
     for (let i = 0; i < listArray.length; i++) {
@@ -45,15 +56,13 @@ socket.on("leaderboards", (data) => {
             var name = document.createElement('td')
             var bowls = document.createElement('td')
             function suffix(num) {
-                var k = num % 10
-                var l = num % 100
-                if (k == 1 && l != 11) {
+                if (num % 10 == 1 && num % 100 != 11) {
                     return "st";
                 }
-                if (k == 2 && l != 12) {
+                if (num % 10 == 2 && num % 100 != 12) {
                     return "nd";
                 }
-                if (k == 3 && l != 13) {
+                if (num % 10 == 3 && num % 100 != 13) {
                     return "rd";
                 }
                 return "th";
@@ -95,9 +104,9 @@ socket.on("leaderboards", (data) => {
 
 var leaderboardsOpen = false
 var feedbackOpen = false
+var errors = document.querySelectorAll('.error')
 
 function leaderboards(range) {
-    // socket.emit('leaderboards')//TODO: not really necessary
     feedbackOpen = false
     leaderboardsOpen = true;
     modal.style.display = 'flex'
@@ -112,8 +121,22 @@ function leaderboards(range) {
     for (let i = 0; i < tabArray.length; i++) {
         tabArray[i].style.textDecoration = 'none'
     }
-    document.querySelector(`#table-${range}`).style.display = 'table'
     document.querySelector(`#tab-${range}`).style.textDecoration = 'underline'
+
+    if (!connectedToServer) {
+        document.querySelector('#tabs').style.display = 'none'
+        document.querySelector('#tables').style.display = 'none'
+        for (let i = 0; i < errors.length; i++) {
+            errors[i].style.display = 'block'
+        }
+    } else {
+        document.querySelector('#tabs').style.display = 'flex'
+        document.querySelector('#tables').style.display = 'block'
+        document.querySelector(`#table-${range}`).style.display = 'table'
+        for (let i = 0; i < errors.length; i++) {
+            errors[i].style.display = 'none'
+        }
+    }
 }
 
 function feedback() {
@@ -124,6 +147,18 @@ function feedback() {
     document.querySelector('#feedback').style.display = 'flex'
     document.querySelector('body').style.overflowY = 'hidden'
     document.querySelector('main').style.visibility = 'hidden'
+    
+    if (!connectedToServer) {
+        form.style.display = 'none'
+        for (let i = 0; i < errors.length; i++) {
+            errors[i].style.display = 'block'
+        }
+    } else {
+        form.style.display = 'block'
+        for (let i = 0; i < errors.length; i++) {
+            errors[i].style.display = 'none'
+        }
+    }
 }
 
 document.querySelector('#btn-leaderboards').addEventListener('click',()=>{
@@ -155,9 +190,27 @@ function closeModal() {
     feedbackOpen = false
 }
 
-// modal.addEventListener('click',(e)=>{
+// modal.addEventListener('click',(e)=>{ //TODO: do u want click off modal to close it?
 //     if (e.target.id === "modal") {
 //         modal.style.display = 'none'
 //         document.querySelector('body').style.overflowY = 'visible'
 //     }
 // })
+
+document.querySelector('#yeet').addEventListener('click',(e)=>{
+    e.preventDefault();
+    var subject = document.querySelector('#subject').value
+    var body = document.querySelector('#body').value
+    if (!subject || !body) {
+        console.log('plz include both subject and body')//TODO: form formatting + this message
+    } else {
+        emailjs.send("service_w0k9udm","template_v2ut9ou",{
+            subject: subject,
+            body: body,
+        }).then(()=>{
+            form.innerHTML = '<p>feedback submitted. thanks!</p>'
+        }).catch(()=>{
+            form.innerHTML = '<p>whoops! looks like the server is down. my bad</p>'
+        });
+    }
+})
