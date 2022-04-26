@@ -39,8 +39,6 @@ let leaderboardsMap = new Map()
 function vibeCheck(clients) {
     Server.findAll({ where: { rank: true } }).then(servers => {
     
-        var idArray = []
-    
         for (let i = 0; i < servers.length; i++) {
 
             if (!clients.includes(servers[i].id)) {
@@ -48,8 +46,6 @@ function vibeCheck(clients) {
                     serv.update({ rank: false })
                 })
             }
-
-            idArray.push(servers[i].id)
 
             var total = Bowl.count({where: {serverId: servers[i].id}})
             var year = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
@@ -89,11 +85,13 @@ client.on("message", message => {
         return;
     }
 
-    if (!msg.startsWith(prefix + " ")) { //ignores messages that don't start with prefix
+    if (!msg.startsWith(prefix + " ")) { //ignores messages that don't start with prefix + space
         return
     } else {
         msg = message.content.toLowerCase().replace(prefix, "").trim()
     }
+
+    //TODO: command for just 'keef'
 
     Server.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, name: message.guild.name}}).then(serv => { //returns an array. find just one?
 
@@ -268,7 +266,13 @@ client.on("message", message => {
 
         if (msg === "server list") {
             console.log(client.guilds.cache.map(g => [g.name, g.id]))
+            console.log(leaderboardsMap)
             console.log(sesh)
+            Server.findAll({ where: { rank: true } }).then(donky => {
+                for (let i = 0; i < donky.length; i++) {
+                    console.log(donky[i].name + ": " + donky[i].id)
+                }
+            })
         }
 
         message.channel.send({content:"huh?"}) //all unknown commands return "huh?" //TODO: array ["huh?","what?","hmm?"]? TODO: after 3rd huh in a row offer 'keef help'?
@@ -333,6 +337,8 @@ io.on("connection", (socket) => {
 
         Promise.all([totalSorted,yearSorted,monthSorted,weekSorted,daySorted,hourSorted]).then(data => {
             socket.emit("leaderboards",[data[0],data[1],data[2],data[3],data[4],data[5]])
+            console.log("leaderboards")
+            console.log([data[0],data[1],data[2],data[3],data[4],data[5]])
         })
     })
 });
