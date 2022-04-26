@@ -146,7 +146,11 @@ client.on("message", message => {
                                     var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
                     
                                     Promise.all([total,year,month,week,day,hour]).then(data => {
-                                        leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
+                                        if (serv.rank) {
+                                            leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
+                                        } else {
+                                            leaderboardsMap.delete(serverId)
+                                        }
                                     }).then(()=>{
                                         io.emit('bowlcount', bowl)
                                     })
@@ -337,7 +341,6 @@ io.on("connection", (socket) => {
 
         Promise.all([totalSorted,yearSorted,monthSorted,weekSorted,daySorted,hourSorted]).then(data => {
             socket.emit("leaderboards",[data[0],data[1],data[2],data[3],data[4],data[5]])
-            console.log("leaderboards")
             console.log([data[0],data[1],data[2],data[3],data[4],data[5]])
         })
     })
