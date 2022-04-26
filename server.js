@@ -202,8 +202,8 @@ client.on("message", message => {
 
         if (msg === "enable rank" || msg === "enable ranked" || msg === "enable ranking") {
             Server.findByPk(serverId).then(serv => {
-                if (message.member.hasPermission("ADMINISTRATOR")) {
-                    if (!serv.rank) {
+                if (!serv.rank) {
+                    if (message.member.hasPermission("ADMINISTRATOR")) {
                         serv.update({ rank: true })
                         message.channel.send({content:"ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at http://bowlbot.app"})
 
@@ -216,16 +216,11 @@ client.on("message", message => {
                         Promise.all([total,year,month,week,day,hour]).then(data => {
                             leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
                         })
-
                     } else {
-                        message.channel.send({content:"ranking is already enabled."})
+                        message.channel.send({content:"you don't have this permission. get your server admin to do it."})
                     }
                 } else {
-                    if (!serv.rank) {
-                        message.channel.send({content:"you don't have this permission. get your server admin to do it."})
-                    } else {
-                        message.channel.send({content:"ranking is already enabled."})
-                    }
+                    message.channel.send({content:"ranking is already enabled."})
                 }
             })
             return
@@ -233,20 +228,16 @@ client.on("message", message => {
 
         if (msg === "disable rank" || msg === "disable ranked" || msg === "disable ranking") {
             Server.findByPk(serverId).then(serv => {
-                if (message.member.hasPermission("ADMINISTRATOR")) {
-                    if (serv.rank) {
+                if (serv.rank) {
+                    if (message.member.hasPermission("ADMINISTRATOR")) {
                         serv.update({ rank: false })
                         message.channel.send({content:"ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at http://bowlbot.app"})
                         leaderboardsMap.delete(serverId)
                     } else {
-                        message.channel.send({content:"ranking is already disabled."})
+                        message.channel.send({content:"you don't have this permission. get your server admin to do it."})
                     }
                 } else {
-                    if (serv.rank) {
-                        message.channel.send({content:"you don't have this permission. get your server admin to do it."})
-                    } else {
-                        message.channel.send({content:"ranking is already disabled."})
-                    }
+                    message.channel.send({content:"ranking is already disabled."})
                 }
             })
             return
@@ -269,14 +260,12 @@ client.on("message", message => {
         }
 
         if (msg === "server list") {
+            console.log("CONNECTED CLIENTS:")
             console.log(client.guilds.cache.map(g => [g.name, g.id]))
+            console.log("LEADERBOARDS MAP:")
             console.log(leaderboardsMap)
+            console.log("SESH MAP:")
             console.log(sesh)
-            Server.findAll({ where: { rank: true } }).then(donky => {
-                for (let i = 0; i < donky.length; i++) {
-                    console.log(donky[i].name + ": " + donky[i].id)
-                }
-            })
         }
 
         message.channel.send({content:"huh?"}) //all unknown commands return "huh?" //TODO: array ["huh?","what?","hmm?"]? TODO: after 3rd huh in a row offer 'keef help'?
@@ -341,7 +330,6 @@ io.on("connection", (socket) => {
 
         Promise.all([totalSorted,yearSorted,monthSorted,weekSorted,daySorted,hourSorted]).then(data => {
             socket.emit("leaderboards",[data[0],data[1],data[2],data[3],data[4],data[5]])
-            console.log([data[0],data[1],data[2],data[3],data[4],data[5]])
         })
     })
 });
@@ -356,3 +344,4 @@ sequelize.sync({
 })
 
 //TODO: auto set rank to false if server kicks keef
+//TODO: 61 bowls per hour on leaderboard?
