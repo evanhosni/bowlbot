@@ -126,12 +126,14 @@ function leaderboards(range) {
     if (!connectedToServer) {
         document.querySelector('#tabs').style.display = 'none'
         document.querySelector('#tables').style.display = 'none'
+        document.querySelector('#hint').style.display = 'none'
         for (let i = 0; i < errors.length; i++) {
             errors[i].style.display = 'block'
         }
     } else {
         document.querySelector('#tabs').style.display = 'flex'
         document.querySelector('#tables').style.display = 'block'
+        document.querySelector('#hint').style.display = 'block'
         document.querySelector(`#table-${range}`).style.display = 'table'
         for (let i = 0; i < errors.length; i++) {
             errors[i].style.display = 'none'

@@ -320,6 +320,14 @@ td {
     width: 75%;
 }
 
+#hint {
+    font-size: larger;
+    margin: auto;
+    padding-top: 10px;
+    text-align: center;
+    width: 75%;
+}
+
 .close {
     width: 50px;
     font-size: x-large;
@@ -386,4 +394,4 @@ td {
     .close {
         font-size: x-large;
     }
-}
+} /*TODO: max-width & max-height feedback text area...or just make unadjustable*/
