@@ -97,7 +97,8 @@ client.on("message", message => {
 
         if (serv[0].dataValues.name !== message.guild.name) {
             console.log('changing',serv[0].dataValues.name,'to',message.guild.name)
-            serv.update({ name: message.guild.name })
+            serv[0].update({ name: message.guild.name })
+            console.log(serv[0].dataValues.name)
         }
 
         var serverName = serv[0].dataValues.name
