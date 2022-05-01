@@ -95,6 +95,11 @@ client.on("message", message => {
 
     Server.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, name: message.guild.name}}).then(serv => { //returns an array. find just one?
 
+        if (serv[0].dataValues.name !== message.guild.name) {
+            console.log('changing',serv[0].dataValues.name,'to',message.guild.name)
+            serv.update({ name: message.guild.name })
+        }
+
         var serverName = serv[0].dataValues.name
         var serverId = serv[0].dataValues.id
         var userVoiceChannel = message.member.voice.channel
@@ -147,7 +152,7 @@ client.on("message", message => {
                     
                                     Promise.all([total,year,month,week,day,hour]).then(data => {
                                         if (serv.rank) {
-                                            leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
+                                            leaderboardsMap.set(serverId,[serverName,data[0],data[1],data[2],data[3],data[4],data[5]])
                                         } else {
                                             leaderboardsMap.delete(serverId)
                                         }
@@ -214,7 +219,7 @@ client.on("message", message => {
                         var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
                         var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
                         Promise.all([total,year,month,week,day,hour]).then(data => {
-                            leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
+                            leaderboardsMap.set(serverId,[serverName,data[0],data[1],data[2],data[3],data[4],data[5]])
                         })
                     } else {
                         message.channel.send({content:"you don't have this permission. get your server admin to do it."})
@@ -345,3 +350,4 @@ sequelize.sync({
 
 //TODO: auto set rank to false if server kicks keef
 //TODO: 61 bowls per hour on leaderboard?
+//TODO: changing server name does not update on leaderboards
