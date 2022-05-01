@@ -95,15 +95,14 @@ client.on("message", message => {
 
     Server.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, name: message.guild.name}}).then(serv => { //returns an array. find just one?
 
-        var serverName = serv[0].dataValues.name
         var serverId = serv[0].dataValues.id
         var userVoiceChannel = message.member.voice.channel
 
-        if (serverName !== message.guild.name) {
+        if (serv[0].dataValues.name !== message.guild.name) {
             serv[0].update({ name: message.guild.name }).then(serv => {
-                serverName = serv.name
-                console.log(serv.name)
-                // if (leaderboardsMap.get(serv[0]))
+                if (leaderboardsMap.get(serv.id)) {
+                    leaderboardsMap.set(serv.id,[serv.name,...leaderboardsMap.get(serv.id).slice(1)])
+                }
             })
         }
 
@@ -155,7 +154,7 @@ client.on("message", message => {
                     
                                     Promise.all([total,year,month,week,day,hour]).then(data => {
                                         if (serv.rank) {
-                                            leaderboardsMap.set(serverId,[serverName,data[0],data[1],data[2],data[3],data[4],data[5]])
+                                            leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
                                         } else {
                                             leaderboardsMap.delete(serverId)
                                         }
@@ -222,7 +221,7 @@ client.on("message", message => {
                         var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
                         var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
                         Promise.all([total,year,month,week,day,hour]).then(data => {
-                            leaderboardsMap.set(serverId,[serverName,data[0],data[1],data[2],data[3],data[4],data[5]])
+                            leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
                         })
                     } else {
                         message.channel.send({content:"you don't have this permission. get your server admin to do it."})
