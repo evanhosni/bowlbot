@@ -95,15 +95,17 @@ client.on("message", message => {
 
     Server.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, name: message.guild.name}}).then(serv => { //returns an array. find just one?
 
-        if (serv[0].dataValues.name !== message.guild.name) {
-            console.log('changing',serv[0].dataValues.name,'to',message.guild.name)
-            serv[0].update({ name: message.guild.name })
-            console.log(serv[0].dataValues.name)
-        }
-
         var serverName = serv[0].dataValues.name
         var serverId = serv[0].dataValues.id
         var userVoiceChannel = message.member.voice.channel
+
+        if (serverName !== message.guild.name) {
+            serv[0].update({ name: message.guild.name }).then(serv => {
+                serverName = serv.name
+                console.log(serv.name)
+                // if (leaderboardsMap.get(serv[0]))
+            })
+        }
 
         if (msg === "help" || msg === "commands") { //displays list of commands
             message.channel.send({content:"here are my commands:\n`keef help` - opens this command list (how meta)\n`keef [number]` - sets a schmoke interval for [number] minutes\n`keef stop` - stops the interval and kicks me from the call\n`keef stats` - displays your server's schmokin' stats\n`keef website` - displays website url in a fancy clickable link\n`keef enable/disable rank` - enables/disables showing your server's name on website leaderboards (admins only)"})
