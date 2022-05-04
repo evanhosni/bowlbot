@@ -352,4 +352,3 @@ sequelize.sync({
 
 //TODO: auto set rank to false if server kicks keef
 //TODO: 61 bowls per hour on leaderboard?
-//TODO: changing server name does not update on leaderboards
