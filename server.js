@@ -31,8 +31,7 @@ server.listen(PORT,()=>{
 
 //DISCORD STUFF----------------------------------------------------------------------------------------
 
-const client = new Discord.Client();
-const token = process.env.token;
+const bot = new Discord.Client({intents: [ Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES ]}); //TODO: which intents do i need?
 let sesh = new Map()
 let leaderboardsMap = new Map()
 
@@ -61,20 +60,20 @@ function vibeCheck(clients) {
     })
 }
 
-client.on("ready", () => {
-    console.log(`ayyooo it's ${client.user.tag}`);
-    console.log(client.guilds.cache.map(g => g.name).join('\n'))
-    var clientIds = client.guilds.cache.map(g => g.id)
+bot.on("ready", () => {
+    console.log(`ayyooo it's ${bot.user.tag}`);
+    console.log(bot.guilds.cache.map(g => g.name).join('\n'))
+    var clientIds = bot.guilds.cache.map(g => g.id)
     Promise.all(clientIds).then(data=>{vibeCheck(data)})
 });
 
-client.on("guildCreate", guild => {
+bot.on("guildCreate", guild => {
     guild.systemChannel.send("ayyooo it's keef!! :tada: thanks for the invite\ntype `keef help` for the list of commands, or we could jump right into a 10-min schmoke interval with `keef 10`")
     Server.findOrCreate({where: {id: guild.id}, defaults: {id: guild.id, name: guild.name}}).then(res=>{console.log(res)})
 
 });
 
-client.on("message", message => {
+bot.on("message", message => {
 
     var prefix = "keef"
     var msg = message.content.toLowerCase().trim()
@@ -268,7 +267,7 @@ client.on("message", message => {
 
         if (msg === "server list") {
             console.log("CONNECTED CLIENTS:")
-            console.log(client.guilds.cache.map(g => [g.name, g.id]))
+            console.log(bot.guilds.cache.map(g => [g.name, g.id]))
             console.log("LEADERBOARDS MAP:")
             console.log(leaderboardsMap)
             console.log("SESH MAP:")
@@ -280,7 +279,7 @@ client.on("message", message => {
     })
 })
 
-client.login(token);
+bot.login(process.env.token);
 
 
 
