@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const joinVoiceChannel = require("@discordjs/voice")
+const discordVoice = require("@discordjs/voice")
 require("dotenv").config();
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
 
@@ -131,7 +131,7 @@ bot.on("message", message => {
             }
             message.channel.send({content:`schmoke a bowl every ${msg} min`})
             clearInterval(sesh.get(serverId))
-            joinVoiceChannel({channelId: userVoiceChannel, guildId: message.guild.id, adapterCreator: message.guild.voiceAdapterCreator}).then(connection =>{
+            discordVoice.joinVoiceChannel({channelId: userVoiceChannel, guildId: message.guild.id, adapterCreator: message.guild.voiceAdapterCreator}).then(connection =>{
                 var botVoiceChannel = message.guild.me.voice.channel
                 sesh.set(serverId,setInterval(() => {
                     if (botVoiceChannel && userVoiceChannel.members.size <= 1) {//NOTE: just a safety measure. Kicks keef out upon next bowl if nobody else is there
