@@ -96,13 +96,7 @@ bot.on("messageCreate", message => {
     Server.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, name: message.guild.name}}).then(serv => { //returns an array. find just one?
 
         var serverId = serv[0].dataValues.id
-        var userVoiceChannel = message.member.voice.channel
-
-        // const voiceConnection = joinVoiceChannel({
-        //     channelId: message.member.voice.channel.id,
-        //     guildId: message.guild.id,
-        //     adapterCreator: message.guild.voiceAdapterCreator,
-        // });
+        var userVoiceChannel = message.member.voice.channel //TODO: add variable for message.guild too
 
         if (serv[0].dataValues.name !== message.guild.name) {
             serv[0].update({ name: message.guild.name }).then(serv => {
@@ -124,7 +118,7 @@ bot.on("messageCreate", message => {
                 return
             }
 
-            if (msg < 0.01) {
+            if (msg < 1) {
                 message.channel.send({content:"woah slow down buddy"})
                 return
             }
@@ -140,7 +134,7 @@ bot.on("messageCreate", message => {
 
             const player = discordVoice.createAudioPlayer()
             discordVoice.joinVoiceChannel({
-                channelId: message.member.voice.channel.id,
+                channelId: userVoiceChannel.id,
                 guildId: message.guild.id,
                 adapterCreator: message.guild.voiceAdapterCreator,
             }).subscribe(player)
@@ -222,7 +216,7 @@ bot.on("messageCreate", message => {
         if (msg === "enable rank" || msg === "enable ranked" || msg === "enable ranking") {
             Server.findByPk(serverId).then(serv => {
                 if (!serv.rank) {
-                    if (message.member.hasPermission("ADMINISTRATOR")) {
+                    if (message.member.permissions.has('ADMINISTRATOR')) {
                         serv.update({ rank: true })
                         message.channel.send({content:"ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at http://bowlbot.app"})
 
@@ -248,7 +242,7 @@ bot.on("messageCreate", message => {
         if (msg === "disable rank" || msg === "disable ranked" || msg === "disable ranking") {
             Server.findByPk(serverId).then(serv => {
                 if (serv.rank) {
-                    if (message.member.hasPermission("ADMINISTRATOR")) {
+                    if (message.member.permissions.has('ADMINISTRATOR')) {
                         serv.update({ rank: false })
                         message.channel.send({content:"ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at http://bowlbot.app"})
                         leaderboardsMap.delete(serverId)
