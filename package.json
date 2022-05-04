@@ -20,6 +20,7 @@
   "homepage": "https://github.com/evanhosni/bowlbot#readme",
   "dependencies": {
     "@discordjs/opus": "^0.5.3",
+    "@discordjs/voice": "github:discordjs/voice",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",

@@ -130,7 +130,7 @@ bot.on("message", message => {
             }
             message.channel.send({content:`schmoke a bowl every ${msg} min`})
             clearInterval(sesh.get(serverId))
-            userVoiceChannel.join().then(connection =>{
+            joinVoiceChannel({channelId: userVoiceChannel, guildId: message.guild.id, adapterCreator: message.guild.voiceAdapterCreator}).then(connection =>{
                 var botVoiceChannel = message.guild.me.voice.channel
                 sesh.set(serverId,setInterval(() => {
                     if (botVoiceChannel && userVoiceChannel.members.size <= 1) {//NOTE: just a safety measure. Kicks keef out upon next bowl if nobody else is there
