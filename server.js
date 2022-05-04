@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const { joinVoiceChannel } = require('@discordjs/voice')
 require("dotenv").config();
 // const { sensitiveHeaders } = require("http2");//TODO: is this used?
 
