@@ -32,7 +32,15 @@ server.listen(PORT,()=>{
 
 //DISCORD STUFF----------------------------------------------------------------------------------------
 
-const bot = new Discord.Client({intents: [ Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILD_PRESENCES, Discord.Intents.FLAGS.GUILD_VOICE_STATES ]}); //TODO: which intents do i need?
+const bot = new Discord.Client({
+    intents: [ //TODO: which intents do i need?
+        Discord.Intents.FLAGS.GUILDS,
+        Discord.Intents.FLAGS.GUILD_MESSAGES,
+        Discord.Intents.FLAGS.GUILD_PRESENCES,
+        Discord.Intents.FLAGS.GUILD_VOICE_STATES
+    ]
+});
+
 let sesh = new Map()
 let leaderboardsMap = new Map()
 
@@ -133,11 +141,12 @@ bot.on("messageCreate", message => {
             clearInterval(sesh.get(serverId))
 
             const player = discordVoice.createAudioPlayer()
-            discordVoice.joinVoiceChannel({
+            const connection = discordVoice.joinVoiceChannel({
                 channelId: userVoiceChannel.id,
                 guildId: message.guild.id,
                 adapterCreator: message.guild.voiceAdapterCreator,
-            }).subscribe(player)
+            })
+            connection.subscribe(player)
 
             var botVoiceChannel = discordVoice.getVoiceConnection(message.guild.id)
             sesh.set(serverId,setInterval(() => {
