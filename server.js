@@ -32,7 +32,7 @@ server.listen(PORT,()=>{
 
 //DISCORD STUFF----------------------------------------------------------------------------------------
 
-const bot = new Discord.Client({intents: [ Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILD_PRESENCES ]}); //TODO: which intents do i need?
+const bot = new Discord.Client({intents: [ Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILD_PRESENCES, Discord.Intents.FLAGS.GUILD_VOICE_STATES ]}); //TODO: which intents do i need?
 let sesh = new Map()
 let leaderboardsMap = new Map()
 
@@ -74,7 +74,7 @@ bot.on("guildCreate", guild => {
 
 });
 
-bot.on("message", message => {
+bot.on("messageCreate", message => {
 
     var prefix = "keef"
     var msg = message.content.toLowerCase().trim()
@@ -98,6 +98,12 @@ bot.on("message", message => {
         var serverId = serv[0].dataValues.id
         var userVoiceChannel = message.member.voice.channel
 
+        // const voiceConnection = joinVoiceChannel({
+        //     channelId: message.member.voice.channel.id,
+        //     guildId: message.guild.id,
+        //     adapterCreator: message.guild.voiceAdapterCreator,
+        // });
+
         if (serv[0].dataValues.name !== message.guild.name) {
             serv[0].update({ name: message.guild.name }).then(serv => {
                 if (leaderboardsMap.get(serv.id)) {
@@ -118,7 +124,7 @@ bot.on("message", message => {
                 return
             }
 
-            if (msg < 1) {
+            if (msg < 0.01) {
                 message.channel.send({content:"woah slow down buddy"})
                 return
             }
@@ -131,42 +137,48 @@ bot.on("message", message => {
             }
             message.channel.send({content:`schmoke a bowl every ${msg} min`})
             clearInterval(sesh.get(serverId))
-            joinVoiceChannel({channelId: userVoiceChannel, guildId: message.guild.id, adapterCreator: message.guild.voiceAdapterCreator}).then(connection =>{
-                var botVoiceChannel = message.guild.me.voice.channel
-                sesh.set(serverId,setInterval(() => {
-                    if (botVoiceChannel && userVoiceChannel.members.size <= 1) {//NOTE: just a safety measure. Kicks keef out upon next bowl if nobody else is there
-                        message.channel.send({content:"bruh where'd everyone go"})
-                        clearInterval(sesh.get(serverId))
-                        sesh.delete(serverId)
-                        botVoiceChannel.leave();
-                    } else {
-                        connection.play('./audio/schmoke_a_bowl.mp3');
-                        Server.findByPk(serverId).then(serv => {//TODO: better way to hold onto server, as you found it earlier?
-                            serv.createBowl().then(() => {
-                                Bowl.count().then(bowl => {
 
-                                    var total = Bowl.count({where: {serverId: serverId}})
-                                    var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
-                                    var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
-                                    var week = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
-                                    var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
-                                    var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
-                    
-                                    Promise.all([total,year,month,week,day,hour]).then(data => {
-                                        if (serv.rank) {
-                                            leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
-                                        } else {
-                                            leaderboardsMap.delete(serverId)
-                                        }
-                                    }).then(()=>{
-                                        io.emit('bowlcount', bowl)
-                                    })
+            const player = discordVoice.createAudioPlayer()
+            discordVoice.joinVoiceChannel({
+                channelId: message.member.voice.channel.id,
+                guildId: message.guild.id,
+                adapterCreator: message.guild.voiceAdapterCreator,
+            }).subscribe(player)
+
+            var botVoiceChannel = discordVoice.getVoiceConnection(message.guild.id)
+            sesh.set(serverId,setInterval(() => {
+                if (botVoiceChannel && userVoiceChannel.members.size <= 1) {//NOTE: just a safety measure. Kicks keef out upon next bowl if nobody else is there
+                    message.channel.send({content:"bruh where'd everyone go"})
+                    clearInterval(sesh.get(serverId))
+                    sesh.delete(serverId)
+                    botVoiceChannel.destroy();
+                } else {
+                    player.play(discordVoice.createAudioResource('./audio/schmoke_a_bowl.mp3'));
+                    Server.findByPk(serverId).then(serv => {//TODO: better way to hold onto server, as you found it earlier?
+                        serv.createBowl().then(() => {
+                            Bowl.count().then(bowl => {
+
+                                var total = Bowl.count({where: {serverId: serverId}})
+                                var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+                                var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+                                var week = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+                                var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+                                var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+                
+                                Promise.all([total,year,month,week,day,hour]).then(data => {
+                                    if (serv.rank) {
+                                        leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
+                                    } else {
+                                        leaderboardsMap.delete(serverId)
+                                    }
+                                }).then(()=>{
+                                    io.emit('bowlcount', bowl)
                                 })
                             })
                         })
-                    }
-                }, msg * 1000 * 60))
-            }).catch(err => console.log(err));
+                    })
+                }
+            }, msg * 1000 * 60))
             return
         }
 
@@ -176,12 +188,12 @@ bot.on("message", message => {
         //TODO: monthly awards (like The Platinum Lung). "keef awards" shows all your awards. permanent on leaderboards history
 
         if (msg === "stop") { //ends sesh //TODO: do you want to be able to stop keef if other people are in the call but you are not?
-            var botVoiceChannel = message.guild.me.voice.channel
+            var botVoiceChannel = discordVoice.getVoiceConnection(message.guild.id)
             if (botVoiceChannel) {
                 message.channel.send({content:"okay :3"})
                 clearInterval(sesh.get(serverId))
                 sesh.delete(serverId)
-                botVoiceChannel.leave()
+                botVoiceChannel.destroy()
             } else {
                 message.channel.send({content:"i wasn't doing anything!"})
             }
