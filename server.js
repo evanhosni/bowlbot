@@ -145,6 +145,7 @@ bot.on("messageCreate", message => {
                 channelId: userVoiceChannel.id,
                 guildId: message.guild.id,
                 adapterCreator: message.guild.voiceAdapterCreator,
+                selfDeaf: false,
             })
             connection.subscribe(player)
 
