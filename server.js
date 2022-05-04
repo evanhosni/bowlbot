@@ -31,7 +31,7 @@ server.listen(PORT,()=>{
 
 //DISCORD STUFF----------------------------------------------------------------------------------------
 
-const bot = new Discord.Client({intents: [ Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES ]}); //TODO: which intents do i need?
+const bot = new Discord.Client({intents: [ Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILD_PRESENCES ]}); //TODO: which intents do i need?
 let sesh = new Map()
 let leaderboardsMap = new Map()
 
