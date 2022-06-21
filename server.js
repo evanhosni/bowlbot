@@ -74,7 +74,7 @@ bot.on("ready", () => {
     console.log(`ayyooo it's ${bot.user.tag}`);
     console.log(bot.guilds.cache.map(g => g.name).join('\n'))
     var clientIds = bot.guilds.cache.map(g => g.id)
-    // Promise.all(clientIds).then(data=>{vibeCheck(data)})
+    Promise.all(clientIds).then(data=>{vibeCheck(data)})
 });
 
 bot.on("guildCreate", guild => {
