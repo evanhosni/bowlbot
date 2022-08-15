@@ -6,7 +6,7 @@
     --clearbrown: rgba(20, 14, 8, 0.69);
     --brown: rgb(65, 42, 26);
     --darkbrown: rgb(24, 14, 10);
-    --purp: rgb(65, 3, 136);
+    --purp: rgb(90, 0, 192);
     --orange: rgb(194, 126, 0);
     --lit: rgb(174, 32, 0)
 }
@@ -197,7 +197,7 @@ footer a:hover {
 }
 
 footer p {
-    color: black;
+    color: var(--yellowwhite);
     font-size: 1.3em;
     margin: 0 -20px;
 }
