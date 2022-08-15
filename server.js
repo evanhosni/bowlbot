@@ -78,7 +78,7 @@ bot.on("ready", () => {
 });
 
 bot.on("guildCreate", guild => {
-    guild.systemChannel.send("ayyooo it's keef!! :tada: thanks for the invite\ntype `keef help` for the list of commands, or we could jump right into a 10-min schmoke interval with `keef 10`")
+    guild.systemChannel.send("ayyooo it's keef!! :tada: thanks for the invite\ntype `keef help` for the list of commands, or we could jump right into a 10-min schmoke interval with `keef 10`\nby using bowlbot you agree to the bowlbot disclaimer: http://bowlbot.app")
     Server.findOrCreate({where: {id: guild.id}, defaults: {id: guild.id, name: guild.name}}).then(res=>{console.log(res)})
 
 });
@@ -285,8 +285,8 @@ bot.on("messageCreate", message => {
 
         if (msg === "server list") {
             console.log("CONNECTED CLIENTS:")
-            console.log(bot.guilds.cache.size)
-            console.log(bot.guilds.cache.map(g => [g.name, g.id]))
+            console.log("(" + bot.guilds.cache.size + ")")
+            console.log(bot.guilds.cache.map(g => [g.name, g.id, Bowl.count({where: {serverId: g.id}})]))
             console.log("LEADERBOARDS MAP:")
             console.log(leaderboardsMap)
             console.log("SESH MAP:")
