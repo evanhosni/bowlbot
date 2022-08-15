@@ -286,7 +286,7 @@ bot.on("messageCreate", message => {
         if (msg === "server list") {
             console.log("CONNECTED CLIENTS:")
             console.log("(" + bot.guilds.cache.size + ")")
-            console.log(bot.guilds.cache.map(g => [g.name, g.id, Bowl.count({where: {serverId: g.id}})]))
+            console.log(bot.guilds.cache.map(g => [g.name, g.id]))
             console.log("LEADERBOARDS MAP:")
             console.log(leaderboardsMap)
             console.log("SESH MAP:")
