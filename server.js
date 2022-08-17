@@ -307,7 +307,7 @@ bot.login(process.env.token);
 io.on("connection", (socket) => {
     console.log("we're one, brother")
     Bowl.count().then(bowl => {
-        io.emit('init', [bowl, process.env.emailjs_key])
+        io.emit('init', bowl)
     })
     socket.on('leaderboards', () => { //TODO: to prevent leaderboards not showing up glitch, await leaderboardsMap before grabbing below data from it...?
         var totalSorted = Array.from(leaderboardsMap).sort((a,b) => {

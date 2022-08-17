@@ -21,6 +21,22 @@ body {
     background-attachment: fixed;
 }
 
+button {
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: larger;
+    font-weight: bold;
+    padding: 2px 10px;
+    color: var(--darkbrown);
+    background-color: lightgray;
+    border: solid var(--darkbrown) 2px;;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: white;
+}
+
 #fade {
     position: fixed;
     z-index: -1;
@@ -157,12 +173,47 @@ main h1 {
 }
 
 #about p {
-    font-size: 1.5em;
+    font-size: 24px;
     padding: 5px 15%;
     max-width: 1500px;
     margin: auto;
     text-shadow: -2px 3px 5px black;
     text-align: center;
+}
+
+#commands {
+    margin-top: 3vh;
+    color: var(--lightgreen);
+    opacity: 0;
+    animation: fadein 2s;
+    animation-delay: 4.5s;
+    animation-fill-mode: forwards;
+}
+
+#commands h1 {
+    text-shadow: -2px 3px 5px black;
+    font-size: 2.5em;
+    font-weight: normal;
+}
+
+#commands table {
+    margin: auto;
+    max-width: 1200px;
+}
+
+#commands td {
+    font-size: 24px;
+    padding: 5px;
+    margin: auto;
+    text-shadow: -2px 3px 5px black;
+    text-align: left;
+    max-width: 500px;
+}
+
+.command {
+    text-align: right !important;
+    width: 30vw;
+    max-width: 380px !important;
 }
 
 footer {
@@ -176,12 +227,11 @@ footer {
     text-align: center;
     z-index: 2;
     padding-bottom: 20px;
-    background-image: linear-gradient(to bottom, transparent 0%, var(--darkgreen) 42%);
     pointer-events: none;
 }
 
-footer a { /*TODO: center disclaimer on smaller screen sizes, or do something different - horizontal auto scrolling maybe?*/
-    margin: 0 30px;
+footer a {
+    margin: 0 40px;
     font-size: 2em;
     text-decoration: none;
     text-shadow: -1px 2px 3px rgba(0,0,0,0.8);
@@ -189,23 +239,51 @@ footer a { /*TODO: center disclaimer on smaller screen sizes, or do something di
     pointer-events: all;
     user-select: none;
     cursor: pointer;
-    width: 150px;
 }
 
 footer a:hover {
     color: var(--orange);
 }
 
-footer p {
-    color: var(--yellowwhite);
+#disclaimer-container {
+    position: fixed;
+    display: flex;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(0,0,0,0.7);
+}
+
+#disclaimer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 85%;
+    height: 65%;
+    max-width: 500px;
+    padding: 8vw;
+    background-image: url('./images/smoke.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    text-align: center;
+}
+
+#disclaimer p {
+    padding: 20px 0;
+    width: 80%;
+    max-width: 400px;
+    margin: 0 auto;
     font-size: 1.3em;
-    margin: 0 -20px;
 }
 
 #modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 2;
     top: 0;
     left: 0;
     width: 100%;
@@ -213,7 +291,6 @@ footer p {
     justify-content: center;
     align-items: center;
     user-select: none;
-    /* background: var(--darkgreen); */
 }
 
 #leaderboards, #feedback {
@@ -222,7 +299,7 @@ footer p {
     width: 85%;
     height: 65%;
     max-width: 500px;
-    padding: 80px;
+    padding: 8vw;
     background-image: url('./images/smoke.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -253,7 +330,7 @@ footer p {
     width: 0;
 }
 
-table {
+#tables table {
     overflow-x: hidden;
     margin: 0 auto;
     white-space: nowrap;
@@ -290,26 +367,30 @@ td {
     width: 50px;/*TODO: fit content*/
 }
 
-#feedback-form {
+#feedback-content {
     margin: auto;
-    width: 65%;
-    min-width: 250px;
+    max-width: 85%;
     font-size: x-large;
 }
 
-#feedback-form p {
+#feedback-content p {
     font-size: larger;
     text-align: center;
     margin-bottom: 25px;
 }
 
-#feedback-form input, #feedback-form textarea {
-    width: 100%;
-    margin-bottom: 20px;
+#feedback-content a {
+    display: block;
+    text-align: center;
+    color: var(--lightgreen);
+    transition: text-shadow 1s, color 1s;
+    text-shadow: 0 0 4px rgba(0,0,0,0.5);
 }
 
-#yeet {
-
+#feedback-content a:hover {
+    color: var(--lit);
+    cursor: pointer;
+    text-shadow: 0 0 20px whitesmoke;
 }
 
 .error {
@@ -362,7 +443,11 @@ td {
 
     footer a {
         font-size: 24px;
-        width: 100px;
+        margin: 0 10px;
+    }
+
+    #about p, #commands td {
+        font-size: 20px;
     }
 
     #tabs {
@@ -382,7 +467,7 @@ td {
         width: 37px;
     }
 
-    #feedback-form p {
+    #feedback-content p {
         font-size: x-large;
     }
 

@@ -1,18 +1,25 @@
-// const socket = io("http://localhost:3000/")
-const socket = io("https://bowlbot-server.herokuapp.com")
+const socket = io("http://localhost:3000/")
+// const socket = io("https://bowlbot-server.herokuapp.com")
 var connectedToServer
+var currentBowls
 var bowls = document.querySelector(".counter")
 var modal = document.querySelector('#modal')
 var listArray = document.querySelector('#leaderboards').querySelectorAll('table')
-var form = document.querySelector('#feedback-form')
+var form = document.querySelector('#feedback-content')
+
+document.querySelector("#agree-button").addEventListener("click",() => {
+    console.log("ye")
+    document.querySelector("#disclaimer-container").style.display = "none"
+    document.querySelector("main").style.display = "flex"
+    setTimeout(() => {
+        bowls.innerHTML = currentBowls
+    },2500)
+})
 
 socket.on("init", (data) => {
     connectedToServer = true
-    emailjs.init(data[1]);
     socket.emit("leaderboards")
-    setTimeout(() => {
-        bowls.innerHTML = data[0]
-    },2500)
+    currentBowls = data
 })
 
 socket.on("bowlcount", (data) => {
@@ -198,21 +205,3 @@ function closeModal() {
 //         document.querySelector('body').style.overflowY = 'visible'
 //     }
 // })
-
-document.querySelector('#yeet').addEventListener('click',(e)=>{
-    e.preventDefault();
-    var subject = document.querySelector('#subject').value
-    var body = document.querySelector('#body').value
-    if (!subject || !body) {
-        console.log('plz include both subject and body')//TODO: form formatting + this message
-    } else {
-        emailjs.send("service_w0k9udm","template_v2ut9ou",{
-            subject: subject,
-            body: body,
-        }).then(()=>{
-            form.innerHTML = '<p>feedback submitted. thanks!</p>'
-        }).catch(()=>{
-            form.innerHTML = '<p>whoops! looks like the server is down. my bad</p>'
-        });
-    }
-})
