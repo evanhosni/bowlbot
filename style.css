@@ -19,6 +19,12 @@ body {
     font-family: 'Nanum Pen Script', cursive;
     background: linear-gradient(to bottom, var(--darkgreen) 0%, var(--green) 50%/*, var(--darkgreen) 100%*/);
     background-attachment: fixed;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+body::-webkit-scrollbar {
+    display: none;
 }
 
 button {
