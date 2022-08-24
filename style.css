@@ -391,6 +391,7 @@ td {
     color: var(--lightgreen);
     transition: text-shadow 1s, color 1s;
     text-shadow: 0 0 4px rgba(0,0,0,0.5);
+    padding: 20px;
 }
 
 #feedback-content a:hover {
@@ -399,7 +400,7 @@ td {
     text-shadow: 0 0 20px whitesmoke;
 }
 
-.error {
+#error {
     display: none;
     font-size: xx-large;
     margin: auto;

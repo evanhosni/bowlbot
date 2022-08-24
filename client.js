@@ -111,7 +111,7 @@ socket.on("leaderboards", (data) => {
 
 var leaderboardsOpen = false
 var feedbackOpen = false
-var errors = document.querySelectorAll('.error')
+var error = document.querySelector('#error')
 
 function leaderboards(range) {
     feedbackOpen = false
@@ -134,17 +134,13 @@ function leaderboards(range) {
         document.querySelector('#tabs').style.display = 'none'
         document.querySelector('#tables').style.display = 'none'
         document.querySelector('#hint').style.display = 'none'
-        for (let i = 0; i < errors.length; i++) {
-            errors[i].style.display = 'block'
-        }
+        error.style.display = 'block'
     } else {
         document.querySelector('#tabs').style.display = 'flex'
         document.querySelector('#tables').style.display = 'block'
         document.querySelector('#hint').style.display = 'block'
         document.querySelector(`#table-${range}`).style.display = 'table'
-        for (let i = 0; i < errors.length; i++) {
-            errors[i].style.display = 'none'
-        }
+        error.style.display = 'none'
     }
 }
 
@@ -156,18 +152,6 @@ function feedback() {
     document.querySelector('#feedback').style.display = 'flex'
     document.querySelector('body').style.overflowY = 'hidden'
     document.querySelector('main').style.visibility = 'hidden'
-    
-    if (!connectedToServer) {
-        form.style.display = 'none'
-        for (let i = 0; i < errors.length; i++) {
-            errors[i].style.display = 'block'
-        }
-    } else {
-        form.style.display = 'block'
-        for (let i = 0; i < errors.length; i++) {
-            errors[i].style.display = 'none'
-        }
-    }
 }
 
 document.querySelector('#btn-leaderboards').addEventListener('click',()=>{
