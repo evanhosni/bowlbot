@@ -22,7 +22,7 @@ const moment = require("moment")
 const {Server} = require('./db/models')
 const {Bowl} = require('./db/models')
 
-const server = require("https").createServer(app)
+const server = require("http").createServer(app)
 const options = {cors: {origin: "*"}} //TODO: only allow from specific url or set methods to GET only
 const io = require("socket.io")(server, options);
 server.listen(PORT,()=>{
