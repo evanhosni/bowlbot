@@ -303,7 +303,7 @@ bot.on("messageCreate", message => {
                 // try {
                     // const channel = guild.systemChannel || guild.channels.cache.find(channel => channel.name === "general") || guild.channels.cache.first();
                 if (guild.systemChannel) {
-                    console.log(guild.name)
+                    console.log(guild.name + " ---------------------------------- " + guild.systemChannel)
                 } else if (guild.channels.cache.first()) {
                     console.log(guild.name + " FIRST CHANNEL = " + guild.channels.cache.first())
                     // var b = Bowl.count({where: {serverId: guild.id}})
