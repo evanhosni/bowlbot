@@ -29,7 +29,7 @@ server.listen(PORT,()=>{
     console.log(`listening at http://localhost:${PORT} 🚀`)
 })
 
-
+const disclaimer = "**BOWLBOT DISCLAIMER / WAIVER:**\n\nBowlbot is for cannabis patients and adults only. Bowlbot was created to help users pace themselves, not to promote excessive consumption. Please use bowlbot responsibly.\nThe creators of bowlbot will not be held responsible for any damage or misconduct related to the misuse of bowlbot or marijuana.\nMarijuana can impair concentration, coordination, and judgment. Do not operate a vehicle or machinery under the influence of this drug. This product has intoxicating effects and may be habit forming. There may be health risks associated with consumption of this product. For use only by adults twenty-one and older. Keep out of the reach of children and pets.\n\n**By using bowlbot, you agree to the following:**\n- You are at least 21 years of age\n- You are abiding by your state and federal cannabis laws.\n- You understand the effects of marijuana.\n- You are using bowlbot at your own risk.\n- You assume all responsibility for your actions whilst under the influence of marijuana.\n- You waive the right to blame bowlbot and its creators for your actions and the actions of your peers.\n- You will defend and indemnify bowlbot and its creators against all liabilities, damages, losses, costs, fees (including legal fees), and expenses relating to any allegation or third-party legal proceeding to the extent arising from the misuse of bowlbot.\n- You have read this disclaimer and understand it in its entirety.\n\n**By using bowlbot, you agree to these terms.**"
 
 //DISCORD STUFF----------------------------------------------------------------------------------------
 
@@ -78,35 +78,40 @@ bot.on("ready", () => {
 });
 
 bot.on("guildCreate", guild => {
-    guild.systemChannel.send("ayyooo it's keef!! (NOTE: by using bowlbot you agree to the bowlbot disclaimer: http://bowlbot.app)\ntype `keef help` for the list of commands, or we could jump right into a 10-min schmoke interval with `keef 10`")
+    guild.systemChannel.send("ayyooo it's keef!! (NOTE: by using bowlbot you agree to the bowlbot disclaimer: https://bowlbot.app)\ntype `@keef help` for the list of commands, or we could jump right into a 10-min schmoke interval with `@keef 10`")
     Server.findOrCreate({where: {id: guild.id}, defaults: {id: guild.id, name: guild.name}}).then(res=>{console.log(res)})
 
 });
 
 bot.on("messageCreate", message => {
 
-    var prefix = "keef"
-    var msg = message.content.toLowerCase().trim()
-    
-    if (message.channel.type == "dm") { //ignores direct messages
-        // console.log(message)
-        // message.channel.send({content:"sup baby"}) //TODO: spams pierce for some reason. do something else?
-        return;
+    var msg
+
+    // if (message.channel.type == "dm" && !message.author.bot) { //ignores direct messages
+    //     // console.log(message)
+    //     message.channel.send({content:"sup baby"}) //TODO: spams pierce for some reason. do something else?
+    //     return;
+    // }
+
+    if (message.author.bot) return
+    if (message.mentions.here) return
+    if (message.mentions.everyone) return
+    if (!message.mentions.has(bot.user)) return
+
+    if (message.mentions.has(bot.user)) {
+        msg = message.content.toLowerCase().replace(`<@${bot.user.id}>`, "").trim()
     }
 
-    if (!msg.startsWith(prefix + " ")) { //ignores messages that don't start with prefix + space
+    if (msg == "") {
+        message.channel.send({content:"sup?"})
         return
-    } else {
-        msg = message.content.toLowerCase().replace(prefix, "").trim()
     }
-
-    //TODO: command for just 'keef'
 
     Server.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, name: message.guild.name}}).then(serv => { //returns an array. find just one?
-
+        
         var serverId = serv[0].dataValues.id
         var userVoiceChannel = message.member.voice.channel //TODO: add variable for message.guild too
-
+        
         if (serv[0].dataValues.name !== message.guild.name) {
             serv[0].update({ name: message.guild.name }).then(serv => {
                 if (leaderboardsMap.get(serv.id)) {
@@ -116,7 +121,7 @@ bot.on("messageCreate", message => {
         }
 
         if (msg === "help" || msg === "commands") { //displays list of commands
-            message.channel.send({content:"here are my commands:\n`keef help` - opens this command list (how meta)\n`keef [number]` - sets a schmoke interval for [number] minutes\n`keef stop` - stops the interval and kicks me from the call\n`keef stats` - displays your server's schmokin' stats\n`keef website` - displays website url in a fancy clickable link\n`keef enable/disable rank` - enables/disables showing your server's name on website leaderboards (admins only)"})
+            message.channel.send({content:"here are my commands:\n`@keef help` - opens this command list (how meta)\n`@keef [number]` - sets a schmoke interval for [number] minutes\n`@keef stop` - stops the interval and kicks me from the call\n`@keef stats` - displays your server's schmokin' stats\n`@keef enable/disable rank` - enables/disables showing your server's name on website leaderboards (admins only)\n`@keef website` - displays website url in a fancy clickable link\n`@keef support` - displays an invite link to my support server\n`@keef disclaimer` - displays the bowlbot disclaimer/waiver"})
             return
         }
 
@@ -220,7 +225,17 @@ bot.on("messageCreate", message => {
         }
 
         if (msg === "website") {
-            message.channel.send({content:"http://bowlbot.app"})
+            message.channel.send({content:"https://bowlbot.app"})
+            return
+        }
+
+        if (msg === "support") {
+            message.channel.send({content:"https://discord.com/invite/6jV6aQEPrz"})
+            return
+        }
+
+        if (msg === "disclaimer" || msg === "waiver") {
+            message.channel.send({content:disclaimer})
             return
         }
 
@@ -229,7 +244,7 @@ bot.on("messageCreate", message => {
                 if (!serv.rank) {
                     if (message.member.permissions.has('ADMINISTRATOR')) {
                         serv.update({ rank: true })
-                        message.channel.send({content:"ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at http://bowlbot.app"})
+                        message.channel.send({content:"ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at https://bowlbot.app"})
 
                         var total = Bowl.count({where: {serverId: serverId}})
                         var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
@@ -255,7 +270,7 @@ bot.on("messageCreate", message => {
                 if (serv.rank) {
                     if (message.member.permissions.has('ADMINISTRATOR')) {
                         serv.update({ rank: false })
-                        message.channel.send({content:"ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at http://bowlbot.app"})
+                        message.channel.send({content:"ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at https://bowlbot.app"})
                         leaderboardsMap.delete(serverId)
                     } else {
                         message.channel.send({content:"you don't have this permission. get your server admin to do it."})
@@ -281,6 +296,36 @@ bot.on("messageCreate", message => {
         if (msg === "number" || msg === "(number)" || msg === "[number]") {
             message.channel.send({content:"no not like that silly goose. actually specify a number... like `keef 15`"})//TODO: rephrase?
             return
+        }
+
+        if (msg == "super secret update") {
+            bot.guilds.cache.forEach(guild => {
+                try {
+                    const channel = guild.channels.cache.find(channel => channel.name === 'general') || guild.channels.cache.first();
+                    if (channel) {
+                        var b = Bowl.count({where: {serverId: guild.id}})
+                        var r = Server.findByPk(guild.id).then(serv => serv? serv.rank : false)
+                        Promise.all([b,r]).then(data => {
+                            var reminisce
+                            var rankmessage = data[1] ? "keep up the great work!" : "remember, you can get your server admin to type `@keef enable rank` to participate in the https://bowlbot.app leaderboards!"
+            
+                            if (data[0] < 1) {
+                                reminisce = "wow...we've schmoked...0 bowls?! well it's never too late. type `@keef 30` if you want to start a 30-min sesh with me!"
+                            } else if (data[0] == 1) {
+                                reminisce = "we've only schmoked 1 bowl together, but man was it dank."
+                            } else {
+                                reminisce = "wow...we've schmoked " + data[0] + " bowls together. " + rankmessage
+                            }
+    
+                            channel.send({content:"update: i have good news @everyone.\n\ni am officially a discord verified bot :) what does this mean? honestly not a lot, but i wouldn't have been able to get this far without your support. thanks for all the seshes. there isn't a single bowl i've schmoked with you that i remember. here's to many more *~rips bong~*\n\nsome important changes:\n- from now on, **all commands must mention (@) me**. saying my name isn't enough. you have to say `@keef`. for example, type `@keef help` to get a list of all my commands.\n- you're all invited to my support server! come on by, i'd love to hear your feedback!\n- legal stuff. my disclaimer has been updated. to keep both of us safe, please visit https://bowlbot.app or type `@keef disclaimer` to review the bowlbot disclaimer.\n\n**IMPORTANT: use bowlbot (me) at your own risk. by using bowlbot you are agreeing to the bowlbot disclaimer/waiver.**\n\n" + reminisce + "\n\npeace and love,\nkeef\n\nhttps://discord.com/invite/6jV6aQEPrz"})
+                        })
+                    } else {
+                        console.log('The server ' + guild.name + ' has no channels.');
+                    }
+                } catch (err) {
+                    console.log('Could not send message to ' + guild.name + '.');
+                }
+            })
         }
 
         if (msg === "server list") {

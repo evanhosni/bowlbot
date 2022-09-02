@@ -268,6 +268,10 @@ footer a:hover {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    line-height: normal;
     width: 85%;
     height: 65%;
     max-width: 500px;
@@ -278,12 +282,26 @@ footer a:hover {
     text-align: center;
 }
 
+#disclaimer::-webkit-scrollbar {
+    display: none;
+}
+
 #disclaimer p {
-    padding: 20px 0;
+    line-height: 1;
+    padding: 5px;
     width: 80%;
     max-width: 400px;
     margin: 0 auto;
-    font-size: 1.3em;
+    /* font-size: medium; */
+    font-size: 1em;
+}
+
+#disclaimer li {
+    text-align: left;
+    width: 80%;
+    max-width: 400px;
+    margin: 0 auto;
+    font-size: 1em;
 }
 
 #modal {
@@ -487,3 +505,9 @@ td {
         font-size: x-large;
     }
 } /*TODO: max-width & max-height feedback text area...or just make unadjustable*/
+
+@media screen and (min-width: 1200px) and (min-height: 1200px) {
+    #disclaimer {
+        font-size: 120%;
+    }
+}
