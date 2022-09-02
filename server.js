@@ -300,7 +300,7 @@ bot.on("messageCreate", message => {
 
         if (msg == "super secret update") {
             bot.guilds.cache.forEach(guild => {
-                try {
+                // try {
                     // const channel = guild.systemChannel || guild.channels.cache.find(channel => channel.name === "general") || guild.channels.cache.first();
                 if (guild.systemChannel) {
                     var b = Bowl.count({where: {serverId: guild.id}})
