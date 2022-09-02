@@ -306,7 +306,7 @@ bot.on("messageCreate", message => {
                     console.log(guild.name + " ---------------------------------- " + guild.systemChannel)
                 } else if (guild.channels.cache.first()) {
                     // console.log(guild.name + " FIRST CHANNEL = " + guild.channels.cache.first())
-                    var channel = guild.channels.cache.first();
+                    var channel = guild.channels.cache.first(channel => channel.name === channelName);
                     var b = Bowl.count({where: {serverId: guild.id}})
                     var r = Server.findByPk(guild.id).then(serv => serv? serv.rank : false)
                     Promise.all([b,r]).then(data => {
