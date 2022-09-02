@@ -302,7 +302,7 @@ bot.on("messageCreate", message => {
             bot.guilds.cache.forEach(guild => {
                 try {
                     const mainChannel = guild.systemChannel || guild.channels.cache.find(channel => channel.name === "general") || guild.channels.cache.first();
-                    if (channel) {
+                    if (mainChannel) {
                         var b = Bowl.count({where: {serverId: guild.id}})
                         var r = Server.findByPk(guild.id).then(serv => serv? serv.rank : false)
                         Promise.all([b,r]).then(data => {
