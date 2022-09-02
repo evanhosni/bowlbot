@@ -224,7 +224,7 @@ bot.on("messageCreate", message => {
             return
         }
 
-        if (msg === "website") {
+        if (msg === "website" || msg === "leaderboards" || msg === "leaderboard") {
             message.channel.send({content:"https://bowlbot.app"})
             return
         }
