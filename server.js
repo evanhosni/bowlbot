@@ -78,7 +78,7 @@ bot.on("ready", () => {
 });
 
 bot.on("guildCreate", guild => {
-    guild.systemChannel.send("ayyooo it's keef!!\n\ntype `@keef help` for the list of commands, or we could jump right into a 30-min schmoke interval with `@keef 30`\n\n(NOTE: by using bowlbot you agree to the bowlbot disclaimer)")
+    guild.systemChannel.send("ayyooo it's keef!!\n\ntype `@keef help` for the list of commands, or we could jump right into a 30-min schmoke interval with `@keef 30`\n\n**IMPORTANT: use bowlbot (me) at your own risk. by using bowlbot you are agreeing to the bowlbot disclaimer/waiver.**")
     guild.systemChannel.send("@everyone\n\n" + disclaimer)
     Server.findOrCreate({where: {id: guild.id}, defaults: {id: guild.id, name: guild.name}}).then(res=>{console.log(res)})
 
