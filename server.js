@@ -29,7 +29,7 @@ server.listen(PORT,()=>{
     console.log(`listening at http://localhost:${PORT} 🚀`)
 })
 
-const disclaimer = "**BOWLBOT DISCLAIMER / WAIVER:**\n\nBowlbot is for cannabis patients and adults only. Bowlbot was created to help users pace themselves, not to promote excessive consumption. Please use bowlbot responsibly.\nThe creators of bowlbot will not be held responsible for any damage or misconduct related to the misuse of bowlbot or marijuana.\nMarijuana can impair concentration, coordination, and judgment. Do not operate a vehicle or machinery under the influence of this drug. This product has intoxicating effects and may be habit forming. There may be health risks associated with consumption of this product. For use only by adults twenty-one and older. Keep out of the reach of children and pets.\n\n**By using bowlbot, you agree to the following:**\n- You are at least 21 years of age\n- You are abiding by your state and federal cannabis laws.\n- You understand the effects of marijuana.\n- You are using bowlbot at your own risk.\n- You assume all responsibility for your actions whilst under the influence of marijuana.\n- You waive the right to blame bowlbot and its creators for your actions and the actions of your peers.\n- You will defend and indemnify bowlbot and its creators against all liabilities, damages, losses, costs, fees (including legal fees), and expenses relating to any allegation or third-party legal proceeding to the extent arising from the misuse of bowlbot.\n- You have read this disclaimer and understand it in its entirety.\n\n**By using bowlbot, you agree to these terms.**"
+const disclaimer = "**BOWLBOT DISCLAIMER / WAIVER:**\n\nBowlbot is for cannabis patients and adults only. Bowlbot was created to help users pace themselves, not to promote excessive consumption. Please use bowlbot responsibly.\nThe creators of bowlbot will not be held responsible for any damage or misconduct related to the misuse of bowlbot or marijuana.\nMarijuana can impair concentration, coordination, and judgment. Do not operate a vehicle or machinery under the influence of this drug. This drug has intoxicating effects and may be habit forming. There may be health risks associated with consumption of this drug. For use only by adults twenty-one and older. Keep out of the reach of children and pets.\n\n**By using bowlbot, you agree to the following:**\n- You are at least 21 years of age\n- You are abiding by your state and federal cannabis laws.\n- You understand the effects of marijuana.\n- You are using bowlbot at your own risk.\n- You assume all responsibility for your actions whilst under the influence of marijuana.\n- You waive the right to blame bowlbot and its creators for your actions and the actions of your peers.\n- You will defend and indemnify bowlbot and its creators against all liabilities, damages, losses, costs, fees (including legal fees), and expenses relating to any allegation or third-party legal proceeding to the extent arising from the misuse of bowlbot.\n- You have read this disclaimer and understand it in its entirety.\n\n**By using bowlbot, you agree to these terms.**\n\nhttps://bowlbot.app"
 
 //DISCORD STUFF----------------------------------------------------------------------------------------
 
@@ -78,7 +78,8 @@ bot.on("ready", () => {
 });
 
 bot.on("guildCreate", guild => {
-    guild.systemChannel.send("ayyooo it's keef!! (NOTE: by using bowlbot you agree to the bowlbot disclaimer: https://bowlbot.app)\ntype `@keef help` for the list of commands, or we could jump right into a 10-min schmoke interval with `@keef 10`")
+    guild.systemChannel.send("ayyooo it's keef!!\n\ntype `@keef help` for the list of commands, or we could jump right into a 30-min schmoke interval with `@keef 30`\n\n(NOTE: by using bowlbot you agree to the bowlbot disclaimer)")
+    guild.systemChannel.send("@everyone\n\n" + disclaimer)
     Server.findOrCreate({where: {id: guild.id}, defaults: {id: guild.id, name: guild.name}}).then(res=>{console.log(res)})
 
 });
@@ -88,7 +89,6 @@ bot.on("messageCreate", message => {
     var msg
 
     // if (message.channel.type == "dm" && !message.author.bot) { //ignores direct messages
-    //     // console.log(message)
     //     message.channel.send({content:"sup baby"}) //TODO: spams pierce for some reason. do something else?
     //     return;
     // }
@@ -301,7 +301,7 @@ bot.on("messageCreate", message => {
         if (msg == "super secret update") {
             bot.guilds.cache.forEach(guild => {
                 try {
-                    const channel = guild.channels.cache.find(channel => channel.name === 'general') || guild.channels.cache.first();
+                    const channel = guild.systemChannel || guild.channels.cache.find(channel => channel.name === "general") || guild.channels.cache.first();
                     if (channel) {
                         var b = Bowl.count({where: {serverId: guild.id}})
                         var r = Server.findByPk(guild.id).then(serv => serv? serv.rank : false)
