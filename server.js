@@ -304,6 +304,8 @@ bot.on("messageCreate", message => {
                     // const channel = guild.systemChannel || guild.channels.cache.find(channel => channel.name === "general") || guild.channels.cache.first();
                 if (guild.systemChannel) {
                     console.log(guild.name + " ---------------------------------- " + guild.systemChannel)
+                } else if (guild.channels.cache.find(channel => channel.name === "general")) {
+                    console.log(guild.name + " ++++++++++++++++++++++++++++++++++ " + guild.channels.cache.find(channel => channel.name === "general"))
                 } else {
                     console.log ("KILL")
 
