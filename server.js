@@ -305,7 +305,19 @@ bot.on("messageCreate", message => {
                 if (guild.systemChannel) {
                     console.log(guild.name + " ---------------------------------- " + guild.systemChannel)
                 } else if (guild.channels.cache.first()) {
-                    const channel = guild.channels.filter(c => c.type === 'text').find(x => x.position == 0);
+                    let channelID;
+                    let channels = guild.channels.cache;
+                
+                    for (let key in channels) {
+                        let c = channels[key];
+                        if (c[1].type === "text") {
+                            channelID = c[0];
+                            break;
+                        }
+                    }
+                
+                    let channel = guild.channels.cache.get(guild.systemChannelID || channelID);
+
                     var b = Bowl.count({where: {serverId: guild.id}})
                     var r = Server.findByPk(guild.id).then(serv => serv? serv.rank : false)
                     Promise.all([b,r]).then(data => {
