@@ -322,7 +322,7 @@ bot.on("messageCreate", message => {
                     //     guild.channels.cache.first().send("update: i have good news @everyone.\n\ni am officially a discord verified bot :) what does this mean? honestly not a lot, but i wouldn't have been able to get this far without your support. thanks for all the seshes. there isn't a single bowl i've schmoked with you that i remember. here's to many more *~rips bong~*\n\nsome important changes:\n- from now on, **all commands must mention (@) me**. saying my name isn't enough. you have to say `@keef`. for example, type `@keef help` to get a list of all my commands. this is to protect your privacy!\n- you're all invited to my support server! come on by, i'd love to hear your feedback!\n- legal stuff. my disclaimer has been updated. to keep both of us safe, please visit https://bowlbot.app or type `@keef disclaimer` to review the bowlbot disclaimer.\n\n**IMPORTANT: Use bowlbot (me) at your own risk. By using bowlbot, you agree to the bowlbot disclaimer/waiver.**\n\n" + reminisce + "\n\npeace and love,\nkeef\n\nhttps://discord.gg/CzmtRZa9Zd")
                     // })
                     console.log("---------------------------------------")
-                    console.log(guild.channels.cache)
+                    console.log(guild.channels.cache[0])
                 }
             })
         }
