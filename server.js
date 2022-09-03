@@ -305,9 +305,7 @@ bot.on("messageCreate", message => {
                 if (guild.systemChannel) {
                     console.log(guild.name + " ---------------------------------- " + guild.systemChannel)
                 } else {
-                    console.log(guild.name)
-                    console.log(guild.channels.cache.find(channel => channel.type === 'text'))
-                    return
+                    console.log ("KILL")
 
                     // var b = Bowl.count({where: {serverId: guild.id}})
                     // var r = Server.findByPk(guild.id).then(serv => serv? serv.rank : false)
