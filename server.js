@@ -305,19 +305,7 @@ bot.on("messageCreate", message => {
                 if (guild.systemChannel) {
                     console.log(guild.name + " ---------------------------------- " + guild.systemChannel)
                 } else if (guild.channels.cache.first()) {
-                    let channelID;
-                    let channels = guild.channels.cache;
-                
-                    for (let key in channels) {
-                        let c = channels[key];
-                        if (c[1].type === "text") {
-                            channelID = c[0];
-                            break;
-                        }
-                    }
-                
-                    let channel = guild.channels.cache.get(guild.systemChannelID || channelID);
-
+                    var chx = guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0);
                     var b = Bowl.count({where: {serverId: guild.id}})
                     var r = Server.findByPk(guild.id).then(serv => serv? serv.rank : false)
                     Promise.all([b,r]).then(data => {
@@ -332,7 +320,7 @@ bot.on("messageCreate", message => {
                             reminisce = "wow...we've schmoked " + data[0] + " bowls together. " + rankmessage
                         }
 
-                        channel.send("update: i have good news @everyone.\n\ni am officially a discord verified bot :) what does this mean? honestly not a lot, but i wouldn't have been able to get this far without your support. thanks for all the seshes. there isn't a single bowl i've schmoked with you that i remember. here's to many more *~rips bong~*\n\nsome important changes:\n- from now on, **all commands must mention (@) me**. saying my name isn't enough. you have to say `@keef`. for example, type `@keef help` to get a list of all my commands. this is to protect your privacy!\n- you're all invited to my support server! come on by, i'd love to hear your feedback!\n- legal stuff. my disclaimer has been updated. to keep both of us safe, please visit https://bowlbot.app or type `@keef disclaimer` to review the bowlbot disclaimer.\n\n**IMPORTANT: Use bowlbot (me) at your own risk. By using bowlbot, you agree to the bowlbot disclaimer/waiver.**\n\n" + reminisce + "\n\npeace and love,\nkeef\n\nhttps://discord.gg/CzmtRZa9Zd")
+                        chx.send("update: i have good news @everyone.\n\ni am officially a discord verified bot :) what does this mean? honestly not a lot, but i wouldn't have been able to get this far without your support. thanks for all the seshes. there isn't a single bowl i've schmoked with you that i remember. here's to many more *~rips bong~*\n\nsome important changes:\n- from now on, **all commands must mention (@) me**. saying my name isn't enough. you have to say `@keef`. for example, type `@keef help` to get a list of all my commands. this is to protect your privacy!\n- you're all invited to my support server! come on by, i'd love to hear your feedback!\n- legal stuff. my disclaimer has been updated. to keep both of us safe, please visit https://bowlbot.app or type `@keef disclaimer` to review the bowlbot disclaimer.\n\n**IMPORTANT: Use bowlbot (me) at your own risk. By using bowlbot, you agree to the bowlbot disclaimer/waiver.**\n\n" + reminisce + "\n\npeace and love,\nkeef\n\nhttps://discord.gg/CzmtRZa9Zd")
                     })
                     // console.log("---------------------------------------")
                     // console.log(guild.channels.cache[0])
