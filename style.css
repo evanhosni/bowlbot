@@ -265,7 +265,7 @@ footer a:hover {
 #disclaimer {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: top;
     overflow-y: scroll;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
