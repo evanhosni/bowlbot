@@ -87,6 +87,7 @@ bot.on("guildCreate", guild => {
 bot.on("messageCreate", message => {
 
     var msg
+    var ukMode = false
 
     // if (message.channel.type == "dm" && !message.author.bot) { //ignores direct messages
     //     message.channel.send({content:"sup baby"}) //TODO: spams pierce for some reason. do something else?
@@ -105,6 +106,11 @@ bot.on("messageCreate", message => {
     if (msg == "") {
         message.channel.send({content:"sup?"})
         return
+    }
+
+    if (msg.endsWith("bruv")) {
+        ukMode = true
+        msg = msg.replace("bruv", "").trim()
     }
 
     Server.findOrCreate({where: {id: message.guild.id}, defaults: {id: message.guild.id, name: message.guild.name}}).then(serv => { //returns an array. find just one?
@@ -128,22 +134,22 @@ bot.on("messageCreate", message => {
         if (!isNaN(msg)) {
 
             if (!userVoiceChannel) {
-                message.channel.send({content:"it's no sesh without u, " + message.author.toString() + " <3"})
+                message.channel.send({content:"it's no sesh without u, " + (ukMode ? "bruv" : message.author.toString()) + " <3"})
                 return
             }
 
             if (msg < 1) {
-                message.channel.send({content:"woah slow down buddy"})
+                message.channel.send({content:"woah slow down " + (ukMode ? "bruv" : "buddy")})
                 return
             }
             if (msg > 1440) {
-                message.channel.send({content:"sorry bud i have work in the morning"})
+                message.channel.send({content:"sorry " + (ukMode ? "bruv" : "bud") + " i have work in the morning"})
                 return
             }
             if (msg == 420) {
                 message.channel.send({content:"ayyy lmao"})
             }
-            message.channel.send({content:`schmoke a bowl every ${msg} min`})
+            message.channel.send({content:`schmoke a ` + (ukMode ? "spliff" : "bowl") + ` every ${msg} min`})
             clearInterval(sesh.get(serverId))
 
             const player = discordVoice.createAudioPlayer()
@@ -158,12 +164,12 @@ bot.on("messageCreate", message => {
             var botVoiceChannel = discordVoice.getVoiceConnection(message.guild.id)
             sesh.set(serverId,setInterval(() => {
                 if (botVoiceChannel && userVoiceChannel.members.size <= 1) {//NOTE: just a safety measure. Kicks keef out upon next bowl if nobody else is there
-                    message.channel.send({content:"bruh where'd everyone go"})
+                    message.channel.send({content:"bru" + (ukMode ? "v" : "h") + " where'd everyone go"})
                     clearInterval(sesh.get(serverId))
                     sesh.delete(serverId)
                     botVoiceChannel.destroy();
                 } else {
-                    player.play(discordVoice.createAudioResource('./audio/schmoke_a_bowl.mp3'));
+                    player.play(discordVoice.createAudioResource(ukMode ? './audio/schmoke_a_spliff.mp3' : './audio/schmoke_a_bowl.mp3'));
                     Server.findByPk(serverId).then(serv => {//TODO: better way to hold onto server, as you found it earlier?
                         serv.createBowl().then(() => {
                             Bowl.count().then(bowl => {
