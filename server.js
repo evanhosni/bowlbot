@@ -170,29 +170,29 @@ bot.on("messageCreate", message => {
                     botVoiceChannel.destroy();
                 } else {
                     player.play(discordVoice.createAudioResource(ukMode ? './audio/schmoke_a_spliff.mp3' : './audio/schmoke_a_bowl.mp3'));
-                    Server.findByPk(serverId).then(serv => {//TODO: better way to hold onto server, as you found it earlier?
-                        serv.createBowl().then(() => {
-                            Bowl.count().then(bowl => {
+                    // Server.findByPk(serverId).then(serv => {//TODO: better way to hold onto server, as you found it earlier?
+                    //     serv.createBowl().then(() => {
+                    //         Bowl.count().then(bowl => {
 
-                                var total = Bowl.count({where: {serverId: serverId}})
-                                var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
-                                var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
-                                var week = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
-                                var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
-                                var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+                    //             var total = Bowl.count({where: {serverId: serverId}})
+                    //             var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+                    //             var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+                    //             var week = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+                    //             var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+                    //             var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
                 
-                                Promise.all([total,year,month,week,day,hour]).then(data => {
-                                    if (serv.rank) {
-                                        leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
-                                    } else {
-                                        leaderboardsMap.delete(serverId)
-                                    }
-                                }).then(()=>{
-                                    io.emit('bowlcount', bowl)
-                                })
-                            })
-                        })
-                    })
+                    //             Promise.all([total,year,month,week,day,hour]).then(data => {
+                    //                 if (serv.rank) {
+                    //                     leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
+                    //                 } else {
+                    //                     leaderboardsMap.delete(serverId)
+                    //                 }
+                    //             }).then(()=>{
+                    //                 io.emit('bowlcount', bowl)
+                    //             })
+                    //         })
+                    //     })
+                    // })
                 }
             }, msg * 1000 * 60))
             return
