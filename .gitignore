@@ -104,5 +104,5 @@ dist
 .tern-port
 
 # Google Cloud files
-*.yaml
 .gcloudignore
+app.yaml
