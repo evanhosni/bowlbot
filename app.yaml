@@ -1,1 +1,11 @@
 runtime: nodejs16
+
+env_variables:
+  CLOUD_SQL_CONNECTION_NAME: bowlbot-server:us-west1:bowlbot-db
+  DB_NAME: bowlbot_db
+  DB_USER: root
+  DB_PW: password
+  TOKEN: OTU2NzU4NjU2MzcwNzY5OTIw.GjyH7C.x6n66aerQ108xd-_nubmSTOal4I3qBdXZdQ3q0
+
+manual_scaling:
+  instances: 1
