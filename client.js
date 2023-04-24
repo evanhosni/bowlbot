@@ -1,5 +1,5 @@
 // const socket = io("http://localhost:3000/")
-const socket = io("https://bowlbot-server.uw.r.appspot.com/")
+const socket = io("https://bowlbot.app/")
 var connectedToServer
 var currentBowls
 var bowls = document.querySelector(".counter")
