@@ -16,7 +16,7 @@ sequelize = new Sequelize(
     }
 )
 
-// For connecting to local db
+// // For connecting to local db
 // sequelize = new Sequelize(
 //     process.env.DB_NAME,
 //     process.env.DB_USER,
