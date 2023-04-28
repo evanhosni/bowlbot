@@ -1,5 +1,5 @@
 // const socket = io("http://localhost:3000/")
-const socket = io("http://bowlbot.app/")
+const socket = io()
 // TODO: ^seems to work, but for some reason i am getting a connection error in the console
 var connectedToServer
 var currentBowls

@@ -157,7 +157,7 @@ bot.on("messageCreate", message => {
 
     if (msg === "stats") {
         Bowls.count().then(bowls => {
-            message.channel.send({content:bowls + " bowls have been schmoked worldwide."})
+            message.channel.send({content:bowls + " bowls have been schmoked worldwide"})
         })
         return
     }
