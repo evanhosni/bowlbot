@@ -1,6 +1,3 @@
-DROP DATABASE IF EXISTS bowlbot_db;
-CREATE DATABASE bowlbot_db;
-
 -- MySQL dump 10.13  Distrib 8.0.29, for Win64 (x86_64)
 --
 -- Host: acw2033ndw0at1t7.cbetxkdyhwsb.us-east-1.rds.amazonaws.com    Database: xlsdtuka9zw69fbk
