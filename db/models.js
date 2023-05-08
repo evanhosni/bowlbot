@@ -3,7 +3,7 @@ const sequelize = require('./connection')
 
 const Server = sequelize.define("server", {
     id: {
-        type: Sequelize.NUMERIC(1000),
+        type: Sequelize.NUMERIC(100000),
         primaryKey: true,
         allowNull: false
     },
