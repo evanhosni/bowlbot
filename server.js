@@ -322,7 +322,7 @@ bot.on("messageCreate", message => {
         if (msg === "seed") {
             Server.findByPk('967874673394216960').then(serv => {
                 console.log(serv)
-                serv.createBowl({defaults: {schmokedAt: new Date('2022-04-06 03:00:09.711+00')}})
+                serv.createBowl({defaults: {id: 69}})
             })
         }
 
