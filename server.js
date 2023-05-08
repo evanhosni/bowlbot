@@ -324,51 +324,39 @@ bot.on("messageCreate", message => {
         if (msg === "seed") {
             for (let i = 0; i < 10000; i++) {
                 
-                Server.findByPk(bowlsss[i][3]).then(serv => {
-                    if (serv != null) {
-                        serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
-                    }
-                })
+                Bowl.create({schmokedAt: new Date(bowlsss[i][1]), serverId: bowlsss[i][3]})
+                // Server.findByPk(bowlsss[i][3]).then(serv => {
+                //     if (serv != null) {
+                //         serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
+                //     }
+                // })
             }
         }
         if (msg === "seed2") {
             for (let i = 10001; i < 20000; i++) {
                 
-                Server.findByPk(bowlsss[i][3]).then(serv => {
-                    if (serv != null) {
-                        serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
-                    }
-                })
+                Bowl.create({schmokedAt: new Date(bowlsss[i][1]), serverId: bowlsss[i][3]})
+
             }
         }
         if (msg === "seed3") {
             for (let i = 20001; i < 30000; i++) {
-                
-                Server.findByPk(bowlsss[i][3]).then(serv => {
-                    if (serv != null) {
-                        serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
-                    }
-                })
+                Bowl.create({schmokedAt: new Date(bowlsss[i][1]), serverId: bowlsss[i][3]})
+
             }
         }
         if (msg === "seed4") {
             for (let i = 30001; i < 40000; i++) {
                 
-                Server.findByPk(bowlsss[i][3]).then(serv => {
-                    if (serv != null) {
-                        serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
-                    }
-                })
+                Bowl.create({schmokedAt: new Date(bowlsss[i][1]), serverId: bowlsss[i][3]})
+
             }
         }
         if (msg === "seed5") {
             for (let i = 40001; i < bowlsss.length; i++) {
                 
-                Server.findByPk(bowlsss[i][3]).then(serv => {
-                    if (serv != null) {
-                        serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
-                    }
-                })
+                Bowl.create({schmokedAt: new Date(bowlsss[i][1]), serverId: bowlsss[i][3]})
+
             }
         }
 
