@@ -2,7 +2,7 @@ const sequelize = require('./db/connection')
 const {Server} = require('./db/models')
 const {Bowl} = require('./db/models')
 
-Server.findByPk(536405449147416587).then(serv => {//TODO: better way to hold onto server, as you found it earlier?
+Server.findOrCreate({where: {id: 536405449147416587}} ).then(serv => {//TODO: better way to hold onto server, as you found it earlier?
     serv.createBowl({CreatedAt: '2023-05-08 02:11:49.264+00'})})
 
 // const testbowl = await Bowl.create({ firstName: "Jane", lastName: "Doe" });
