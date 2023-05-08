@@ -27,7 +27,7 @@ const Bowl = sequelize.define("bowl", {
     },
     schmokedAt: {
         type: Sequelize.DATE,
-        // defaultValue: Sequelize.NOW,
+        defaultValue: Sequelize.NOW,
         allowNull: false
     }
 },{
