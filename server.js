@@ -325,10 +325,11 @@ bot.on("messageCreate", message => {
 
             
             
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 1; i++) {
                 console.log(bowlsss[i][3])
                 console.log(bowlsss[i][1])
-                Server.findByPk(bowlsss[i][3]).then(serv => {
+                Server.findByPk(`${bowlsss[i][3]}`).then(serv => {
+                    console.log(serv)
                     serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
                 })
 
