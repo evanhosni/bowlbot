@@ -87,6 +87,8 @@ function seedDatabase(data) {
     console.log("seeding....")
     console.log(data)
     for (let i = 0; i < data.length; i++) {
+
+        console.log(data[i][0])
         
         var rankerooni = false;
         if (serversss.includes(data[i][0])) rankerooni = true;
