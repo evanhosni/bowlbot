@@ -57,11 +57,11 @@ function vibeCheck(clients) {
             }
 
             var total = Bowl.count({where: {serverId: servers[i].id}})
-            var year = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
-            var month = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
-            var week = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
-            var day = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
-            var hour = Bowl.count({where: {serverId: servers[i].id, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+            var year = Bowl.count({where: {serverId: servers[i].id, schmokedAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+            var month = Bowl.count({where: {serverId: servers[i].id, schmokedAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+            var week = Bowl.count({where: {serverId: servers[i].id, schmokedAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+            var day = Bowl.count({where: {serverId: servers[i].id, schmokedAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+            var hour = Bowl.count({where: {serverId: servers[i].id, schmokedAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
     
             Promise.all([total,year,month,week,day,hour]).then(data => {
                 leaderboardsMap.set(servers[i].id,[servers[i].name,data[0],data[1],data[2],data[3],data[4],data[5]])
@@ -94,7 +94,7 @@ function seedDatabase(data) {
         if (serversss.includes(data[i][0])) rankerooni = true;
         
         Server.findOrCreate({where: {id: data[i][0]}, defaults: {id: data[i][0], name: data[i][1], rank: rankerooni}}).then(serv => {
-            serv.createBowl({defaults: {createdAt: '2022-04-06 03:00:09'}})
+            serv.createBowl({defaults: {schmokedAt: '2022-04-06 03:00:09'}})
         })
     }
 }
@@ -197,11 +197,11 @@ bot.on("messageCreate", message => {
                             Bowl.count().then(bowl => {
 
                                 var total = Bowl.count({where: {serverId: serverId}})
-                                var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
-                                var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
-                                var week = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
-                                var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
-                                var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+                                var year = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+                                var month = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+                                var week = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+                                var day = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+                                var hour = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
                 
                                 Promise.all([total,year,month,week,day,hour]).then(data => {
                                     if (serv.rank) {
@@ -240,11 +240,11 @@ bot.on("messageCreate", message => {
 
         if (msg === "stats") { //displays server stats via message //TODO: better formatting? maybe table
             var total = Bowl.count({where: {serverId: serverId}})
-            var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
-            var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
-            var week = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
-            var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
-            var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+            var year = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+            var month = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+            var week = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+            var day = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+            var hour = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
 
             Promise.all([total,year,month,week,day,hour]).then(data => { //TODO: emojis based on amount of bowls
                 message.channel.send({content:"you've schmoked a total of " + data[0] + " bowls\n- - - - - - - - - - - - - - - - - - - - - -\n" + data[1] + " bowls in the past year\n" + data[2] + " bowls in the past month\n" + data[3] + " bowls in the past week\n" + data[4] + " bowls in the past day\n" + data[5] + " bowls in the past hour\n- - - - - - - - - - - - - - - - - - - - - -\nkeep up the great work!"})
@@ -275,11 +275,11 @@ bot.on("messageCreate", message => {
                         message.channel.send({content:"ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at https://bowlbot.app"})
 
                         var total = Bowl.count({where: {serverId: serverId}})
-                        var year = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
-                        var month = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
-                        var week = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
-                        var day = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
-                        var hour = Bowl.count({where: {serverId: serverId, createdAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
+                        var year = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'years').toDate()}}})
+                        var month = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'months').toDate()}}})
+                        var week = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'weeks').toDate()}}})
+                        var day = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'days').toDate()}}})
+                        var hour = Bowl.count({where: {serverId: serverId, schmokedAt: {[Op.gte]: moment().subtract(1, 'hours').toDate()}}})
                         Promise.all([total,year,month,week,day,hour]).then(data => {
                             leaderboardsMap.set(serverId,[serv.name,data[0],data[1],data[2],data[3],data[4],data[5]])
                         })

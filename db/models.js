@@ -17,7 +17,18 @@ const Server = sequelize.define("server", {
     }
 })
 
-const Bowl = sequelize.define("bowl", {})
+const Bowl = sequelize.define("bowl", {
+    id: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        primaryKey: true
+    },
+    schmokedAt: {
+        type: 'TIMESTAMP',
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        allowNull: false
+    }
+})
 
 Server.hasMany(Bowl)
 
