@@ -324,7 +324,7 @@ bot.on("messageCreate", message => {
         if (msg === "seed") {
             for (let i = 0; i < 10000; i++) {
                 
-                Server.findByPk(bowlsss[i][3]).then(serv => {
+                Server.findByPk(`${bowlsss[i][3]}`).then(serv => {
                     if (serv != null) {
                         serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
                     }
