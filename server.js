@@ -95,7 +95,7 @@ function seedDatabase(data) {
         
         Server.create({id: data[i][0], name: data[i][1], rank: rankerooni}).then(() => {
             console.log("testing stuff")
-            Server.findByPk(data[i][0]).then(s=>console.log(s))
+            Server.findByPk(data[i][0]).then(s=>console.log(s.id))
         })
 
     }
