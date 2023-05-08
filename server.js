@@ -83,13 +83,16 @@ bot.on("ready", () => {
 });
 
 function seedDatabase(data) {
+    
     console.log("seeding....")
     console.log(data)
-
-    var rankerooni = false;
-    if (serversss.includes(data[0])) rankerooni = true;
-
-    Server.findOrCreate({where: {id: data[0]}, defaults: {id: data[0], name: data[1], rank: rankerooni}})
+    for (let i = 0; i < data.length; i++) {
+        
+        var rankerooni = false;
+        if (serversss.includes(data[i][0])) rankerooni = true;
+        
+        Server.findOrCreate({where: {id: data[i][0]}, defaults: {id: data[i][0], name: data[i][1], rank: rankerooni}})
+    }
 }
 
 bot.on("guildCreate", guild => {
