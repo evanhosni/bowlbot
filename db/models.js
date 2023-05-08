@@ -4,8 +4,8 @@ const sequelize = require('./connection')
 const Server = sequelize.define("server", {
     id: {
         type: Sequelize.NUMERIC,
-        allowNull: false,
-        primaryKey: true
+        primaryKey: true,
+        allowNull: false
     },
     name: {
         type: Sequelize.STRING,
@@ -27,8 +27,7 @@ const Bowl = sequelize.define("bowl", {
     },
     schmokedAt: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-        allowNull: false
+        defaultValue: Sequelize.NOW
     }
 },{
     timestamps: false
