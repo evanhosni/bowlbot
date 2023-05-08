@@ -74,8 +74,16 @@ bot.on("ready", () => {
     console.log(`ayyooo it's ${bot.user.tag}`);
     console.log(bot.guilds.cache.map(g => g.name).join('\n'))
     var clientIds = bot.guilds.cache.map(g => g.id)
-    Promise.all(clientIds).then(data=>{vibeCheck(data)})
+    Promise.all(clientIds).then(data=>{
+        vibeCheck(data)
+        seedDatabase(data)
+    })
 });
+
+function seedDatabase(data) {
+    console.log("seeding....")
+    console.log(data)
+}
 
 bot.on("guildCreate", guild => {
     guild.systemChannel.send("*cough cough* ayyooo it's keef!!\n\ntype `@keef help` for the list of commands, or we could jump right into a 30-min schmoke interval with `@keef 30`\n\n**IMPORTANT: Use bowlbot (me) at your own risk. By using bowlbot, you agree to the bowlbot disclaimer/waiver.**")
