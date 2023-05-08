@@ -138,7 +138,7 @@ bot.on("messageCreate", message => {
                 return
             }
 
-            if (msg < 1) {
+            if (msg < .1) {
                 message.channel.send({content:"woah slow down " + (ukMode ? "bruv" : "buddy")})
                 return
             }
