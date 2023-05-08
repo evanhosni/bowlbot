@@ -79,7 +79,7 @@ bot.on("ready", () => {
     Promise.all(clientIds).then(data=>{vibeCheck(data)})
 
     var seedData = bot.guilds.cache.map(g => [g.id, g.name])
-    // Promise.all(seedData).then(data=>{seedDatabase(data)})
+    Promise.all(seedData).then(data=>{seedDatabase(data)})
 });
 
 function seedDatabase(data) {
