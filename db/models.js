@@ -19,9 +19,9 @@ const Server = sequelize.define("server", {
 
 const Bowl = sequelize.define("bowl", {
     id: {
-        type: Sequelize.BIGINT,
-        allowNull: false,
-        primaryKey: true
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
     schmokedAt: {
         type: 'TIMESTAMP',
