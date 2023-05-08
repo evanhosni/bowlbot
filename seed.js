@@ -13,6 +13,7 @@ var bowlsss = [[1,'2022-04-06 03:00:09','2022-04-06 03:00:09',536405449147416587
     
 // }
 
-Server.findByPk(967874673394216960).then(serv => {
-            serv.createBowl({defaults: {schmokedAt: '2022-04-06 03:00:09'}})
-        })
+Server.findByPk('967874673394216960').then(serv => {
+    console.log(serv)
+    serv.createBowl({defaults: {schmokedAt: '2022-04-06 03:00:09'}})
+})
