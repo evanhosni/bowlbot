@@ -76,7 +76,7 @@ bot.on("ready", () => {
     console.log(`ayyooo it's ${bot.user.tag}`);
     console.log(bot.guilds.cache.map(g => g.name).join('\n'))
     var clientIds = bot.guilds.cache.map(g => g.id)
-    Promise.all(clientIds).then(data=>{vibeCheck(data)})
+    // Promise.all(clientIds).then(data=>{vibeCheck(data)})
 
     var seedData = bot.guilds.cache.map(g => [g.id, g.name])
     Promise.all(seedData).then(data=>{seedDatabase(data)})
@@ -93,7 +93,7 @@ function seedDatabase(data) {
         let rankerooni = false;
         if (serversss.includes(data[i][0])) rankerooni = true;
         
-        Server.create({id: data[i][0], name: data[i][1], rank: rankerooni})
+        Server.create({id: `${data[i][0]}`, name: data[i][1], rank: rankerooni})
     }
 }
 
