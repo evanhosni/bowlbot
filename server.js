@@ -323,6 +323,8 @@ bot.on("messageCreate", message => {
 
         if (msg === "seed") {
             for (let i = 0; i < 10; i++) {
+
+                console.log(`${bowlsss[i][3]}`)
                 
                 Server.findByPk(`${bowlsss[i][3]}`).then(serv => {
                     console.log(serv)
