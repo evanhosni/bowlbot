@@ -70,19 +70,26 @@ function vibeCheck(clients) {
     })
 }
 
+var serversss = [203089903372730368,316751925968109578,364555462001033236,381532839704920066,384449164890603520,536405449147416587,591505589696331787,633326752617463829,792446893958496276,804860177256808478,805361893786910762,838553865523429376,840517479180271617,844775751466352671,888234903529984140,906889465954455582,928807615805415514,963431307394818098,967874673394216960,970231327049777172,982795624191770624,987423327792541766,1010014640656371762,1017511492393898094,1017783360782860298,1032261208633528330,1063602773238759534,1072305884631420949,1075467865995612160]
+
 bot.on("ready", () => {
     console.log(`ayyooo it's ${bot.user.tag}`);
     console.log(bot.guilds.cache.map(g => g.name).join('\n'))
     var clientIds = bot.guilds.cache.map(g => g.id)
-    Promise.all(clientIds).then(data=>{
-        vibeCheck(data)
-        seedDatabase(data)
-    })
+    Promise.all(clientIds).then(data=>{vibeCheck(data)})
+
+    var seedData = bot.guilds.cache.map(g => [g.id, g.name])
+    Promise.all(seedData).then(data=>{seedDatabase(data)})
 });
 
 function seedDatabase(data) {
     console.log("seeding....")
     console.log(data)
+
+    var rankerooni = false;
+    if (serversss.includes(data[0])) rankerooni = true;
+
+    Server.findOrCreate({where: {id: data[0]}, defaults: {id: data[0], name: data[1], rank: rankerooni}})
 }
 
 bot.on("guildCreate", guild => {
