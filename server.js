@@ -93,7 +93,7 @@ function seedDatabase(data) {
         let rankerooni = false;
         if (serversss.includes(data[i][0])) rankerooni = true;
         
-        Server.create({id: BigInt(data[i][0]), name: data[i][1], rank: rankerooni})
+        // Server.create({id: BigInt(data[i][0]), name: data[i][1], rank: rankerooni})
     }
 }
 
