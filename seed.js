@@ -7,6 +7,8 @@ var bowlsss = [[1,'2022-04-06 03:00:09','2022-04-06 03:00:09',536405449147416587
 
 
 for (let i = 0; i < bowlsss.length; i++) {
-    
+    Server.findByPk(bowlsss[i][3]).then(serv => {
+        console.log(serv)
+    })
     
 }

@@ -94,7 +94,10 @@ function seedDatabase(data) {
         if (serversss.includes(data[i][0])) rankerooni = true;
         
         Server.findOrCreate({where: {id: data[i][0]}, defaults: {id: data[i][0], name: data[i][1], rank: rankerooni}}).then(serv => {
-            serv.createBowl({defaults: {schmokedAt: '2022-04-06 03:00:09'}})
+            console.log("AGHHHHHHHHH")
+            serv.createBowl({defaults: {schmokedAt: '2022-04-06 03:00:09'}}).then(bowl => {
+                console.log(bowl)
+            })
         })
     }
 }
