@@ -323,20 +323,14 @@ bot.on("messageCreate", message => {
 
         if (msg === "seed") {
 
-            
-            
-            for (let i = 0; i < 1; i++) {
-
-                Server.findByPk(536405449147416600).then(serv => {
-                    console.log(serv)
-                    serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
-                })
-                Server.findByPk(985359889725538300).then(serv => {
-                    console.log(serv)
-                    serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
-                })
-
-            }
+            Server.findByPk('536405449147416600').then(serv => {
+                console.log(serv)
+                serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
+            })
+            Server.findByPk('985359889725538300').then(serv => {
+                console.log(serv)
+                serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
+            })
 
         }
 
