@@ -15,6 +15,8 @@ const Server = sequelize.define("server", {
         type: Sequelize.BOOLEAN,
         defaultValue: false
     }
+}, {
+    timestamps: false
 })
 
 const Bowl = sequelize.define("bowl", {
@@ -28,6 +30,8 @@ const Bowl = sequelize.define("bowl", {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         allowNull: false
     }
+},{
+    timestamps: false
 })
 
 Server.hasMany(Bowl)
