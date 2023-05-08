@@ -326,7 +326,7 @@ bot.on("messageCreate", message => {
                 
                 Server.findByPk('967874673394216960').then(serv => {
                     console.log(serv)
-                    serv.createBowl({schmokedAt: new Date('2022-04-06 03:00:09')})
+                    serv.createBowl({schmokedAt: new Date(bowlsss[i][1])})
                 })
             }
         }
