@@ -93,7 +93,7 @@ function seedDatabase(data) {
         let rankerooni = false;
         if (serversss.includes(data[i][0])) rankerooni = true;
         
-        Server.findOrCreate({where: {id: data[i][0]}, defaults: {id: data[i][0], name: data[i][1], rank: rankerooni}})
+        Server.create({id: data[i][0], name: data[i][1], rank: rankerooni})
     }
 }
 
