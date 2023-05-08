@@ -319,6 +319,13 @@ bot.on("messageCreate", message => {
         //     return
         // }
 
+        if (msg === "seed") {
+            Server.findByPk('967874673394216960').then(serv => {
+                console.log(serv)
+                serv.createBowl({defaults: {schmokedAt: '2022-04-06 03:00:09'}})
+            })
+        }
+
         if (msg === "number" || msg === "(number)" || msg === "[number]") {
             message.channel.send({content:"no not like that silly goose. actually specify a number... like `keef 15`"})//TODO: rephrase?
             return
