@@ -14,7 +14,6 @@ app.use(express.static(__dirname))
 app.get('/', (req, res) =>
 res.sendFile(path.join(__dirname, '/index.html'))
 );
-// https://console.cron-job.org/jobs (for ping scheduling maintenance)
 
 const sequelize = require('./db/connection')
 const Op = sequelize.Op 
@@ -462,7 +461,7 @@ io.on("connection", (socket) => {
 
 
 sequelize.sync({
-force: true
+// /*force: true*/
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {
