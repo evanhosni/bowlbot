@@ -500,7 +500,7 @@ td {
         margin: 0 10px;
     }
 
-    #about p, #commands td {
+    #about p, #commands td, #disclaimer p, #disclaimer li {
         font-size: 20px;
     }
 
