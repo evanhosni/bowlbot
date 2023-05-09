@@ -7,14 +7,14 @@ var modal = document.querySelector('#modal')
 var listArray = document.querySelector('#leaderboards').querySelectorAll('table')
 var form = document.querySelector('#feedback-content')
 
-document.querySelector("#agree-button").addEventListener("click",() => {
-    console.log("ye")
-    document.querySelector("#disclaimer-container").style.display = "none"
-    document.querySelector("main").style.display = "flex"
-    setTimeout(() => {
-        bowls.innerHTML = currentBowls
-    },2500)
-})
+// document.querySelector("#agree-button").addEventListener("click",() => {
+//     console.log("ye")
+//     document.querySelector("#disclaimer-container").style.display = "none"
+//     document.querySelector("main").style.display = "flex"
+//     setTimeout(() => {
+//         bowls.innerHTML = currentBowls
+//     },2500)
+// })
 
 socket.on("init", (data) => {
     connectedToServer = true
