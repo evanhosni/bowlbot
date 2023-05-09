@@ -220,6 +220,38 @@ main h1 {
     text-align: right !important;
 }
 
+#disclaimer {
+    margin-top: 3vh;
+    color: var(--lightgreen);
+    opacity: 0;
+    animation: fadein 2s;
+    animation-delay: 4.5s;
+    animation-fill-mode: forwards;
+}
+
+#disclaimer h1 {
+    text-shadow: -2px 3px 5px black;
+    font-size: 2.5em;
+    font-weight: normal;
+}
+
+#disclaimer p {
+    font-size: 24px;
+    padding: 5px 15%;
+    max-width: 1500px;
+    margin: auto;
+    text-shadow: -2px 3px 5px black;
+    text-align: center;
+}
+
+#disclaimer li {
+    font-size: 24px;
+    padding: 5px 0;
+    max-width: 1000px;
+    margin: auto;
+    text-shadow: -2px 3px 5px black;
+}
+
 footer {
     position: fixed;
     width: 100%;
@@ -249,7 +281,7 @@ footer a:hover {
     color: var(--orange);
 }
 
-#disclaimer-container {
+/* #disclaimer-container {
     position: fixed;
     display: flex;
     z-index: 5;
@@ -267,8 +299,8 @@ footer a:hover {
     flex-direction: column;
     justify-content: top;
     overflow-y: scroll;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
     line-height: normal;
     width: 85%;
     height: 65%;
@@ -290,7 +322,6 @@ footer a:hover {
     width: 80%;
     max-width: 400px;
     margin: 0 auto;
-    /* font-size: medium; */
     font-size: 1em;
 }
 
@@ -300,7 +331,7 @@ footer a:hover {
     max-width: 400px;
     margin: 0 auto;
     font-size: 1em;
-}
+} */
 
 #modal {
     display: none;
