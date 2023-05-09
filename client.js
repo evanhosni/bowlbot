@@ -20,6 +20,9 @@ socket.on("init", (data) => {
     connectedToServer = true
     socket.emit("leaderboards")
     currentBowls = data
+    setTimeout(() => {
+        bowls.innerHTML = currentBowls
+    },2500)
 })
 
 socket.on("bowlcount", (data) => {
