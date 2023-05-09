@@ -462,7 +462,7 @@ io.on("connection", (socket) => {
 
 
 sequelize.sync({
-force: true
+// force: true
 }).then((res) => {
     // console.log(res)
 }).catch((err) => {
