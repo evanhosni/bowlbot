@@ -5,16 +5,6 @@ var currentBowls
 var bowls = document.querySelector(".counter")
 var modal = document.querySelector('#modal')
 var listArray = document.querySelector('#leaderboards').querySelectorAll('table')
-var form = document.querySelector('#feedback-content')
-
-// document.querySelector("#agree-button").addEventListener("click",() => {
-//     console.log("ye")
-//     document.querySelector("#disclaimer-container").style.display = "none"
-//     document.querySelector("main").style.display = "flex"
-//     setTimeout(() => {
-//         bowls.innerHTML = currentBowls
-//     },2500)
-// })
 
 socket.on("init", (data) => {
     connectedToServer = true
@@ -113,14 +103,14 @@ socket.on("leaderboards", (data) => {
 })
 
 var leaderboardsOpen = false
-var feedbackOpen = false
+var disclaimerOpen = false
 var error = document.querySelector('#error')
 
 function leaderboards(range) {
-    feedbackOpen = false
+    disclaimerOpen = false
     leaderboardsOpen = true;
     modal.style.display = 'flex'
-    document.querySelector('#feedback').style.display = 'none'
+    document.querySelector('#disclaimer').style.display = 'none'
     document.querySelector('#leaderboards').style.display = 'flex'
     document.querySelector('body').style.overflowY = 'hidden'
     document.querySelector('main').style.visibility = 'hidden'
@@ -147,12 +137,12 @@ function leaderboards(range) {
     }
 }
 
-function feedback() {
+function disclaimer() {
     leaderboardsOpen = false
-    feedbackOpen = true;
+    disclaimerOpen = true;
     modal.style.display = 'flex'
     document.querySelector('#leaderboards').style.display = 'none'
-    document.querySelector('#feedback').style.display = 'flex'
+    document.querySelector('#disclaimer').style.display = 'flex'
     document.querySelector('body').style.overflowY = 'hidden'
     document.querySelector('main').style.visibility = 'hidden'
 }
@@ -165,12 +155,16 @@ document.querySelector('#btn-leaderboards').addEventListener('click',()=>{
     }
 })
 
-document.querySelector('#btn-feedback').addEventListener('click',()=>{
-    if (!feedbackOpen) {
-        feedback()
+document.querySelector('#toke-up-with-me').addEventListener('click',()=>{
+    if (!disclaimerOpen) {
+        disclaimer()
     } else {
         closeModal()
     }
+})
+
+document.querySelector("#agree-btn").addEventListener("click",() => {
+    closeModal()
 })
 
 var closeButtons = document.querySelectorAll('.close')
@@ -183,12 +177,11 @@ function closeModal() {
     document.querySelector('body').style.overflowY = 'visible'
     document.querySelector('main').style.visibility = 'visible'
     leaderboardsOpen = false
-    feedbackOpen = false
+    disclaimerOpen = false
 }
 
-// modal.addEventListener('click',(e)=>{ //TODO: do u want click off modal to close it?
-//     if (e.target.id === "modal") {
-//         modal.style.display = 'none'
-//         document.querySelector('body').style.overflowY = 'visible'
-//     }
-// })
+modal.addEventListener('click',(e)=>{
+    if (e.target.id === "modal") {
+        closeModal()
+    }
+})

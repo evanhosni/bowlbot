@@ -6,7 +6,7 @@
     --clearbrown: rgba(20, 14, 8, 0.69);
     --brown: rgb(65, 42, 26);
     --darkbrown: rgb(24, 14, 10);
-    --purp: rgb(90, 0, 192);
+    --purp: rgb(168, 91, 255);
     --orange: rgb(194, 126, 0);
     --lit: rgb(174, 32, 0)
 }
@@ -25,22 +25,6 @@ body {
 
 body::-webkit-scrollbar {
     display: none;
-}
-
-button {
-    font-family: 'Nanum Pen Script', cursive;
-    font-size: larger;
-    font-weight: bold;
-    padding: 2px 10px;
-    color: var(--darkbrown);
-    background-color: lightgray;
-    border: solid var(--darkbrown) 2px;;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: white;
 }
 
 #fade {
@@ -77,7 +61,10 @@ nav p {
     font-size: 70%;
 }
 
-nav a {
+#toke-up-with-me {
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: xx-large;
+    font-weight: bold;
     margin-right: 30px;
     margin-left: 10px;
     color: var(--lightgreen);
@@ -87,12 +74,12 @@ nav a {
     padding: 0 12px;
     background: var(--clearbrown);
     border: 4px solid var(--darkbrown);
-    border-radius: 20px;
+    border-radius: 999px;
     box-shadow: 0 0 5px var(--darkbrown);
     white-space: nowrap;
 }
 
-nav a:hover {
+#toke-up-with-me:hover {
     color: var(--lit);
     cursor: pointer;
     text-shadow: 0 0 20px whitesmoke;
@@ -117,7 +104,7 @@ nav a:hover {
 }
 
 main {
-    padding: 120px 0;
+    padding: 120px 0 80px;
     display: flex;
     flex-direction: column;
     /* justify-content: space-between; TODO: better vertical spacing*/
@@ -151,123 +138,23 @@ main h1 {
     padding: 10px 0 20px;
 }
 
-#container {
+#counter-container {
     margin: 0 auto;
     text-align: center;
 }
 
-#container p {
+#counter-container p {
     text-shadow: -2px 3px 5px black;
     font-size: 2.4em;
     text-align: center;
     padding: 10px;
+    margin-bottom: 20px;
 }
 
-#about {
-    margin-top: 3vh;
-    color: var(--lightgreen);
-    opacity: 0;
-    animation: fadein 2s;
-    animation-delay: 4.5s;
-    animation-fill-mode: forwards;
-}
-
-#about h1 {
-    text-shadow: -2px 3px 5px black;
-    font-size: 2.5em;
-    font-weight: normal;
-}
-
-#about p {
-    font-size: 24px;
-    padding: 5px 15%;
-    max-width: 1500px;
+.link-btn {
+    display: block;
     margin: auto;
-    text-shadow: -2px 3px 5px black;
     text-align: center;
-}
-
-#commands {
-    margin-top: 3vh;
-    color: var(--lightgreen);
-    opacity: 0;
-    animation: fadein 2s;
-    animation-delay: 4.5s;
-    animation-fill-mode: forwards;
-}
-
-#commands h1 {
-    text-shadow: -2px 3px 5px black;
-    font-size: 2.5em;
-    font-weight: normal;
-}
-
-#commands table {
-    margin: auto;
-    max-width: 1200px;
-}
-
-#commands td {
-    font-size: 24px;
-    padding: 5px;
-    margin: auto;
-    text-shadow: -2px 3px 5px black;
-    text-align: left;
-    max-width: 400px;
-}
-
-.command {
-    text-align: right !important;
-}
-
-#disclaimer {
-    margin-top: 3vh;
-    color: var(--lightgreen);
-    opacity: 0;
-    animation: fadein 2s;
-    animation-delay: 4.5s;
-    animation-fill-mode: forwards;
-}
-
-#disclaimer h1 {
-    text-shadow: -2px 3px 5px black;
-    font-size: 2.5em;
-    font-weight: normal;
-}
-
-#disclaimer p {
-    font-size: 24px;
-    padding: 5px 15%;
-    max-width: 1500px;
-    margin: auto;
-    text-shadow: -2px 3px 5px black;
-    text-align: center;
-}
-
-#disclaimer li {
-    font-size: 24px;
-    padding: 5px 0;
-    max-width: 1000px;
-    margin: auto;
-    text-shadow: -2px 3px 5px black;
-}
-
-footer {
-    position: fixed;
-    width: 100%;
-    padding-top: 50px;
-    bottom: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    text-align: center;
-    z-index: 2;
-    padding-bottom: 20px;
-    pointer-events: none;
-}
-
-footer a {
-    margin: 0 40px;
     font-size: 2em;
     text-decoration: none;
     text-shadow: -1px 2px 3px rgba(0,0,0,0.8);
@@ -277,61 +164,56 @@ footer a {
     cursor: pointer;
 }
 
-footer a:hover {
+.link-btn:hover {
     color: var(--orange);
 }
 
-/* #disclaimer-container {
-    position: fixed;
-    display: flex;
-    z-index: 5;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-    align-items: center;
-    background-color: rgb(0,0,0,0.7);
+.content {
+    margin-top: 3vh;
+    opacity: 0;
+    animation: fadein 2s;
+    animation-delay: 4.5s;
+    animation-fill-mode: forwards;
+    padding: 5px 10%;
+    max-width: 1500px;
+    margin: 20px auto;
 }
 
-#disclaimer {
-    display: flex;
-    flex-direction: column;
-    justify-content: top;
-    overflow-y: scroll;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    line-height: normal;
-    width: 85%;
-    height: 65%;
-    max-width: 500px;
-    padding: 8vw;
-    background-image: url('./images/smoke.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
+.content h1 {
+    text-shadow: -2px 3px 5px black;
+    font-size: 2.5em;
+    font-weight: normal;
+}
+
+.content p {
+    font-size: 24px;
+    text-shadow: -2px 3px 5px black;
     text-align: center;
 }
 
-#disclaimer::-webkit-scrollbar {
-    display: none;
+.content table {
+    max-width: 1200px;
 }
 
-#disclaimer p {
-    line-height: 1;
+.content td {
+    font-size: 24px;
     padding: 5px;
-    width: 80%;
+    text-shadow: -2px 3px 5px black;
+    text-align: left;
     max-width: 400px;
-    margin: 0 auto;
-    font-size: 1em;
 }
 
-#disclaimer li {
-    text-align: left;
-    width: 80%;
-    max-width: 400px;
-    margin: 0 auto;
-    font-size: 1em;
-} */
+.command {
+    text-align: right !important;
+}
+
+.content ul {
+    margin: auto;
+    font-size: 24px;
+    padding: 5px 0;
+    max-width: 800px;
+    text-shadow: -2px 3px 5px black;
+}
 
 #modal {
     display: none;
@@ -346,7 +228,7 @@ footer a:hover {
     user-select: none;
 }
 
-#leaderboards, #feedback {
+#leaderboards {
     display: none;
     flex-direction: column;
     width: 85%;
@@ -420,34 +302,7 @@ td {
     width: 50px;/*TODO: fit content*/
 }
 
-#feedback-content {
-    margin: auto;
-    max-width: 85%;
-    font-size: x-large;
-}
-
-#feedback-content p {
-    font-size: larger;
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-#feedback-content a {
-    display: block;
-    text-align: center;
-    color: var(--lightgreen);
-    transition: text-shadow 1s, color 1s;
-    text-shadow: 0 0 4px rgba(0,0,0,0.5);
-    padding: 20px;
-}
-
-#feedback-content a:hover {
-    color: var(--lit);
-    cursor: pointer;
-    text-shadow: 0 0 20px whitesmoke;
-}
-
-#error {
+.error {
     display: none;
     font-size: xx-large;
     margin: auto;
@@ -477,6 +332,62 @@ td {
     color: var(--orange);
 }
 
+#disclaimer {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    line-height: normal;
+    width: 85%;
+    height: 65%;
+    max-width: 500px;
+    padding: 8vw;
+    background-image: url('./images/smoke.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    text-align: center;
+}
+
+#disclaimer::-webkit-scrollbar {
+    display: none;
+}
+
+#disclaimer p {
+    line-height: 1;
+    padding: 5px 0;
+    width: 90%;
+    margin: 0 auto;
+    font-size: 1em;
+}
+
+#disclaimer ul {
+    text-align: left;
+    width: 90%;
+    margin: 0 auto;
+    font-size: 1em;
+}
+
+#agree-btn {
+    display: block;
+    width: fit-content;
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: larger;
+    font-weight: bold;
+    padding: 2px 10px;
+    color: var(--darkbrown);
+    background-color: lightgray;
+    border: solid var(--darkbrown) 2px;;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 0 auto;
+}
+
+#agree-btn:hover {
+    background-color: white;
+}
+
 
 @keyframes shake {
     50% {transform: rotate(18deg)}
@@ -484,6 +395,24 @@ td {
 
 @keyframes fadein {
     100% {opacity: 1;}
+}
+
+@media screen and (max-width: 1200px) {
+    #disclaimer h2 {
+        margin-top: 20px;
+    }
+    
+    #disclaimer p {
+        width: 80%;
+    }
+    
+    #disclaimer ul {
+        width: 80%;
+    }
+
+    #agree-btn {
+        margin: 0 auto 20px;
+    }
 }
 
 @media screen and (max-width: 480px) {
@@ -495,12 +424,11 @@ td {
         font-size: 22px;
     }
 
-    footer a {
-        font-size: 24px;
-        margin: 0 10px;
+    #toke-up-with-me {
+        font-size: 22px;
     }
 
-    #about p, #commands td, #disclaimer p, #disclaimer li {
+    .content p, .content td, .content ul {
         font-size: 20px;
     }
 
@@ -521,10 +449,6 @@ td {
         width: 37px;
     }
 
-    #feedback-content p {
-        font-size: x-large;
-    }
-
     .error {
         font-size: x-large;
         width: 95%;
@@ -533,7 +457,23 @@ td {
     .close {
         font-size: x-large;
     }
-} /*TODO: max-width & max-height feedback text area...or just make unadjustable*/
+
+    #disclaimer h2 {
+        margin-top: 50px;
+    }
+
+    #disclaimer p {
+        width: 75%;
+    }
+    
+    #disclaimer ul {
+        width: 75%;
+    }
+
+    #agree-btn {
+        margin: 0 auto 50px;
+    }
+}
 
 @media screen and (min-width: 1200px) and (min-height: 1200px) {
     #disclaimer {
