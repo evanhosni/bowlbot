@@ -189,6 +189,7 @@ main h1 {
     font-size: 24px;
     text-shadow: -2px 3px 5px black;
     text-align: center;
+    padding: 5px 0;
 }
 
 .content table {
@@ -210,9 +211,12 @@ main h1 {
 .content ul {
     margin: auto;
     font-size: 24px;
-    padding: 5px 0;
     max-width: 800px;
     text-shadow: -2px 3px 5px black;
+}
+
+.content li {
+    padding: 5px 0;
 }
 
 #modal {
