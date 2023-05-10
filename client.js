@@ -104,7 +104,7 @@ socket.on("leaderboards", (data) => {
 
 var leaderboardsOpen = false
 var disclaimerOpen = false
-var error = document.querySelector('#error')
+var error = document.querySelectorAll('.error')
 
 function leaderboards(range) {
     disclaimerOpen = false
@@ -133,7 +133,9 @@ function leaderboards(range) {
         document.querySelector('#tables').style.display = 'block'
         document.querySelector('#hint').style.display = 'block'
         document.querySelector(`#table-${range}`).style.display = 'table'
-        error.style.display = 'none'
+        for (let i = 0; i < error.length; i++) {
+            error[i].style.display = 'none'
+        }
     }
 }
 
