@@ -1,128 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>bowlbot</title>
-    <link rel="icon" href="./images/keef.png" type="image/x-icon"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css">
-    <link rel="stylesheet" href="./counter.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6949689798507556"
-     crossorigin="anonymous"></script>
-</head>
-<body>
+    <link rel="icon" href="./images/keef.png" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./counter.css" />
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6949689798507556"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
     <div id="fade"></div>
     <nav>
-        <p>bowlbot.<span id="suffix">app</span></p>
-        <button id="toke-up-with-me">toke up with me!</button>
+      <p>bowlbot.<span id="suffix">app</span></p>
+      <button id="toke-up-with-me">toke up with me!</button>
     </nav>
     <main>
-        <div id="sometimes"><p>sometimes, you need a bud...</p></div>
-        <section>
-            <h1>hi, i'm keef.</h1>
-            <img id="keef" src="./images/keef.png" alt="keef">
-            <div id="counter-container">
-                <div class="counter"></div>
-                <p>bowls have been schmoked worldwide.</p>
-                <!-- <p>bowlbot is taking a tolerance break (sorry :/)</p> -->
-            </div>
-            <a id="btn-leaderboards" class="link-btn">- view leaderboards -</a>
-        </section>
-        <section>
-            <div class="content">
-                <h1>ABOUT:</h1>
-                <p>Bowlbot (keef) is a must-have discord bot for forgetful potheads like you. Use him to set intervallic reminders for you and your dumbass friends so you don't forget to toke up. He'll join your voice channel and remind you to "schmoke a bowl" at whatever rate you're feeling. You'll love his smoooth voice.</p>
-                <p>Click "toke up with me" to invite him to your server. Enjoy your sesh!</p>
-            </div>
-            <div class="content">
-                <h1>COMMANDS:</h1>
-                <table>
-                    <tr><td class="command">"@keef help"</td><td>-</td><td>opens the command list</td></tr>
-                    <tr><td class="command">"@keef [number]"</td><td>-</td><td>sets a schmoke interval for [number] minutes</td></tr>
-                    <tr><td class="command">"@keef stop"</td><td>-</td><td>stops the interval and kicks keef from the call</td></tr>
-                    <tr><td class="command">"@keef stats"</td><td>-</td><td>displays your server's schmokin' stats</td></tr>
-                    <tr><td class="command">"@keef enable/disable rank"</td><td>-</td><td>enables/disables showing your server's name on website leaderboards (server admins only. rank disabled by default)</td></tr>
-                    <tr><td class="command">"@keef website"</td><td>-</td><td>displays website url in a fancy clickable link</td></tr>
-                    <tr><td class="command">"@keef support"</td><td>-</td><td>displays an invite link to the bowlbot support server</td></tr>
-                    <tr><td class="command">"@keef disclaimer"</td><td>-</td><td>displays the bowlbot disclaimer/waiver</td></tr>
-                </table>
-            </div>
-            <div class="content">
-                <h1>DISCLAIMER / WAIVER:</h1>
-                <p>Bowlbot is for cannabis patients and adults only. Bowlbot was created to help users pace themselves, not to promote excessive consumption. Please use bowlbot responsibly.</p>
-                <p>The creators of bowlbot are not responsible for any damage or misconduct related to the use/misuse of bowlbot or marijuana.</p>
-                <p>Warning: Marijuana can impair concentration, coordination, and judgment. Do not operate a vehicle or machinery under the influence of this drug. This drug has intoxicating effects and may be habit forming. There may be health risks associated with consumption of this drug. For use only by adults twenty-one and older. Keep out of the reach of anyone under the age of 21 and pets.</p>
-                <p><strong>By using bowlbot, you agree to the following:</strong></p>
-                <ul>
-                    <li>You are at least 21 years of age</li>
-                    <li>You are abiding by your state and federal cannabis laws.</li>
-                    <li>You understand the effects of marijuana.</li>
-                    <li>You are using bowlbot at your own risk, including all risks of injury and/or damage.</li>
-                    <li>You assume all responsibility for your health, body, and actions whilst under the influence of marijuana.</li>
-                    <li>You waive the right to make, assist, or cause any claims of any kind against bowlbot and its creators for your actions and the actions of your peers and fellow server members.</li>
-                    <li>You will defend, indemnify, and hold bowlbot and its creators harmless against all claims, demands, liabilities, damages, losses, costs, fees (including legal fees), and expenses which may be asserted against bowlbot or its creators relating to any claim or legal proceeding arising from the use/misuse of bowlbot.</li>
-                    <li>You have read this disclaimer/waiver and understand it in its entirety.</li>
-                </ul>
-                <p><strong>By using bowlbot, you agree to these terms.</strong></p>
-            </div>
-            <div class="content">
-                <h1>FEEDBACK / SUPPORT:</h1>
-                <p>let me know what you think!</p>
-                <a href="https://discord.gg/CzmtRZa9Zd" class="link-btn">- join bowlbot support server -</a>
-            </div>
-        </section>
+      <div id="sometimes"><p>sometimes, you need a bud...</p></div>
+      <section>
+        <h1>hi, i'm keef.</h1>
+        <img id="keef" src="./images/keef.png" alt="keef" />
+        <div id="counter-container">
+          <!-- <div class="counter"></div> -->
+          <!-- <p>bowls have been schmoked worldwide.</p> -->
+          <p>bowlbot is taking a tolerance break (sorry :/)</p>
+        </div>
+        <!-- <a id="btn-leaderboards" class="link-btn">- view leaderboards -</a> -->
+      </section>
+      <section>
+        <div class="content">
+          <h1>ABOUT:</h1>
+          <p>
+            Bowlbot (keef) is a must-have discord bot for forgetful potheads like you. Use him to set intervallic
+            reminders for you and your dumbass friends so you don't forget to toke up. He'll join your voice channel and
+            remind you to "schmoke a bowl" at whatever rate you're feeling. You'll love his smoooth voice.
+          </p>
+          <p>Click "toke up with me" to invite him to your server. Enjoy your sesh!</p>
+        </div>
+        <div class="content">
+          <h1>COMMANDS:</h1>
+          <table>
+            <tr>
+              <td class="command">"@keef help"</td>
+              <td>-</td>
+              <td>opens the command list</td>
+            </tr>
+            <tr>
+              <td class="command">"@keef [number]"</td>
+              <td>-</td>
+              <td>sets a schmoke interval for [number] minutes</td>
+            </tr>
+            <tr>
+              <td class="command">"@keef stop"</td>
+              <td>-</td>
+              <td>stops the interval and kicks keef from the call</td>
+            </tr>
+            <tr>
+              <td class="command">"@keef stats"</td>
+              <td>-</td>
+              <td>displays your server's schmokin' stats</td>
+            </tr>
+            <tr>
+              <td class="command">"@keef enable/disable rank"</td>
+              <td>-</td>
+              <td>
+                enables/disables showing your server's name on website leaderboards (server admins only. rank disabled
+                by default)
+              </td>
+            </tr>
+            <tr>
+              <td class="command">"@keef website"</td>
+              <td>-</td>
+              <td>displays website url in a fancy clickable link</td>
+            </tr>
+            <tr>
+              <td class="command">"@keef support"</td>
+              <td>-</td>
+              <td>displays an invite link to the bowlbot support server</td>
+            </tr>
+            <tr>
+              <td class="command">"@keef disclaimer"</td>
+              <td>-</td>
+              <td>displays the bowlbot disclaimer/waiver</td>
+            </tr>
+          </table>
+        </div>
+        <div class="content">
+          <h1>DISCLAIMER / WAIVER:</h1>
+          <p>
+            Bowlbot is for cannabis patients and adults only. Bowlbot was created to help users pace themselves, not to
+            promote excessive consumption. Please use bowlbot responsibly.
+          </p>
+          <p>
+            The creators of bowlbot are not responsible for any damage or misconduct related to the use/misuse of
+            bowlbot or marijuana.
+          </p>
+          <p>
+            Warning: Marijuana can impair concentration, coordination, and judgment. Do not operate a vehicle or
+            machinery under the influence of this drug. This drug has intoxicating effects and may be habit forming.
+            There may be health risks associated with consumption of this drug. For use only by adults twenty-one and
+            older. Keep out of the reach of anyone under the age of 21 and pets.
+          </p>
+          <p><strong>By using bowlbot, you agree to the following:</strong></p>
+          <ul>
+            <li>You are at least 21 years of age</li>
+            <li>You are abiding by your state and federal cannabis laws.</li>
+            <li>You understand the effects of marijuana.</li>
+            <li>You are using bowlbot at your own risk, including all risks of injury and/or damage.</li>
+            <li>
+              You assume all responsibility for your health, body, and actions whilst under the influence of marijuana.
+            </li>
+            <li>
+              You waive the right to make, assist, or cause any claims of any kind against bowlbot and its creators for
+              your actions and the actions of your peers and fellow server members.
+            </li>
+            <li>
+              You will defend, indemnify, and hold bowlbot and its creators harmless against all claims, demands,
+              liabilities, damages, losses, costs, fees (including legal fees), and expenses which may be asserted
+              against bowlbot or its creators relating to any claim or legal proceeding arising from the use/misuse of
+              bowlbot.
+            </li>
+            <li>You have read this disclaimer/waiver and understand it in its entirety.</li>
+          </ul>
+          <p><strong>By using bowlbot, you agree to these terms.</strong></p>
+        </div>
+        <div class="content">
+          <h1>FEEDBACK / SUPPORT:</h1>
+          <p>let me know what you think!</p>
+          <a href="https://discord.gg/CzmtRZa9Zd" class="link-btn">- join bowlbot support server -</a>
+        </div>
+      </section>
     </main>
     <div id="modal">
-        <div id="leaderboards">
-            <p class="error">hmm...looks like the server is down. my bad.</p>
-            <div id="tabs">
-                <a id="tab-total" onclick="leaderboards('total')">total</a>
-                <a id="tab-year" onclick="leaderboards('year')">year</a>
-                <a id="tab-month" onclick="leaderboards('month')">month</a>
-                <a id="tab-week" onclick="leaderboards('week')">week</a>
-                <a id="tab-day" onclick="leaderboards('day')">day</a>
-                <a id="tab-hour" onclick="leaderboards('hour')">hour</a>
-            </div>
-            <div id="tables">
-                <table id="table-total"></table>
-                <table id="table-year"></table>
-                <table id="table-month"></table>
-                <table id="table-week"></table>
-                <table id="table-day"></table>
-                <table id="table-hour"></table>
-            </div>
-            <p id="hint">Use command "@keef enable rank" to include your server on the leaderboards!</p>
-            <div class="close">(close)</div>
+      <div id="leaderboards">
+        <p class="error">hmm...looks like the server is down. my bad.</p>
+        <div id="tabs">
+          <a id="tab-total" onclick="leaderboards('total')">total</a>
+          <a id="tab-year" onclick="leaderboards('year')">year</a>
+          <a id="tab-month" onclick="leaderboards('month')">month</a>
+          <a id="tab-week" onclick="leaderboards('week')">week</a>
+          <a id="tab-day" onclick="leaderboards('day')">day</a>
+          <a id="tab-hour" onclick="leaderboards('hour')">hour</a>
         </div>
-        <div id="disclaimer">
-            <h2>DISCLAIMER / WAIVER:</h2>
-            <div>
-                <p>Bowlbot is for cannabis patients and adults only. Bowlbot was created to help users pace themselves, not to promote excessive consumption. Please use bowlbot responsibly.</p>
-                <p>The creators of bowlbot are not responsible for any damage or misconduct related to the use/misuse of bowlbot or marijuana.</p>
-                <p>Warning: Marijuana can impair concentration, coordination, and judgment. Do not operate a vehicle or machinery under the influence of this drug. This drug has intoxicating effects and may be habit forming. There may be health risks associated with consumption of this drug. For use only by adults twenty-one and older. Keep out of the reach of anyone under the age of 21 and pets.</p>
-                <p><strong>By using bowlbot, you agree to the following:</strong></p>
-                <ul>
-                    <li>You are at least 21 years of age</li>
-                    <li>You are abiding by your state and federal cannabis laws.</li>
-                    <li>You understand the effects of marijuana.</li>
-                    <li>You are using bowlbot at your own risk, including all risks of injury and/or damage.</li>
-                    <li>You assume all responsibility for your health, body, and actions whilst under the influence of marijuana.</li>
-                    <li>You waive the right to make, assist, or cause any claims of any kind against bowlbot and its creators for your actions and the actions of your peers and fellow server members.</li>
-                    <li>You will defend, indemnify, and hold bowlbot and its creators harmless against all claims, demands, liabilities, damages, losses, costs, fees (including legal fees), and expenses which may be asserted against bowlbot or its creators relating to any claim or legal proceeding arising from the use/misuse of bowlbot.</li>
-                    <li>You have read this disclaimer/waiver and understand it in its entirety.</li>
-                </ul>
-                <p><strong>By using bowlbot, you agree to these terms.</strong></p><br>
-                <a href="https://discord.com/oauth2/authorize?client_id=956758656370769920&permissions=3147776&scope=bot" target="_blank" id="agree-btn">i agree</a>
-            </div>
+        <div id="tables">
+          <table id="table-total"></table>
+          <table id="table-year"></table>
+          <table id="table-month"></table>
+          <table id="table-week"></table>
+          <table id="table-day"></table>
+          <table id="table-hour"></table>
         </div>
+        <p id="hint">Use command "@keef enable rank" to include your server on the leaderboards!</p>
+        <div class="close">(close)</div>
+      </div>
+      <div id="disclaimer">
+        <h2>DISCLAIMER / WAIVER:</h2>
+        <div>
+          <p>
+            Bowlbot is for cannabis patients and adults only. Bowlbot was created to help users pace themselves, not to
+            promote excessive consumption. Please use bowlbot responsibly.
+          </p>
+          <p>
+            The creators of bowlbot are not responsible for any damage or misconduct related to the use/misuse of
+            bowlbot or marijuana.
+          </p>
+          <p>
+            Warning: Marijuana can impair concentration, coordination, and judgment. Do not operate a vehicle or
+            machinery under the influence of this drug. This drug has intoxicating effects and may be habit forming.
+            There may be health risks associated with consumption of this drug. For use only by adults twenty-one and
+            older. Keep out of the reach of anyone under the age of 21 and pets.
+          </p>
+          <p><strong>By using bowlbot, you agree to the following:</strong></p>
+          <ul>
+            <li>You are at least 21 years of age</li>
+            <li>You are abiding by your state and federal cannabis laws.</li>
+            <li>You understand the effects of marijuana.</li>
+            <li>You are using bowlbot at your own risk, including all risks of injury and/or damage.</li>
+            <li>
+              You assume all responsibility for your health, body, and actions whilst under the influence of marijuana.
+            </li>
+            <li>
+              You waive the right to make, assist, or cause any claims of any kind against bowlbot and its creators for
+              your actions and the actions of your peers and fellow server members.
+            </li>
+            <li>
+              You will defend, indemnify, and hold bowlbot and its creators harmless against all claims, demands,
+              liabilities, damages, losses, costs, fees (including legal fees), and expenses which may be asserted
+              against bowlbot or its creators relating to any claim or legal proceeding arising from the use/misuse of
+              bowlbot.
+            </li>
+            <li>You have read this disclaimer/waiver and understand it in its entirety.</li>
+          </ul>
+          <p><strong>By using bowlbot, you agree to these terms.</strong></p>
+          <br />
+          <a
+            href="https://discord.com/oauth2/authorize?client_id=956758656370769920&permissions=3147776&scope=bot"
+            target="_blank"
+            id="agree-btn"
+            >i agree</a
+          >
+        </div>
+      </div>
     </div>
-</body>
-<script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script src="./counter.js"></script>
-<script src="./client.js"></script>
+  </body>
+  <script
+    src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+    integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
+    crossorigin="anonymous"
+  ></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="./counter.js"></script>
+  <script src="./client.js"></script>
 </html>
