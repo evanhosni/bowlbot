@@ -34,10 +34,11 @@ const disclaimer = "**BOWLBOT DISCLAIMER / WAIVER:**\n\nBowlbot is for cannabis 
 
 const bot = new Discord.Client({
     intents: [ //TODO: which intents do i need?
-        Discord.Intents.FLAGS.GUILDS,
-        Discord.Intents.FLAGS.GUILD_MESSAGES,
-        Discord.Intents.FLAGS.GUILD_PRESENCES,
-        Discord.Intents.FLAGS.GUILD_VOICE_STATES
+        Discord.GatewayIntentBits.Guilds,
+        Discord.GatewayIntentBits.GuildMessages,
+        Discord.GatewayIntentBits.GuildPresences,
+        Discord.GatewayIntentBits.GuildVoiceStates,
+        Discord.GatewayIntentBits.MessageContent
     ]
 });
 
@@ -247,7 +248,7 @@ bot.on("messageCreate", message => {
         if (msg === "enable rank" || msg === "enable ranked" || msg === "enable ranking") {
             Server.findByPk(serverId).then(serv => {
                 if (!serv.rank) {
-                    if (message.member.permissions.has('ADMINISTRATOR')) {
+                    if (message.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
                         serv.update({ rank: true })
                         message.channel.send({content:"ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at https://bowlbot.app"})
 
@@ -273,7 +274,7 @@ bot.on("messageCreate", message => {
         if (msg === "disable rank" || msg === "disable ranked" || msg === "disable ranking") {
             Server.findByPk(serverId).then(serv => {
                 if (serv.rank) {
-                    if (message.member.permissions.has('ADMINISTRATOR')) {
+                    if (message.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
                         serv.update({ rank: false })
                         message.channel.send({content:"ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at https://bowlbot.app"})
                         leaderboardsMap.delete(serverId)
