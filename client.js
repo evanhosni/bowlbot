@@ -2,6 +2,7 @@
 const socket = io("https://bowlbot-server.herokuapp.com")
 var connectedToServer
 var currentBowls
+var is_online = false
 var bowls = document.querySelector(".counter")
 var modal = document.querySelector('#modal')
 var listArray = document.querySelector('#leaderboards').querySelectorAll('table')
@@ -20,6 +21,11 @@ socket.on("bowlcount", (data) => {
     setTimeout(() => {
         bowls.innerHTML = data
     },3500)
+})
+
+socket.on("bot_status", (status) => {
+    is_online = status
+    updateBotStatus()
 })
 
 socket.on("leaderboards", (data) => {
@@ -187,3 +193,16 @@ modal.addEventListener('click',(e)=>{
         closeModal()
     }
 })
+
+function updateBotStatus() {
+    const onlineElements = document.querySelectorAll('.online')
+    const offlineElements = document.querySelectorAll('.offline')
+
+    if (is_online) {
+        onlineElements.forEach(el => el.style.display = 'block')
+        offlineElements.forEach(el => el.style.display = 'none')
+    } else {
+        onlineElements.forEach(el => el.style.display = 'none')
+        offlineElements.forEach(el => el.style.display = 'block')
+    }
+}

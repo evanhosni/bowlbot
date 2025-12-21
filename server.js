@@ -43,6 +43,7 @@ const bot = new Discord.Client({
 
 let sesh = new Map();
 let leaderboardsMap = new Map();
+let is_online = false;
 
 function vibeCheck(clients) {
   Server.findAll({ where: { rank: true } }).then((servers) => {
@@ -80,6 +81,8 @@ function vibeCheck(clients) {
 bot.on("ready", () => {
   console.log(`ayyooo it's ${bot.user.tag}`);
   console.log(bot.guilds.cache.map((g) => g.name).join("\n"));
+  is_online = true;
+  io.emit("bot_status", is_online);
   var clientIds = bot.guilds.cache.map((g) => g.id);
   Promise.all(clientIds).then((data) => {
     vibeCheck(data);
@@ -408,12 +411,25 @@ bot.on("messageCreate", (message) => {
   });
 });
 
+bot.on("error", (error) => {
+  console.log("bot error:", error);
+  is_online = false;
+  io.emit("bot_status", is_online);
+});
+
+bot.on("disconnect", () => {
+  console.log("bot disconnected");
+  is_online = false;
+  io.emit("bot_status", is_online);
+});
+
 bot.login(process.env.token);
 
 //SOCKETIO STUFF----------------------------------------------------------------------------------------
 
 io.on("connection", (socket) => {
   console.log("we're one, brother");
+  socket.emit("bot_status", is_online);
   Bowl.count().then((bowl) => {
     io.emit("init", bowl);
   });
