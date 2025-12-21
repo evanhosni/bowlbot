@@ -394,11 +394,11 @@ td {
 }
 
 .online {
-  display: block;
+  display: none;
 }
 
 .offline {
-  display: none;
+  display: block;
 }
 
 @keyframes shake {
