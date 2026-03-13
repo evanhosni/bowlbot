@@ -193,7 +193,7 @@ bot.on("messageCreate", (message) => {
 
       connection.on("stateChange", (oldState, newState) => {
         console.log(`Connection: ${oldState.status} -> ${newState.status}`);
-        if (newState.status === discordVoice.VoiceConnectionStatus.Ready) {
+        if (newState.status === discordVoice.VoiceConnectionStatus.Ready && oldState.status !== discordVoice.VoiceConnectionStatus.Ready) {
           console.log("Connection ready, subscribing player...");
           connection.subscribe(player);
         }
