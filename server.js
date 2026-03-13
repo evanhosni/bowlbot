@@ -78,7 +78,7 @@ function vibeCheck(clients) {
   });
 }
 
-bot.on("ready", () => {
+bot.on("clientReady", () => {
   console.log(`ayyooo it's ${bot.user.tag}`);
   console.log(bot.guilds.cache.map((g) => g.name).join("\n"));
   is_online = true;
@@ -91,7 +91,7 @@ bot.on("ready", () => {
 
 bot.on("guildCreate", (guild) => {
   guild.systemChannel.send(
-    "*cough cough* ayyooo it's keef!!\n\ntype `@keef help` for the list of commands, or we could jump right into a 30-min schmoke interval with `@keef 30`\n\n**IMPORTANT: Use bowlbot (me) at your own risk. By using bowlbot, you agree to the bowlbot disclaimer/waiver.**"
+    "*cough cough* ayyooo it's keef!!\n\ntype `@keef help` for the list of commands, or we could jump right into a 30-min schmoke interval with `@keef 30`\n\n**IMPORTANT: Use bowlbot (me) at your own risk. By using bowlbot, you agree to the bowlbot disclaimer/waiver.**",
   );
   guild.systemChannel.send("@everyone\n\n" + disclaimer);
   Server.findOrCreate({ where: { id: guild.id }, defaults: { id: guild.id, name: guild.name } }).then((res) => {
@@ -182,67 +182,80 @@ bot.on("messageCreate", (message) => {
         adapterCreator: message.guild.voiceAdapterCreator,
         selfDeaf: false,
       });
-      connection.subscribe(player);
+
+      connection.on("stateChange", (oldState, newState) => {
+        if (
+          newState.status === discordVoice.VoiceConnectionStatus.Ready &&
+          oldState.status !== discordVoice.VoiceConnectionStatus.Ready
+        ) {
+          connection.subscribe(player);
+        }
+      });
 
       var botVoiceChannel = discordVoice.getVoiceConnection(message.guild.id);
       sesh.set(
         serverId,
-        setInterval(() => {
-          if (botVoiceChannel && userVoiceChannel.members.size <= 1) {
-            //NOTE: just a safety measure. Kicks keef out upon next bowl if nobody else is there
-            message.channel.send({ content: "bru" + (ukMode ? "v" : "h") + " where'd everyone go" });
-            clearInterval(sesh.get(serverId));
-            sesh.delete(serverId);
-            botVoiceChannel.destroy();
-          } else {
-            player.play(
-              discordVoice.createAudioResource(ukMode ? "./audio/schmoke_a_spliff.mp3" : "./audio/schmoke_a_bowl.mp3")
-            );
-            Server.findByPk(serverId).then((serv) => {
-              //TODO: better way to hold onto server, as you found it earlier?
-              serv.createBowl().then(() => {
-                Bowl.count().then((bowl) => {
-                  var total = Bowl.count({ where: { serverId: serverId } });
-                  var year = Bowl.count({
-                    where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "years").toDate() } },
-                  });
-                  var month = Bowl.count({
-                    where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "months").toDate() } },
-                  });
-                  var week = Bowl.count({
-                    where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "weeks").toDate() } },
-                  });
-                  var day = Bowl.count({
-                    where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "days").toDate() } },
-                  });
-                  var hour = Bowl.count({
-                    where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "hours").toDate() } },
-                  });
-
-                  Promise.all([total, year, month, week, day, hour])
-                    .then((data) => {
-                      if (serv.rank) {
-                        leaderboardsMap.set(serverId, [
-                          serv.name,
-                          data[0],
-                          data[1],
-                          data[2],
-                          data[3],
-                          data[4],
-                          data[5],
-                        ]);
-                      } else {
-                        leaderboardsMap.delete(serverId);
-                      }
-                    })
-                    .then(() => {
-                      io.emit("bowlcount", bowl);
+        setInterval(
+          () => {
+            if (botVoiceChannel && userVoiceChannel.members.size <= 1) {
+              //NOTE: just a safety measure. Kicks keef out upon next bowl if nobody else is there
+              message.channel.send({ content: "bru" + (ukMode ? "v" : "h") + " where'd everyone go" });
+              clearInterval(sesh.get(serverId));
+              sesh.delete(serverId);
+              botVoiceChannel.destroy();
+            } else {
+              player.play(
+                discordVoice.createAudioResource(
+                  ukMode ? "./audio/schmoke_a_spliff.mp3" : "./audio/schmoke_a_bowl.mp3",
+                ),
+              );
+              Server.findByPk(serverId).then((serv) => {
+                //TODO: better way to hold onto server, as you found it earlier?
+                serv.createBowl().then(() => {
+                  Bowl.count().then((bowl) => {
+                    var total = Bowl.count({ where: { serverId: serverId } });
+                    var year = Bowl.count({
+                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "years").toDate() } },
                     });
+                    var month = Bowl.count({
+                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "months").toDate() } },
+                    });
+                    var week = Bowl.count({
+                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "weeks").toDate() } },
+                    });
+                    var day = Bowl.count({
+                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "days").toDate() } },
+                    });
+                    var hour = Bowl.count({
+                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "hours").toDate() } },
+                    });
+
+                    Promise.all([total, year, month, week, day, hour])
+                      .then((data) => {
+                        if (serv.rank) {
+                          leaderboardsMap.set(serverId, [
+                            serv.name,
+                            data[0],
+                            data[1],
+                            data[2],
+                            data[3],
+                            data[4],
+                            data[5],
+                          ]);
+                        } else {
+                          leaderboardsMap.delete(serverId);
+                        }
+                      })
+                      .then(() => {
+                        io.emit("bowlcount", bowl);
+                      });
+                  });
                 });
               });
-            });
-          }
-        }, msg * 1000 * 60)
+            }
+          },
+          msg * 1000 * 60,
+        ),
       );
       return;
     }
