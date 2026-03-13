@@ -78,7 +78,7 @@ function vibeCheck(clients) {
   });
 }
 
-bot.on("ready", () => {
+bot.on("clientReady", () => {
   console.log(`ayyooo it's ${bot.user.tag}`);
   console.log(bot.guilds.cache.map((g) => g.name).join("\n"));
   is_online = true;
