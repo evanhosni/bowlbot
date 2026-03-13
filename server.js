@@ -182,9 +182,6 @@ bot.on("messageCreate", (message) => {
         adapterCreator: message.guild.voiceAdapterCreator,
         selfDeaf: false,
       });
-      connection.subscribe(player);
-
-      ///
 
       player.on("error", (error) => {
         console.error("Audio player error:", error);
@@ -196,6 +193,10 @@ bot.on("messageCreate", (message) => {
 
       connection.on("stateChange", (oldState, newState) => {
         console.log(`Connection: ${oldState.status} -> ${newState.status}`);
+        if (newState.status === discordVoice.VoiceConnectionStatus.Ready) {
+          console.log("Connection ready, subscribing player...");
+          connection.subscribe(player);
+        }
         if (newState.status === discordVoice.VoiceConnectionStatus.Disconnected) {
           console.log("Voice connection disconnected, attempting to reconnect...");
           try {
@@ -205,8 +206,6 @@ bot.on("messageCreate", (message) => {
           }
         }
       });
-
-      ///
 
       var botVoiceChannel = discordVoice.getVoiceConnection(message.guild.id);
       sesh.set(
