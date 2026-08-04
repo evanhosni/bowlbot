@@ -1,15 +1,12 @@
 const Discord = require("discord.js");
 const discordVoice = require("@discordjs/voice");
 require("dotenv").config();
-// const { sensitiveHeaders } = require("http2");//TODO: is this used?
 
 //NEW SERVER STUFF (EXPRESS)
 const express = require("express");
 const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
-// app.use(express.urlencoded({extended:true})) //TODO: what does this do?
-// app.use(express.json()) //TODO: what does this do?
 app.use(express.static(__dirname));
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "/index.html")));
 
@@ -100,11 +97,6 @@ bot.on("guildCreate", (guild) => {
 bot.on("messageCreate", (message) => {
   var msg;
   var ukMode = false;
-
-  // if (message.channel.type == "dm" && !message.author.bot) { //ignores direct messages
-  //     message.channel.send({content:"sup baby"}) //TODO: spams pierce for some reason. do something else?
-  //     return;
-  // }
 
   if (message.author.bot) return;
   if (message.mentions.here) return;
@@ -392,17 +384,6 @@ bot.on("messageCreate", (message) => {
       return;
     }
 
-    // if (msg === "check rank" || msg === "check ranked" || msg === "check ranking") { //TODO: maybe check actual rank, like 1st place, etc.?
-    //     Server.findByPk(serverId).then(serv => {
-    //         if (serv.rank) {
-    //             message.channel.send({content:"rank is currently enabled."})
-    //         } else {
-    //             message.channel.send({content:"rank is currently disabled."})
-    //         }
-    //     })
-    //     return
-    // }
-
     if (msg === "number" || msg === "(number)" || msg === "[number]") {
       message.channel.send({ content: "no not like that silly goose. actually specify a number... like `keef 15`" }); //TODO: rephrase?
       return;
@@ -514,16 +495,9 @@ io.on("connection", (socket) => {
   });
 });
 
-sequelize
-  .sync({
-    // /*force: true*/
-  })
-  .then((res) => {
-    // console.log(res)
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+sequelize.sync().catch((err) => {
+  console.log(err);
+});
 
 //TODO: auto set rank to false if server kicks keef
 //TODO: 61 bowls per hour on leaderboard?

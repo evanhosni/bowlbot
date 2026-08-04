@@ -52,8 +52,6 @@ socket.on("leaderboards", (data) => {
     thBowls.className = "bowls";
     thRow.append(thRank, thName, thBowls);
     listArray[i].append(thRow);
-    // for (let test = 0; test < 5; test++) {//TODO yeet (this is for testing leaderboard scrolling)
-
     for (let j = 0; j < dataArray[i].length; j++) {
       var row = document.createElement("tr");
       var rank = document.createElement("td");
@@ -80,7 +78,6 @@ socket.on("leaderboards", (data) => {
       row.append(rank, name, bowls);
       listArray[i].append(row);
     }
-    // }// TODO yeet (this is for testing leaderboard scrolling)
   }
 
   let servernames = document.querySelectorAll(".name");
