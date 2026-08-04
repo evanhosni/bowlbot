@@ -33,10 +33,8 @@ const disclaimer =
 
 const bot = new Discord.Client({
   intents: [
-    //TODO: which intents do i need?
     Discord.GatewayIntentBits.Guilds,
     Discord.GatewayIntentBits.GuildMessages,
-    Discord.GatewayIntentBits.GuildPresences,
     Discord.GatewayIntentBits.GuildVoiceStates,
   ],
 });
