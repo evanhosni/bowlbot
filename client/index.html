@@ -51,47 +51,39 @@
           <h1>COMMANDS:</h1>
           <table>
             <tr>
-              <td class="command">"@keef help"</td>
-              <td>-</td>
-              <td>opens the command list</td>
-            </tr>
-            <tr>
-              <td class="command">"@keef [number]"</td>
-              <td>-</td>
+              <td class="command-cell"><span class="command">/keef [number]</span></td>
               <td>joins call and sets a schmoke interval for [number] minutes</td>
             </tr>
             <tr>
-              <td class="command">"@keef stop"</td>
-              <td>-</td>
+              <td class="command-cell"><span class="command">/stop</span></td>
               <td>stops the interval and kicks keef from the call</td>
             </tr>
             <tr>
-              <td class="command">"@keef stats"</td>
-              <td>-</td>
+              <td class="command-cell"><span class="command">/stats</span></td>
               <td>displays your server's schmokin' stats</td>
             </tr>
             <tr>
-              <td class="command">"@keef enable/disable rank"</td>
-              <td>-</td>
+              <td class="command-cell"><span class="command">/enable/disable rank</span></td>
               <td>
                 enables/disables showing your server's name on website leaderboards (server admins only. rank disabled
                 by default)
               </td>
             </tr>
             <tr>
-              <td class="command">"@keef website"</td>
-              <td>-</td>
+              <td class="command-cell"><span class="command">/website</span></td>
               <td>displays website url in a fancy clickable link</td>
             </tr>
             <tr>
-              <td class="command">"@keef support"</td>
-              <td>-</td>
+              <td class="command-cell"><span class="command">/support</span></td>
               <td>displays an invite link to the bowlbot support server</td>
             </tr>
             <tr>
-              <td class="command">"@keef disclaimer"</td>
-              <td>-</td>
+              <td class="command-cell"><span class="command">/disclaimer</span></td>
               <td>displays the bowlbot disclaimer/waiver</td>
+            </tr>
+            <tr>
+              <td class="command-cell"><span class="command">/help</span></td>
+              <td>opens the command list</td>
             </tr>
           </table>
         </div>
@@ -167,7 +159,7 @@
           <div class="panel"><div id="board-day" class="board"></div></div>
           <div class="panel"><div id="board-hour" class="board"></div></div>
         </div>
-        <p id="hint">Use command "@keef enable rank" to include your server on the leaderboards!</p>
+        <p id="hint">include your server on the leaderboards with <span class="command">/enable rank</span></p>
         <div class="close">(close)</div>
       </div>
       <div id="disclaimer">

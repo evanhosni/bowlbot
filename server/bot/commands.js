@@ -7,7 +7,6 @@
 //                  Value is appended to the mention phrase, or is the whole text if standalone
 //   sub            { name, description } renders as `/name sub`
 //   adminOnly      hidden from non-admins in the slash picker
-//   perGuild(serv, guild) registered per server, only while true for that server
 //   quiet          ephemeral where supported
 //   usage          how the command is written after `@keef ` in the help list, defaults to name
 //   hidden: true   left out of the help list
@@ -26,11 +25,6 @@ const { disclaimer } = require("../text");
 const charts = require("../charts");
 
 const AUDIO_DIR = path.join(__dirname, "..", "..", "audio");
-
-// Lazy: slash.js requires this file.
-function syncGuildCommands(guild) {
-  return require("./slash").syncGuildCommands(guild);
-}
 
 const commands = [
   {
@@ -91,7 +85,6 @@ const commands = [
                 clearInterval(sesh.get(serverId));
                 sesh.delete(serverId);
                 botVoiceChannel.destroy();
-                syncGuildCommands(ctx.guild);
               } else {
                 player.play(
                   discordVoice.createAudioResource(
@@ -115,7 +108,6 @@ const commands = [
           msg * 1000 * 60,
         ),
       );
-      syncGuildCommands(ctx.guild);
     },
   },
 
@@ -127,7 +119,6 @@ const commands = [
   {
     name: "stop",
     description: "stops the interval and kicks keef from the call",
-    perGuild: (serv, guild) => sesh.has(guild.id),
     run(ctx, { serverId }) {
       //TODO: do you want to be able to stop keef if other people are in the call but you are not?
       const botVoiceChannel = discordVoice.getVoiceConnection(ctx.guild.id);
@@ -136,7 +127,6 @@ const commands = [
         clearInterval(sesh.get(serverId));
         sesh.delete(serverId);
         botVoiceChannel.destroy();
-        syncGuildCommands(ctx.guild);
       } else {
         ctx.reply({ content: "i wasn't doing anything!" });
       }
@@ -187,13 +177,11 @@ const commands = [
     description: "enables showing your server's name on website leaderboards (admins only)",
     sub: { name: "rank", description: "your server's name and stats will appear on the leaderboards" },
     adminOnly: true,
-    perGuild: (serv) => !serv.rank,
     run(ctx, { serverId }) {
       const serv = db.findServer(serverId);
       if (!serv.rank) {
         if (ctx.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
           db.setServerRank(serverId, true);
-          syncGuildCommands(ctx.guild);
           ctx.reply({
             content:
               "ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at https://bowlbot.io",
@@ -215,13 +203,11 @@ const commands = [
     description: "disables showing your server's name on website leaderboards (admins only)",
     sub: { name: "rank", description: "your server's name and stats will no longer appear on the leaderboards" },
     adminOnly: true,
-    perGuild: (serv) => Boolean(serv.rank),
     run(ctx, { serverId }) {
       const serv = db.findServer(serverId);
       if (serv.rank) {
         if (ctx.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
           db.setServerRank(serverId, false);
-          syncGuildCommands(ctx.guild);
           ctx.reply({
             content:
               "ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at https://bowlbot.io",

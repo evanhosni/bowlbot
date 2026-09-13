@@ -5,7 +5,7 @@ const { status } = require("../state");
 const { vibeCheck } = require("../leaderboards");
 const { describeGuild, logGuildError } = require("../log");
 const { disclaimer, welcome } = require("../text");
-const { registerSlashCommands, syncGuildCommands } = require("./slash");
+const { registerSlashCommands } = require("./slash");
 
 bot.on("clientReady", () => {
   console.log(`ayyooo it's ${bot.user.tag}`);
@@ -18,7 +18,6 @@ bot.on("clientReady", () => {
 
 bot.on("guildCreate", (guild) => {
   console.log(db.findOrCreateServer(guild.id, guild.name));
-  syncGuildCommands(guild);
   const channel = guild.systemChannel;
   if (!channel) {
     console.log(`[guildCreate] ${describeGuild(guild)}: no system channel, skipping welcome message`);

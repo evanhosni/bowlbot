@@ -143,10 +143,10 @@ function bowlsChartPng(serverId) {
   if (unit.window) {
     const count = Math.max(MIN_WINDOWS, Math.ceil((now - fromMs) / unit.window));
     series = windowSeries(serverId, unit, count, now);
-    title = `bowls per ${unit.name}, last ${count} ${unit.plural}`;
+    title = `bowls, last ${count} ${unit.plural}`;
   } else {
     series = periodSeries(serverId, unit, fromMs, now);
-    title = `bowls per ${unit.name} since ${unit.label(fromMs)}`;
+    title = `bowls since ${unit.label(fromMs)}`;
   }
   if (firstBowl === null) title = "no bowls yet";
   return renderPng(chartConfig(title, series));

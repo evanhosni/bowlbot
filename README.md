@@ -28,7 +28,7 @@ server/            everything that runs on Railway
     commands.js    THE command table: one object per command, both interfaces read it
     dispatch.js    text -> command lookup, shared by mentions and slash
     mentions.js    @keef message handling
-    slash.js       slash command definitions, registration, per-guild sync, handling
+    slash.js       slash command definitions, registration, handling
     dms.js         DMs: owner announcements, "ayyyy" for everyone else
     events.js      ready / guildCreate / error / disconnect
     context.js     the reply/announce abstraction over message vs interaction
@@ -38,7 +38,7 @@ client/            the website, served as-is
   css/ js/ images/
   vendor/counter/  third-party odometer widget
 audio/             the reminder clips the bot plays
-scripts/backup.js  online SQLite backup
+scripts/           operator tools: online SQLite backup, one-off guild command cleanup
 ```
 
 To add a bot command, add one object to `server/bot/commands.js`. It shows up
