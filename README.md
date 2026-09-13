@@ -22,7 +22,9 @@ live stats to it.
   Migrations are an append-only array applied automatically at boot using
   `PRAGMA user_version`, each in its own transaction.
 - **DNS:** Cloudflare, proxied. `bowlbot.io` points at the Railway service.
-  `bowlbot.app` (the old domain) redirects to it from Cloudflare.
+  `bowlbot.app` (the old domain) is not on Cloudflare yet and currently
+  resolves to a stale GitHub Pages site; a redirect to `bowlbot.io` is
+  planned once it is moved.
 
 ## Configuration
 
