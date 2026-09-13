@@ -2,7 +2,7 @@ const bot = require("./client");
 require("./events");
 require("./mentions");
 require("./slash");
-require("./announcement");
+require("./dms");
 
 function start() {
   return bot.login(process.env.DISCORD_TOKEN).catch((err) => {

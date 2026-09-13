@@ -29,7 +29,7 @@ server/            everything that runs on Railway
     dispatch.js    text -> command lookup, shared by mentions and slash
     mentions.js    @keef message handling
     slash.js       slash command definitions, registration, per-guild sync, handling
-    announcement.js owner-only announcements by DMing keef
+    dms.js         DMs: owner announcements, "ayyyy" for everyone else
     events.js      ready / guildCreate / error / disconnect
     context.js     the reply/announce abstraction over message vs interaction
   db/              SQLite access and migrations
