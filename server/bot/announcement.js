@@ -1,7 +1,8 @@
-// Owner-only. `@keef announcement` arms it; the owner's next `@keef <text>` message
-// goes to every server's system channel with the mention stripped. `@keef cancel`
-// drops it. The mention is required: without the Message Content intent, Discord
-// only shows keef the text of messages that mention it.
+// Owner-only, DM-driven. Any DM the app owner sends keef is offered as an
+// announcement: keef asks `yes`/`no`, and on `yes` posts it verbatim to every
+// server's system channel. DMs are used because, without the Message Content
+// intent, Discord only shows keef the text of messages that mention it or are
+// DMs to it. DMs from anyone else are ignored.
 
 const bot = require("./client");
 const { say } = require("./context");
@@ -9,7 +10,7 @@ const { logGuildError } = require("../log");
 
 let ownerId = null;
 
-let announcementNext = false;
+let pending = null; // the DM text waiting for a yes/no
 
 function fetchOwner() {
   return bot.application
@@ -25,15 +26,7 @@ function isOwner(message) {
   return Boolean(ownerId) && message.author.id === ownerId;
 }
 
-function arm(message) {
-  announcementNext = true;
-  say(message, {
-    content: "ok. your next message that @mentions me will be announced (mention stripped). type `@keef cancel` to cancel",
-  });
-}
-
 function broadcast(message, content) {
-  announcementNext = false;
   let sent = 0;
   bot.guilds.cache.forEach((guild) => {
     if (!guild.systemChannel) return;
@@ -43,20 +36,29 @@ function broadcast(message, content) {
   say(message, { content: `announced to ${sent} servers` });
 }
 
-// Returns true if the message was consumed by a pending announcement.
-function interceptPending(message) {
-  if (!announcementNext || !isOwner(message)) return false;
-  if (!message.mentions.has(bot.user)) return false;
-  const content = message.content.replace(`<@${bot.user.id}>`, "").trim();
-  if (content.toLowerCase() === "cancel") {
-    announcementNext = false;
-    say(message, { content: "announcement cancelled" });
-  } else if (content === "") {
-    say(message, { content: "that was empty. still waiting for the announcement" });
-  } else {
-    broadcast(message, content);
+function handleDm(message) {
+  if (!isOwner(message)) return;
+  const content = message.content.trim();
+  if (content === "") return;
+
+  if (pending !== null && content.toLowerCase() === "yes") {
+    const text = pending;
+    pending = null;
+    broadcast(message, text);
+    return;
   }
-  return true;
+  if (pending !== null && content.toLowerCase() === "no") {
+    pending = null;
+    say(message, { content: "ok, not sending it" });
+    return;
+  }
+  if (content.toLowerCase() === "yes" || content.toLowerCase() === "no") {
+    say(message, { content: "nothing pending. DM me the announcement and i'll ask" });
+    return;
+  }
+
+  pending = content;
+  say(message, { content: "would you like me to send this as an announcement? (`yes`/`no`)" });
 }
 
-module.exports = { fetchOwner, isOwner, arm, interceptPending };
+module.exports = { fetchOwner, handleDm };

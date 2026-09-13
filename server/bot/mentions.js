@@ -10,21 +10,15 @@ function getMessage(message) {
 
 function handleMessage(message) {
   if (message.author.bot) return;
-  if (announcement.interceptPending(message)) return;
+  if (!message.guild) {
+    announcement.handleDm(message);
+    return;
+  }
   if (message.mentions.here) return;
   if (message.mentions.everyone) return;
   if (!message.mentions.has(bot.user)) return;
-  if (!message.guild) return;
 
-  const msg = getMessage(message);
-
-  // Hidden, owner only. Anyone else falls through to "huh?".
-  if (msg === "announcement" && announcement.isOwner(message)) {
-    announcement.arm(message);
-    return;
-  }
-
-  execute(messageContext(message), msg);
+  execute(messageContext(message), getMessage(message));
 }
 
 bot.on("messageCreate", (message) => {
