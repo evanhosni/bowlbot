@@ -33,7 +33,7 @@ documented there. In short:
 
 | Variable        | Purpose                                                  |
 | --------------- | -------------------------------------------------------- |
-| `token`         | Discord bot token. Lowercase; Linux env vars are case-sensitive. |
+| `DISCORD_TOKEN` | Discord bot token.                                       |
 | `DATABASE_PATH` | Path to the SQLite file. `/data/bowlbot.sqlite` on Railway, `./data/bowlbot.sqlite` locally. |
 | `PORT`          | HTTP port. Injected by Railway; defaults to 3000 locally. |
 
@@ -41,7 +41,7 @@ documented there. In short:
 
 ```
 npm install
-cp .env.example .env   # fill in token
+cp .env.example .env   # fill in DISCORD_TOKEN
 npm start
 ```
 

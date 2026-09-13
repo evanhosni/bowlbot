@@ -330,7 +330,7 @@ bot.on("disconnect", () => {
   io.emit("bot_status", is_online);
 });
 
-bot.login(process.env.token);
+bot.login(process.env.DISCORD_TOKEN);
 
 //SOCKETIO STUFF----------------------------------------------------------------------------------------
 
