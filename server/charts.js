@@ -1,13 +1,11 @@
 const db = require("./db");
-const { ownerError } = require("./log");
 
-const DAY = 24 * 3600000;
-const EMPTY_SPAN = 7 * DAY;
-
-// Every bowl is a point, but WIDTH px can't show 50k of them and quickchart caps the
-// JSON it accepts, so MAX_POINTS bounds the payload however many bowls a server racks up.
-const MAX_POINTS = 1000;
-const GAP_PAIRS = 100;
+const HOUR = 3600000;
+const DAY = 24 * HOUR;
+const WEEK = 7 * DAY;
+const YEAR = 365 * DAY;
+const MIN_WINDOWS = 7;
+const RELATIVE_LABELS_UPTO = 14;
 
 const QUICKCHART = "https://quickchart.io/chart";
 const RENDER_TIMEOUT_MS = 8000;
@@ -20,54 +18,69 @@ const FILL = "rgba(10, 104, 10, 0.55)";
 const GRID = "rgba(255, 255, 255, 0.08)";
 const TEXT = "rgba(255, 255, 255, 0.75)";
 
-// An even stride alone smears dry spells into diagonals, so the longest gaps keep both
-// of their endpoints too: that is what holds a flat stretch flat and a binge vertical.
-function sampleIndices(times) {
-  const n = times.length;
-  const keep = new Set([0, n - 1]);
+const fmt = (ms, opts) => new Date(ms).toLocaleString("en-US", { ...opts, timeZone: "UTC" });
+const dayLabel = (ms) => fmt(ms, { month: "short", day: "numeric" });
+const monthLabel = (ms) => `${fmt(ms, { month: "short" })} '${String(new Date(ms).getUTCFullYear()).slice(-2)}`;
+const yearLabel = (ms) => fmt(ms, { year: "numeric" });
 
-  const gaps = [];
-  for (let i = 1; i < n; i++) gaps.push([times[i] - times[i - 1], i]);
-  gaps.sort((a, b) => b[0] - a[0]);
-  for (const [, i] of gaps.slice(0, GAP_PAIRS)) {
-    keep.add(i - 1);
-    keep.add(i);
-  }
+const UNITS = [
+  { name: "day", short: "d", now: "today", prev: "yesterday", maxSpan: 60 * DAY, window: DAY },
+  { name: "week", short: "w", now: "this week", prev: "last week", maxSpan: 2 * YEAR, window: WEEK },
+  { name: "month", maxSpan: 6 * YEAR, format: "%Y-%m", label: monthLabel },
+  { name: "year", maxSpan: Infinity, format: "%Y", label: yearLabel },
+];
 
-  const stride = (n - 1) / (MAX_POINTS - keep.size - 1);
-  for (let k = 0; keep.size < MAX_POINTS; k++) {
-    const i = Math.round(k * stride);
-    if (i >= n - 1) break;
-    keep.add(i);
-  }
-
-  return [...keep].sort((a, b) => a - b);
+function unitFor(spanMs) {
+  return UNITS.find((u) => spanMs <= u.maxSpan);
 }
 
-function cumulativeSeries(serverId, nowMs) {
-  const times = db.serverBowlTimes(serverId);
-  if (times.length === 0) return [{ x: nowMs - EMPTY_SPAN, y: 0 }, { x: nowMs, y: 0 }];
-
-  const indices = times.length <= MAX_POINTS ? times.map((_, i) => i) : sampleIndices(times);
-  const points = indices.map((i) => ({ x: times[i], y: i + 1 }));
-  // Carry the line to now so the current dry spell (or lack of one) is visible.
-  if (times[times.length - 1] < nowMs) points.push({ x: nowMs, y: times.length });
-  return points;
+function windowSeries(serverId, unit, count, nowMs) {
+  const counts = db.countServerBowlsByWindow(serverId, unit.window, count, nowMs);
+  const relative = count <= RELATIVE_LABELS_UPTO;
+  const dateLabel = count * unit.window > YEAR ? monthLabel : dayLabel;
+  const labels = [];
+  const data = [];
+  for (let ago = count - 1; ago >= 0; ago--) {
+    if (!relative) labels.push(dateLabel(nowMs - ago * unit.window));
+    else labels.push(ago === 0 ? unit.now : ago === 1 ? unit.prev : `${ago}${unit.short} ago`);
+    data.push(counts.get(ago) || 0);
+  }
+  return { labels, data };
 }
 
-function chartConfig(title, points) {
+function periodSeries(serverId, unit, fromMs, toMs) {
+  const counts = db.countServerBowlsByPeriod(serverId, unit.format);
+  const monthly = unit.name === "month";
+  const key = (d) =>
+    monthly ? `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}` : String(d.getUTCFullYear());
+  const from = new Date(fromMs);
+  const to = new Date(toMs);
+  const cursor = new Date(Date.UTC(from.getUTCFullYear(), monthly ? from.getUTCMonth() : 0, 1));
+  const labels = [];
+  const data = [];
+  while (cursor <= to) {
+    labels.push(unit.label(cursor.getTime()));
+    data.push(counts.get(key(cursor)) || 0);
+    if (monthly) cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+    else cursor.setUTCFullYear(cursor.getUTCFullYear() + 1);
+  }
+  return { labels, data };
+}
+
+function chartConfig(title, { labels, data }) {
   return {
     type: "line",
     data: {
+      labels,
       datasets: [
         {
-          data: points,
+          data,
           borderColor: LINE,
           backgroundColor: FILL,
           borderWidth: 4,
-          pointRadius: points.length > 31 ? 0 : 5,
+          pointRadius: labels.length > 31 ? 0 : 5,
           pointBackgroundColor: LINE,
-          lineTension: 0,
+          lineTension: 0.3,
         },
       ],
     },
@@ -77,14 +90,7 @@ function chartConfig(title, points) {
       title: { display: true, text: title, fontColor: TEXT, fontSize: 26 },
       scales: {
         xAxes: [
-          {
-            type: "time",
-            // Real timestamps, so gaps between bowls take up their real width.
-            distribution: "linear",
-            time: { minUnit: "day" },
-            gridLines: { color: GRID },
-            ticks: { fontColor: TEXT, fontSize: 18, maxTicksLimit: 12, maxRotation: 0 },
-          },
+          { gridLines: { color: GRID }, ticks: { fontColor: TEXT, fontSize: 18, maxTicksLimit: 12, maxRotation: 0 } },
         ],
         yAxes: [
           { gridLines: { color: GRID }, ticks: { fontColor: TEXT, fontSize: 18, beginAtZero: true, precision: 0 } },
@@ -104,15 +110,26 @@ async function renderPng(config) {
       signal: AbortSignal.timeout(RENDER_TIMEOUT_MS),
     });
     if (res.ok) return Buffer.from(await res.arrayBuffer());
-    ownerError(`[charts] quickchart returned ${res.status}`);
+    console.error(`[charts] quickchart returned ${res.status}`);
   } catch (err) {
-    ownerError("[charts] quickchart render failed:", err && err.message ? err.message : err);
+    console.error("[charts] quickchart render failed:", err && err.message ? err.message : err);
   }
   return null;
 }
 
 function bowlsChartPng(serverId) {
-  return renderPng(chartConfig("bowls schmoked", cumulativeSeries(serverId, Date.now())));
+  const now = Date.now();
+  const firstBowl = db.firstBowlAt(serverId);
+  const fromMs = firstBowl === null ? now : firstBowl;
+  const unit = unitFor(Math.max(now - fromMs, MIN_WINDOWS * DAY));
+  let series;
+  if (unit.window) {
+    const count = Math.max(MIN_WINDOWS, Math.ceil((now - fromMs) / unit.window));
+    series = windowSeries(serverId, unit, count, now);
+  } else {
+    series = periodSeries(serverId, unit, fromMs, now);
+  }
+  return renderPng(chartConfig("bowls schmoked", series));
 }
 
 module.exports = { bowlsChartPng };

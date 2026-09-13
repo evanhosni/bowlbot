@@ -363,11 +363,11 @@ main h1 {
   grid-template-columns: var(--col-rank) minmax(0, 1fr) var(--col-bowls);
   align-items: center;
   column-gap: 0.4em;
-  padding: 0.2em 0.5em;
-  min-height: 1.5em;
+  padding: 0.15em 0.5em;
+  min-height: 1.35em;
   font-size: x-large;
   line-height: 1.1;
-  border-bottom: 1px dashed rgba(65, 42, 26, 0.3);
+  border-bottom: 1px solid rgba(65, 42, 26, 0.3);
 }
 
 .board .row:last-child {
@@ -409,13 +409,14 @@ main h1 {
 
 /* Medals for the top three. Width is in em and paired with aspect-ratio, so the
    badge scales with the row's font size and stays perfectly round at any page width. */
-.row.top .rank {
+.medal {
   box-sizing: border-box;
   justify-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.9em;
+  width: 1.7em;
+  line-height: 1;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   border: 0.12em solid;
@@ -427,52 +428,46 @@ main h1 {
     0 0.08em 0.22em rgba(0, 0, 0, 0.35);
 }
 
-.row.top-1 .rank {
-  background: radial-gradient(circle at 34% 28%, #fff6cc 0%, #f5d25f 45%, #cf9a10 100%);
-  border-color: #a87c08;
-}
-
-.row.top-2 .rank {
-  background: radial-gradient(circle at 34% 28%, #ffffff 0%, #dfe3e8 45%, #9aa4ae 100%);
-  border-color: #7d8791;
-}
-
-.row.top-3 .rank {
-  background: radial-gradient(circle at 34% 28%, #f6d3ad 0%, #dda06a 45%, #b06a24 100%);
-  border-color: #8d5218;
-}
-
-.row.top-1 {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 200, 0, 0) 8%,
-    rgba(255, 200, 0, 0.3) 20%,
-    rgba(255, 200, 0, 0.3) 80%,
-    rgba(255, 200, 0, 0) 92%
-  );
-  border-radius: 10px;
-}
-
-.row.top-2 {
-  background: linear-gradient(
-    90deg,
-    rgba(120, 130, 145, 0) 8%,
-    rgba(120, 130, 145, 0.24) 20%,
-    rgba(120, 130, 145, 0.24) 80%,
-    rgba(120, 130, 145, 0) 92%
-  );
-  border-radius: 10px;
-}
-
+.row.top-1,
+.row.top-2,
 .row.top-3 {
   background: linear-gradient(
     90deg,
-    rgba(205, 127, 50, 0) 8%,
-    rgba(205, 127, 50, 0.24) 20%,
-    rgba(205, 127, 50, 0.24) 80%,
-    rgba(205, 127, 50, 0) 92%
+    rgba(var(--glow), 0) 8%,
+    rgba(var(--glow), var(--glow-alpha)) 20%,
+    rgba(var(--glow), var(--glow-alpha)) 80%,
+    rgba(var(--glow), 0) 92%
   );
-  border-radius: 10px;
+}
+
+.row.top-1 {
+  --glow: 255, 200, 0;
+  --glow-alpha: 0.3;
+
+  .medal {
+    background: radial-gradient(circle at 34% 28%, #fff6cc 0%, #f5d25f 45%, #cf9a10 100%);
+    border-color: #a87c08;
+  }
+}
+
+.row.top-2 {
+  --glow: 120, 130, 145;
+  --glow-alpha: 0.24;
+
+  .medal {
+    background: radial-gradient(circle at 34% 28%, #ffffff 0%, #dfe3e8 45%, #9aa4ae 100%);
+    border-color: #7d8791;
+  }
+}
+
+.row.top-3 {
+  --glow: 205, 127, 50;
+  --glow-alpha: 0.24;
+
+  .medal {
+    background: radial-gradient(circle at 34% 28%, #f6d3ad 0%, #dda06a 45%, #b06a24 100%);
+    border-color: #8d5218;
+  }
 }
 
 .empty {

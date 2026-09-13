@@ -17,7 +17,7 @@ const Discord = require("discord.js");
 const discordVoice = require("@discordjs/voice");
 const db = require("../db");
 const { io } = require("../web");
-const { sesh, stopSesh, leaderboardsMap } = require("../state");
+const { sesh, stopSesh } = require("../state");
 const { serverStats } = require("../leaderboards");
 const { logGuildError } = require("../log");
 const { disclaimer } = require("../text");
@@ -86,15 +86,8 @@ const commands = [
                   path.join(AUDIO_DIR, ukMode ? "schmoke_a_spliff.mp3" : "schmoke_a_bowl.mp3"),
                 ),
               );
-              const serv = db.findServer(serverId); //TODO: better way to hold onto server, as you found it earlier?
               db.insertBowl(serverId);
-              const bowl = db.countAllBowls();
-              if (serv.rank) {
-                leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
-              } else {
-                leaderboardsMap.delete(serverId);
-              }
-              io.emit("bowlcount", bowl);
+              io.emit("bowlcount", db.countAllBowls());
             }
           } catch (err) {
             logGuildError("session tick", ctx.guild, err);
@@ -184,8 +177,6 @@ const commands = [
             content:
               "ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at https://bowlbot.io",
           });
-
-          leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
         } else {
           ctx.reply({ content: "you don't have this permission. get your server admin to do it." });
         }
@@ -210,7 +201,6 @@ const commands = [
             content:
               "ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at https://bowlbot.io",
           });
-          leaderboardsMap.delete(serverId);
         } else {
           ctx.reply({ content: "you don't have this permission. get your server admin to do it." });
         }

@@ -1,10 +1,12 @@
 const moment = require("moment");
 const db = require("./db");
-const { leaderboardsMap } = require("./state");
 
 const RANGES = ["total", "year", "month", "week", "day", "hour"];
 
-// Same order as RANGES: sortedBoard() and leaderboardsMap index these by position.
+function cutoffs() {
+  return RANGES.slice(1).map((range) => moment().subtract(1, range).valueOf());
+}
+
 function serverStats(serverId) {
   return RANGES.map((range) =>
     range === "total"
@@ -13,20 +15,18 @@ function serverStats(serverId) {
   );
 }
 
+/** Drop servers the bot is no longer in off the leaderboards. */
 function vibeCheck(guildIds) {
-  const servers = db.findRankedServers();
-  for (let i = 0; i < servers.length; i++) {
-    if (!guildIds.includes(servers[i].id)) {
-      db.setServerRank(servers[i].id, false);
-    }
-
-    leaderboardsMap.set(servers[i].id, [servers[i].name, ...serverStats(servers[i].id)]);
+  const present = new Set(guildIds);
+  for (const server of db.findRankedServers()) {
+    if (!present.has(server.id)) db.setServerRank(server.id, false);
   }
 }
 
 // Ties break on each wider range in turn, down to total.
-function sortedBoard(column) {
-  return Array.from(leaderboardsMap.values())
+function sortedBoard(rows, column) {
+  return rows
+    .slice()
     .sort((a, b) => {
       for (let i = column; i >= 1; i--) {
         const diff = b[i] - a[i];
@@ -37,8 +37,10 @@ function sortedBoard(column) {
     .map((data) => ({ name: data[0], bowls: data[column] }));
 }
 
+// Counted at read time off one query, so windowed ranges age out on their own.
 function allBoards() {
-  return RANGES.map((_, i) => sortedBoard(i + 1));
+  const rows = db.rankedServerStats(cutoffs()).map((s) => [s.name, ...s.stats]);
+  return RANGES.map((_, i) => sortedBoard(rows, i + 1));
 }
 
 module.exports = { RANGES, serverStats, vibeCheck, allBoards };

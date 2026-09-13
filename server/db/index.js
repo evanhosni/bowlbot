@@ -16,6 +16,7 @@ db.exec("PRAGMA foreign_keys = ON");
 db.exec("PRAGMA busy_timeout = 5000");
 migrate(db);
 
+
 const stmt = {
   selectServer: db.prepare("SELECT id, name, rank FROM servers WHERE id = ?"),
   insertServer: db.prepare("INSERT INTO servers (id, name, rank) VALUES (?, ?, 0)"),
@@ -27,13 +28,34 @@ const stmt = {
   countAllBowls: db.prepare("SELECT COUNT(*) AS n FROM bowls"),
   countServerBowls: db.prepare("SELECT COUNT(*) AS n FROM bowls WHERE serverId = ?"),
   countServerBowlsSince: db.prepare("SELECT COUNT(*) AS n FROM bowls WHERE serverId = ? AND schmokedAt >= ?"),
-  selectServerBowlTimes: db.prepare("SELECT schmokedAt FROM bowls WHERE serverId = ? ORDER BY schmokedAt"),
+  // LEFT JOIN and COALESCE so a ranked server with no bowls still returns a row of zeroes.
+  rankedServerStats: db.prepare(`
+    SELECT s.id AS id, s.name AS name,
+           COUNT(b.id) AS total,
+           COALESCE(SUM(b.schmokedAt >= ?), 0) AS year,
+           COALESCE(SUM(b.schmokedAt >= ?), 0) AS month,
+           COALESCE(SUM(b.schmokedAt >= ?), 0) AS week,
+           COALESCE(SUM(b.schmokedAt >= ?), 0) AS day,
+           COALESCE(SUM(b.schmokedAt >= ?), 0) AS hour
+    FROM servers s
+    LEFT JOIN bowls b ON b.serverId = s.id
+    WHERE s.rank = 1
+    GROUP BY s.id, s.name
+  `),
+  countServerBowlsByWindow: db.prepare(
+    "SELECT CAST((? - schmokedAt) / ? AS INTEGER) AS w, COUNT(*) AS n FROM bowls WHERE serverId = ? AND schmokedAt > ? AND schmokedAt <= ? GROUP BY w",
+  ),
+  countServerBowlsByPeriod: db.prepare(
+    "SELECT strftime(?, schmokedAt / 1000, 'unixepoch') AS p, COUNT(*) AS n FROM bowls WHERE serverId = ? GROUP BY p",
+  ),
+  firstBowlAt: db.prepare("SELECT MIN(schmokedAt) AS t FROM bowls WHERE serverId = ?"),
 };
 
 function toServer(row) {
   if (!row) return null;
   return { id: row.id, name: row.name, rank: row.rank === 1 };
 }
+
 
 function findServer(id) {
   return toServer(stmt.selectServer.get(String(id)));
@@ -58,6 +80,7 @@ function findRankedServers() {
   return stmt.selectRankedServers.all().map(toServer);
 }
 
+
 function insertBowl(serverId) {
   return Number(stmt.insertBowl.run(Date.now(), String(serverId)).lastInsertRowid);
 }
@@ -73,8 +96,30 @@ function countServerBowls(serverId, sinceMs) {
   return stmt.countServerBowlsSince.get(String(serverId), sinceMs).n;
 }
 
-function serverBowlTimes(serverId) {
-  return stmt.selectServerBowlTimes.all(String(serverId)).map((r) => Number(r.schmokedAt));
+/** `cutoffs` are the five window starts in RANGES order: year, month, week, day, hour. */
+function rankedServerStats(cutoffs) {
+  return stmt.rankedServerStats.all(...cutoffs).map((r) => ({
+    id: r.id,
+    name: r.name,
+    stats: [r.total, r.year, r.month, r.week, r.day, r.hour].map(Number),
+  }));
+}
+
+/** Window 0 is the `windowMs` ending at `anchorMs`, window 1 the one before it. */
+function countServerBowlsByWindow(serverId, windowMs, count, anchorMs) {
+  const rows = stmt.countServerBowlsByWindow.all(anchorMs, windowMs, String(serverId), anchorMs - count * windowMs, anchorMs);
+  return new Map(rows.map((r) => [Number(r.w), r.n]));
+}
+
+/** Keyed by an SQLite strftime `format` over schmokedAt, e.g. "%Y-%m" -> "2026-09". */
+function countServerBowlsByPeriod(serverId, format) {
+  const rows = stmt.countServerBowlsByPeriod.all(format, String(serverId));
+  return new Map(rows.map((r) => [r.p, r.n]));
+}
+
+function firstBowlAt(serverId) {
+  const t = stmt.firstBowlAt.get(String(serverId)).t;
+  return t === null ? null : Number(t);
 }
 
 module.exports = {
@@ -87,5 +132,8 @@ module.exports = {
   insertBowl,
   countAllBowls,
   countServerBowls,
-  serverBowlTimes,
+  rankedServerStats,
+  countServerBowlsByWindow,
+  countServerBowlsByPeriod,
+  firstBowlAt,
 };

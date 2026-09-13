@@ -11,6 +11,5 @@ function stopSesh(serverId) {
 module.exports = {
   sesh,
   stopSesh,
-  leaderboardsMap: new Map(), // serverId -> [name, total, year, month, week, day, hour], ranked servers only
   status: { online: false },
 };

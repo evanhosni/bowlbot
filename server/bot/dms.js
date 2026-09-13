@@ -30,7 +30,6 @@ function fetchOwner() {
         ownerError("[owner] application has no owner; owner DMs are disabled");
         return;
       }
-      ownerLog(`owner DMs enabled for ${ownerId}`);
       sendLogsTo((text) => bot.users.send(ownerId, text));
     })
     .catch((err) => ownerError("[owner] could not fetch the application owner:", err));
@@ -63,11 +62,11 @@ function serverList() {
     if (sesh.has(guild.id)) bits.push("**sesh running**");
     return `**${guild.name}**\n\`${guild.id}\`\n${bits.join(" · ")}`;
   });
-  return paginate(`__servers (${guilds.length})__`, lines);
+  return paginate(`**servers (${guilds.length})**`, lines);
 }
 
 function seshList() {
-  if (sesh.size === 0) return "__seshes (0)__\n\nnobody's schmokin' right now";
+  if (sesh.size === 0) return "**seshes (0)**\n\nnobody's schmokin' right now";
   const lines = [...sesh.entries()].map(([serverId, running]) => {
     const guild = bot.guilds.cache.get(serverId);
     const going = Math.round((Date.now() - running.startedAt) / 60000);
@@ -76,7 +75,7 @@ function seshList() {
       `every ${running.minutes} min · in ${running.channel} · going ${going} min`
     );
   });
-  return paginate(`__seshes (${sesh.size})__`, lines);
+  return paginate(`**seshes (${sesh.size})**`, lines);
 }
 
 function broadcast(text) {
@@ -93,7 +92,7 @@ function broadcast(text) {
   return `announced to ${sent} servers` + (skipped.length ? `\nno system channel, skipped: ${skipped.join(", ")}` : "");
 }
 
-const ANSWERS = ["yes", "no", "cancel"];
+const ANSWERS = ["/yes", "/no", "/cancel"];
 
 function ayy(message) {
   return say(message, { content: "a" + "y".repeat(1 + Math.floor(Math.random() * 24)) });
@@ -102,20 +101,20 @@ function ayy(message) {
 const dms = [
   {
     name: "servers",
-    description: "log every server keef is in",
+    description: "logs every server keef is in",
     run: serverList,
   },
   {
     name: "seshes",
-    description: "log every sesh running right now",
+    description: "logs every sesh running right now",
     run: seshList,
   },
   {
     name: "announcement",
-    description: "send an announcement to all servers",
+    description: "sends an announcement to all servers",
     run() {
       pending = { step: "text" };
-      return "type in your announcement (or type `cancel`)";
+      return "type in your announcement (or type `/cancel`)";
     },
   },
   {
@@ -126,7 +125,7 @@ const dms = [
 ];
 
 function helpText() {
-  return dms.map((d) => `\`${d.name}\` - ${d.description}`).join("\n");
+  return dms.map((d) => `\`/${d.name}\` - ${d.description}`).join("\n");
 }
 
 function reply(message, payload) {
@@ -151,7 +150,7 @@ function handleDm(message) {
   }
 
   // Before the steps below so it interrupts one instead of becoming the announcement text.
-  if (word === "cancel") {
+  if (word === "/cancel") {
     pending = null;
     reply(message, "kk, nevermind");
     return;
@@ -166,28 +165,28 @@ function handleDm(message) {
         .join("\n");
       reply(
         message,
-        `send this to all ${bot.guilds.cache.size} servers?\n\n${quoted}\n\n\`yes\` / \`no\` / \`cancel\``,
+        `send this to all ${bot.guilds.cache.size} servers?\n\n${quoted}\n\n\`/yes\` / \`/no\` / \`/cancel\``,
       );
       return;
     }
-    if (word === "yes") {
+    if (word === "/yes") {
       const { text } = pending;
       pending = null;
       reply(message, broadcast(text));
       return;
     }
-    if (word === "no") {
+    if (word === "/no") {
       pending = null;
       reply(message, "kk, not sending it");
       return;
     }
-    reply(message, "`yes` or `no` (or `cancel`)");
+    reply(message, "`/yes` or `/no` (or `/cancel`)");
     return;
   }
 
-  const dm = dms.find((d) => d.name === word);
+  const dm = word.startsWith("/") ? dms.find((d) => d.name === word.slice(1)) : null;
   if (!dm) {
-    reply(message, `dunno what that is. try:\n${helpText()}`);
+    ayy(message);
     return;
   }
   reply(message, dm.run());

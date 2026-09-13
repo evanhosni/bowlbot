@@ -1,5 +1,4 @@
 const db = require("../db");
-const { leaderboardsMap } = require("../state");
 const { logGuildError } = require("../log");
 const commands = require("./commands");
 
@@ -30,9 +29,6 @@ function execute(ctx, input) {
 
   if (serv.name !== ctx.guild.name) {
     db.updateServerName(serverId, ctx.guild.name);
-    if (leaderboardsMap.get(serverId)) {
-      leaderboardsMap.set(serverId, [ctx.guild.name, ...leaderboardsMap.get(serverId).slice(1)]);
-    }
   }
 
   const command = findCommand(text);

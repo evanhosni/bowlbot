@@ -4,12 +4,10 @@
 const Discord = require("discord.js");
 const { describeGuild, logGuildError, ownerWarn } = require("../log");
 
-// Discord will not take a response for this interaction: either the 3s window closed or
-// something else answered it first.
+// Discord refuses a response: the 3s window closed, or something else answered first.
 const UNANSWERABLE = { 10062: "unknown interaction", 40060: "already acknowledged" };
 
-// A second instance of the bot racing this one produces one of these per command, so only
-// the first reaches the DMs. A restart arms it again.
+// Two instances racing produce one per command, so only the first reaches the DMs.
 let raceReported = false;
 
 function say(message, payload) {
@@ -35,8 +33,7 @@ function interactionContext(interaction) {
   let replied = false;
   let deferred = false;
   let unanswerable = false;
-  // How old the interaction already was when it reached us: past ~3s and the token died
-  // before we saw it, while a fast receive plus a refused response means we lost a race.
+  // Past ~3s means the token died before we saw it; fast receive plus refusal means a lost race.
   const received = Date.now() - interaction.createdTimestamp;
   const failed = (where) => (err) => {
     const reason = err && UNANSWERABLE[err.code];
@@ -56,9 +53,8 @@ function interactionContext(interaction) {
     user: interaction.user,
     defer() {
       if (unanswerable) return Promise.resolve();
-      // Set first so a reply racing the round trip still edits, but roll back on failure:
-      // editReply() on an interaction that never deferred throws InteractionNotReplied and
-      // buries the real error underneath it.
+      // Rolled back on failure: editReply() on an interaction that never deferred throws
+      // InteractionNotReplied and buries the real error.
       deferred = true;
       return interaction.deferReply().catch((err) => {
         deferred = false;

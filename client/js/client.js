@@ -65,11 +65,11 @@ function renderBoard(board, list) {
   }
   list.forEach((entry, j) => {
     const place = j + 1;
-    const row = el("div", "row" + (place <= 3 ? ` top top-${place}` : ""));
+    const row = el("div", "row" + (place <= 3 ? ` top-${place}` : ""));
     const name = el("span", "name");
     name.append(el("span", "name-inner", entry.name));
     const count = typeof entry.bowls === "number" ? entry.bowls.toLocaleString() : entry.bowls;
-    row.append(el("span", "rank", ordinal(place)), name, el("span", "bowls", count));
+    row.append(el("span", place <= 3 ? "rank medal" : "rank", ordinal(place)), name, el("span", "bowls", count));
     board.append(row);
   });
 }

@@ -17,7 +17,7 @@ require("./socket").attach(io);
 function listen() {
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
-    ownerLog(`listening at http://localhost:${PORT} 🚀`);
+    ownerLog(`listening at ${process.env.PUBLIC_URL || `http://localhost:${PORT}`} 🚀`);
   });
 }
 
