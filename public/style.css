@@ -398,17 +398,17 @@ main h1 {
 }
 
 .row.top-1 {
-  background: linear-gradient(90deg, rgba(255, 200, 0, 0.3), rgba(255, 200, 0, 0) 75%);
+  background: linear-gradient(90deg, rgba(255, 200, 0, 0) 0%, rgba(255, 200, 0, 0.3) 8%, rgba(255, 200, 0, 0.3) 72%, rgba(255, 200, 0, 0) 92%);
   border-radius: 10px;
 }
 
 .row.top-2 {
-  background: linear-gradient(90deg, rgba(120, 130, 145, 0.24), rgba(120, 130, 145, 0) 75%);
+  background: linear-gradient(90deg, rgba(120, 130, 145, 0) 0%, rgba(120, 130, 145, 0.24) 8%, rgba(120, 130, 145, 0.24) 72%, rgba(120, 130, 145, 0) 92%);
   border-radius: 10px;
 }
 
 .row.top-3 {
-  background: linear-gradient(90deg, rgba(205, 127, 50, 0.24), rgba(205, 127, 50, 0) 75%);
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0) 0%, rgba(205, 127, 50, 0.24) 8%, rgba(205, 127, 50, 0.24) 72%, rgba(205, 127, 50, 0) 92%);
   border-radius: 10px;
 }
 
