@@ -21,7 +21,7 @@ server.listen(PORT, () => {
 });
 
 const disclaimer =
-  "**BOWLBOT DISCLAIMER / WAIVER:**\n\nBowlbot is for cannabis patients and adults only. Bowlbot was created to help users pace themselves, not to promote excessive consumption. Please use bowlbot responsibly.\nThe creators of bowlbot are not responsible for any damage or misconduct related to the use/misuse of bowlbot or marijuana.\nWarning: Marijuana can impair concentration, coordination, and judgment. Do not operate a vehicle or machinery under the influence of this drug. This drug has intoxicating effects and may be habit forming. There may be health risks associated with consumption of this drug. For use only by adults twenty-one and older. Keep out of the reach of anyone under the age of 21 and pets.\n\n**By using bowlbot, you agree to the following:**\n- You are at least 21 years of age\n- You are abiding by your state and federal cannabis laws.\n- You understand the effects of marijuana.\n- You are using bowlbot at your own risk, including all risks of injury and/or damage.\n- You assume all responsibility for your health, body, and actions whilst under the influence of marijuana.\n- You waive the right to make, assist, or cause any claims of any kind against bowlbot and its creators for your actions and the actions of your peers and fellow server members.\n- You will defend, indemnify, and hold bowlbot and its creators harmless against all claims, demands, liabilities, damages, losses, costs, fees (including legal fees), and expenses which may be asserted against bowlbot or its creators relating to any claim or legal proceeding arising from the use/misuse of bowlbot.\n- You have read this disclaimer/waiver and understand it in its entirety.\n\n**By using bowlbot, you agree to these terms.**\n\nhttps://bowlbot.app";
+  "**BOWLBOT DISCLAIMER / WAIVER:**\n\nBowlbot is for cannabis patients and adults only. Bowlbot was created to help users pace themselves, not to promote excessive consumption. Please use bowlbot responsibly.\nThe creators of bowlbot are not responsible for any damage or misconduct related to the use/misuse of bowlbot or marijuana.\nWarning: Marijuana can impair concentration, coordination, and judgment. Do not operate a vehicle or machinery under the influence of this drug. This drug has intoxicating effects and may be habit forming. There may be health risks associated with consumption of this drug. For use only by adults twenty-one and older. Keep out of the reach of anyone under the age of 21 and pets.\n\n**By using bowlbot, you agree to the following:**\n- You are at least 21 years of age\n- You are abiding by your state and federal cannabis laws.\n- You understand the effects of marijuana.\n- You are using bowlbot at your own risk, including all risks of injury and/or damage.\n- You assume all responsibility for your health, body, and actions whilst under the influence of marijuana.\n- You waive the right to make, assist, or cause any claims of any kind against bowlbot and its creators for your actions and the actions of your peers and fellow server members.\n- You will defend, indemnify, and hold bowlbot and its creators harmless against all claims, demands, liabilities, damages, losses, costs, fees (including legal fees), and expenses which may be asserted against bowlbot or its creators relating to any claim or legal proceeding arising from the use/misuse of bowlbot.\n- You have read this disclaimer/waiver and understand it in its entirety.\n\n**By using bowlbot, you agree to these terms.**\n\nhttps://bowlbot.io";
 
 //DISCORD STUFF----------------------------------------------------------------------------------------
 
@@ -242,7 +242,7 @@ bot.on("messageCreate", (message) => {
     }
 
     if (msg === "website" || msg === "leaderboards" || msg === "leaderboard") {
-      message.channel.send({ content: "https://bowlbot.app" });
+      message.channel.send({ content: "https://bowlbot.io" });
       return;
     }
 
@@ -264,7 +264,7 @@ bot.on("messageCreate", (message) => {
             db.setServerRank(serverId, true);
             message.channel.send({
               content:
-                "ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at https://bowlbot.app",
+                "ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at https://bowlbot.io",
             });
 
             leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
@@ -286,7 +286,7 @@ bot.on("messageCreate", (message) => {
             db.setServerRank(serverId, false);
             message.channel.send({
               content:
-                "ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at https://bowlbot.app",
+                "ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at https://bowlbot.io",
             });
             leaderboardsMap.delete(serverId);
           } else {
