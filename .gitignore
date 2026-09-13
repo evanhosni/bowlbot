@@ -102,3 +102,10 @@ dist
 
 # TernJS port file
 .tern-port
+# SQLite database files (local dev / Railway volume)
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.bak.sqlite
+data/
+*.dump

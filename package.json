@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "backup": "node scripts/backup.js"
   },
   "repository": {
     "type": "git",
@@ -26,10 +27,7 @@
     "ffmpeg-static": "^5.2.0",
     "libsodium-wrappers": "^0.7.15",
     "moment": "^2.29.1",
-    "mysql2": "^2.3.3",
     "opusscript": "^0.1.1",
-    "pg": "^8.10.0",
-    "sequelize": "^4.44.4",
     "socket.io": "^4.6.1"
   },
   "allowScripts": {

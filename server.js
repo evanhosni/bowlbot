@@ -10,11 +10,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 
-const sequelize = require("./db/connection");
-const Op = sequelize.Op;
 const moment = require("moment");
-const { Server } = require("./db/models");
-const { Bowl } = require("./db/models");
+const db = require("./db");
 
 const server = require("http").createServer(app);
 const options = { cors: { origin: "*" } }; //TODO: only allow from specific url or set methods to GET only
@@ -40,37 +37,27 @@ let sesh = new Map();
 let leaderboardsMap = new Map();
 let is_online = false;
 
+// [total, year, month, week, day, hour] bowl counts for a server
+function serverStats(serverId) {
+  return [
+    db.countServerBowls(serverId),
+    db.countServerBowls(serverId, moment().subtract(1, "years").valueOf()),
+    db.countServerBowls(serverId, moment().subtract(1, "months").valueOf()),
+    db.countServerBowls(serverId, moment().subtract(1, "weeks").valueOf()),
+    db.countServerBowls(serverId, moment().subtract(1, "days").valueOf()),
+    db.countServerBowls(serverId, moment().subtract(1, "hours").valueOf()),
+  ];
+}
+
 function vibeCheck(clients) {
-  Server.findAll({ where: { rank: true } }).then((servers) => {
-    for (let i = 0; i < servers.length; i++) {
-      if (!clients.includes(servers[i].id)) {
-        Server.findByPk(servers[i].id).then((serv) => {
-          serv.update({ rank: false });
-        });
-      }
-
-      var total = Bowl.count({ where: { serverId: servers[i].id } });
-      var year = Bowl.count({
-        where: { serverId: servers[i].id, schmokedAt: { [Op.gte]: moment().subtract(1, "years").toDate() } },
-      });
-      var month = Bowl.count({
-        where: { serverId: servers[i].id, schmokedAt: { [Op.gte]: moment().subtract(1, "months").toDate() } },
-      });
-      var week = Bowl.count({
-        where: { serverId: servers[i].id, schmokedAt: { [Op.gte]: moment().subtract(1, "weeks").toDate() } },
-      });
-      var day = Bowl.count({
-        where: { serverId: servers[i].id, schmokedAt: { [Op.gte]: moment().subtract(1, "days").toDate() } },
-      });
-      var hour = Bowl.count({
-        where: { serverId: servers[i].id, schmokedAt: { [Op.gte]: moment().subtract(1, "hours").toDate() } },
-      });
-
-      Promise.all([total, year, month, week, day, hour]).then((data) => {
-        leaderboardsMap.set(servers[i].id, [servers[i].name, data[0], data[1], data[2], data[3], data[4], data[5]]);
-      });
+  const servers = db.findRankedServers();
+  for (let i = 0; i < servers.length; i++) {
+    if (!clients.includes(servers[i].id)) {
+      db.setServerRank(servers[i].id, false);
     }
-  });
+
+    leaderboardsMap.set(servers[i].id, [servers[i].name, ...serverStats(servers[i].id)]);
+  }
 }
 
 bot.on("clientReady", () => {
@@ -89,9 +76,7 @@ bot.on("guildCreate", (guild) => {
     "*cough cough* ayyooo it's keef!!\n\ntype `@keef help` for the list of commands, or we could jump right into a 30-min schmoke interval with `@keef 30`\n\n**IMPORTANT: Use bowlbot (me) at your own risk. By using bowlbot, you agree to the bowlbot disclaimer/waiver.**",
   );
   guild.systemChannel.send("@everyone\n\n" + disclaimer);
-  Server.findOrCreate({ where: { id: guild.id }, defaults: { id: guild.id, name: guild.name } }).then((res) => {
-    console.log(res);
-  });
+  console.log(db.findOrCreateServer(guild.id, guild.name));
 });
 
 bot.on("messageCreate", (message) => {
@@ -117,21 +102,17 @@ bot.on("messageCreate", (message) => {
     msg = msg.replace("bruv", "").trim();
   }
 
-  Server.findOrCreate({
-    where: { id: message.guild.id },
-    defaults: { id: message.guild.id, name: message.guild.name },
-  }).then((serv) => {
-    //returns an array. find just one?
+  {
+    var serv = db.findOrCreateServer(message.guild.id, message.guild.name);
 
-    var serverId = serv[0].dataValues.id;
+    var serverId = serv.id;
     var userVoiceChannel = message.member.voice.channel; //TODO: add variable for message.guild too
 
-    if (serv[0].dataValues.name !== message.guild.name) {
-      serv[0].update({ name: message.guild.name }).then((serv) => {
-        if (leaderboardsMap.get(serv.id)) {
-          leaderboardsMap.set(serv.id, [serv.name, ...leaderboardsMap.get(serv.id).slice(1)]);
-        }
-      });
+    if (serv.name !== message.guild.name) {
+      db.updateServerName(serverId, message.guild.name);
+      if (leaderboardsMap.get(serverId)) {
+        leaderboardsMap.set(serverId, [message.guild.name, ...leaderboardsMap.get(serverId).slice(1)]);
+      }
     }
 
     if (msg === "help" || msg === "commands") {
@@ -199,49 +180,15 @@ bot.on("messageCreate", (message) => {
                   ukMode ? "./audio/schmoke_a_spliff.mp3" : "./audio/schmoke_a_bowl.mp3",
                 ),
               );
-              Server.findByPk(serverId).then((serv) => {
-                //TODO: better way to hold onto server, as you found it earlier?
-                serv.createBowl().then(() => {
-                  Bowl.count().then((bowl) => {
-                    var total = Bowl.count({ where: { serverId: serverId } });
-                    var year = Bowl.count({
-                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "years").toDate() } },
-                    });
-                    var month = Bowl.count({
-                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "months").toDate() } },
-                    });
-                    var week = Bowl.count({
-                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "weeks").toDate() } },
-                    });
-                    var day = Bowl.count({
-                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "days").toDate() } },
-                    });
-                    var hour = Bowl.count({
-                      where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "hours").toDate() } },
-                    });
-
-                    Promise.all([total, year, month, week, day, hour])
-                      .then((data) => {
-                        if (serv.rank) {
-                          leaderboardsMap.set(serverId, [
-                            serv.name,
-                            data[0],
-                            data[1],
-                            data[2],
-                            data[3],
-                            data[4],
-                            data[5],
-                          ]);
-                        } else {
-                          leaderboardsMap.delete(serverId);
-                        }
-                      })
-                      .then(() => {
-                        io.emit("bowlcount", bowl);
-                      });
-                  });
-                });
-              });
+              const serv = db.findServer(serverId); //TODO: better way to hold onto server, as you found it earlier?
+              db.insertBowl(serverId);
+              const bowl = db.countAllBowls();
+              if (serv.rank) {
+                leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
+              } else {
+                leaderboardsMap.delete(serverId);
+              }
+              io.emit("bowlcount", bowl);
             }
           },
           msg * 1000 * 60,
@@ -271,24 +218,8 @@ bot.on("messageCreate", (message) => {
 
     if (msg === "stats") {
       //displays server stats via message //TODO: better formatting? maybe table
-      var total = Bowl.count({ where: { serverId: serverId } });
-      var year = Bowl.count({
-        where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "years").toDate() } },
-      });
-      var month = Bowl.count({
-        where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "months").toDate() } },
-      });
-      var week = Bowl.count({
-        where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "weeks").toDate() } },
-      });
-      var day = Bowl.count({
-        where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "days").toDate() } },
-      });
-      var hour = Bowl.count({
-        where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "hours").toDate() } },
-      });
-
-      Promise.all([total, year, month, week, day, hour]).then((data) => {
+      {
+        var data = serverStats(serverId);
         //TODO: emojis based on amount of bowls
         message.channel.send({
           content:
@@ -306,7 +237,7 @@ bot.on("messageCreate", (message) => {
             data[5] +
             " bowls in the past hour\n- - - - - - - - - - - - - - - - - - - - - -\nkeep up the great work!",
         });
-      });
+      }
       return;
     }
 
@@ -326,49 +257,33 @@ bot.on("messageCreate", (message) => {
     }
 
     if (msg === "enable rank" || msg === "enable ranked" || msg === "enable ranking") {
-      Server.findByPk(serverId).then((serv) => {
+      {
+        const serv = db.findServer(serverId);
         if (!serv.rank) {
           if (message.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
-            serv.update({ rank: true });
+            db.setServerRank(serverId, true);
             message.channel.send({
               content:
                 "ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at https://bowlbot.app",
             });
 
-            var total = Bowl.count({ where: { serverId: serverId } });
-            var year = Bowl.count({
-              where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "years").toDate() } },
-            });
-            var month = Bowl.count({
-              where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "months").toDate() } },
-            });
-            var week = Bowl.count({
-              where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "weeks").toDate() } },
-            });
-            var day = Bowl.count({
-              where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "days").toDate() } },
-            });
-            var hour = Bowl.count({
-              where: { serverId: serverId, schmokedAt: { [Op.gte]: moment().subtract(1, "hours").toDate() } },
-            });
-            Promise.all([total, year, month, week, day, hour]).then((data) => {
-              leaderboardsMap.set(serverId, [serv.name, data[0], data[1], data[2], data[3], data[4], data[5]]);
-            });
+            leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
           } else {
             message.channel.send({ content: "you don't have this permission. get your server admin to do it." });
           }
         } else {
           message.channel.send({ content: "ranking is already enabled." });
         }
-      });
+      }
       return;
     }
 
     if (msg === "disable rank" || msg === "disable ranked" || msg === "disable ranking") {
-      Server.findByPk(serverId).then((serv) => {
+      {
+        const serv = db.findServer(serverId);
         if (serv.rank) {
           if (message.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
-            serv.update({ rank: false });
+            db.setServerRank(serverId, false);
             message.channel.send({
               content:
                 "ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at https://bowlbot.app",
@@ -380,7 +295,7 @@ bot.on("messageCreate", (message) => {
         } else {
           message.channel.send({ content: "ranking is already disabled." });
         }
-      });
+      }
       return;
     }
 
@@ -400,7 +315,7 @@ bot.on("messageCreate", (message) => {
     }
 
     message.channel.send({ content: "huh?" }); //all unknown commands return "huh?" //TODO: array ["huh?","what?","hmm?"]? TODO: after 3rd huh in a row offer 'keef help'?
-  });
+  }
 });
 
 bot.on("error", (error) => {
@@ -422,9 +337,7 @@ bot.login(process.env.token);
 io.on("connection", (socket) => {
   console.log("we're one, brother");
   socket.emit("bot_status", is_online);
-  Bowl.count().then((bowl) => {
-    io.emit("init", bowl);
-  });
+  io.emit("init", db.countAllBowls());
   socket.on("leaderboards", () => {
     //TODO: to prevent leaderboards not showing up glitch, await leaderboardsMap before grabbing below data from it...?
     var totalSorted = Array.from(leaderboardsMap)
@@ -493,10 +406,6 @@ io.on("connection", (socket) => {
       socket.emit("leaderboards", [data[0], data[1], data[2], data[3], data[4], data[5]]);
     });
   });
-});
-
-sequelize.sync().catch((err) => {
-  console.log(err);
 });
 
 //TODO: auto set rank to false if server kicks keef
