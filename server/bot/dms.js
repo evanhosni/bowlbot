@@ -56,7 +56,7 @@ function handleDm(message) {
     return;
   }
   if (content.toLowerCase() === "yes" || content.toLowerCase() === "no") {
-    say(message, { content: "no announcement pending. DM me the announcement first, then i'll ask for confirmation" });
+    say(message, { content: "nothing pending. DM me the announcement first, then i'll ask for confirmation" });
     return;
   }
 
