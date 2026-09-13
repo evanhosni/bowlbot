@@ -144,21 +144,28 @@
     <div id="modal">
       <div id="leaderboards">
         <p class="error">hmm...looks like the server is down. my bad.</p>
+        <h2 id="lb-title">leaderboards</h2>
         <div id="tabs">
-          <a id="tab-total" onclick="leaderboards('total')">total</a>
-          <a id="tab-year" onclick="leaderboards('year')">year</a>
-          <a id="tab-month" onclick="leaderboards('month')">month</a>
-          <a id="tab-week" onclick="leaderboards('week')">week</a>
-          <a id="tab-day" onclick="leaderboards('day')">day</a>
-          <a id="tab-hour" onclick="leaderboards('hour')">hour</a>
+          <a data-range="total">total</a>
+          <a data-range="year">year</a>
+          <a data-range="month">month</a>
+          <a data-range="week">week</a>
+          <a data-range="day">day</a>
+          <a data-range="hour">hour</a>
+          <span id="tab-indicator"></span>
+        </div>
+        <div id="board-head" class="row head">
+          <span class="rank">rank</span>
+          <span class="name">server</span>
+          <span class="bowls">bowls</span>
         </div>
         <div id="tables">
-          <table id="table-total"></table>
-          <table id="table-year"></table>
-          <table id="table-month"></table>
-          <table id="table-week"></table>
-          <table id="table-day"></table>
-          <table id="table-hour"></table>
+          <div class="panel"><div id="board-total" class="board"></div></div>
+          <div class="panel"><div id="board-year" class="board"></div></div>
+          <div class="panel"><div id="board-month" class="board"></div></div>
+          <div class="panel"><div id="board-week" class="board"></div></div>
+          <div class="panel"><div id="board-day" class="board"></div></div>
+          <div class="panel"><div id="board-hour" class="board"></div></div>
         </div>
         <p id="hint">Use command "@keef enable rank" to include your server on the leaderboards!</p>
         <div class="close">(close)</div>
