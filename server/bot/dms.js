@@ -52,11 +52,11 @@ function handleDm(message) {
   }
   if (pending !== null && content.toLowerCase() === "no") {
     pending = null;
-    say(message, { content: "ok, not sending it" });
+    say(message, { content: "kk, not sending it" });
     return;
   }
   if (content.toLowerCase() === "yes" || content.toLowerCase() === "no") {
-    say(message, { content: "nothing pending. DM me the announcement and i'll ask" });
+    say(message, { content: "no announcement pending. DM me the announcement first, then i'll ask for confirmation" });
     return;
   }
 
