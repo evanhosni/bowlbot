@@ -15,10 +15,9 @@
 const path = require("path");
 const Discord = require("discord.js");
 const discordVoice = require("@discordjs/voice");
-const bot = require("./client");
 const db = require("../db");
 const { io } = require("../web");
-const { sesh, leaderboardsMap } = require("../state");
+const { sesh, stopSesh, leaderboardsMap } = require("../state");
 const { serverStats } = require("../leaderboards");
 const { logGuildError } = require("../log");
 const { disclaimer } = require("../text");
@@ -54,7 +53,7 @@ const commands = [
         ctx.reply({ content: "ayyy lmao" });
       }
       ctx.reply({ content: `schmoke a ` + (ukMode ? "spliff" : "bowl") + ` every ${msg} min` });
-      clearInterval(sesh.get(serverId));
+      stopSesh(serverId);
 
       const player = discordVoice.createAudioPlayer();
       const connection = discordVoice.joinVoiceChannel({
@@ -74,39 +73,41 @@ const commands = [
       connection.subscribe(player);
 
       const botVoiceChannel = discordVoice.getVoiceConnection(ctx.guild.id);
-      sesh.set(
-        serverId,
-        setInterval(
-          () => {
-            try {
-              if (botVoiceChannel && userVoiceChannel.members.size <= 1) {
-                ctx.announce({ content: "bru" + (ukMode ? "v" : "h") + " where'd everyone go" });
-                clearInterval(sesh.get(serverId));
-                sesh.delete(serverId);
-                botVoiceChannel.destroy();
+      const timer = setInterval(
+        () => {
+          try {
+            if (botVoiceChannel && userVoiceChannel.members.size <= 1) {
+              ctx.announce({ content: "bru" + (ukMode ? "v" : "h") + " where'd everyone go" });
+              stopSesh(serverId);
+              botVoiceChannel.destroy();
+            } else {
+              player.play(
+                discordVoice.createAudioResource(
+                  path.join(AUDIO_DIR, ukMode ? "schmoke_a_spliff.mp3" : "schmoke_a_bowl.mp3"),
+                ),
+              );
+              const serv = db.findServer(serverId); //TODO: better way to hold onto server, as you found it earlier?
+              db.insertBowl(serverId);
+              const bowl = db.countAllBowls();
+              if (serv.rank) {
+                leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
               } else {
-                player.play(
-                  discordVoice.createAudioResource(
-                    path.join(AUDIO_DIR, ukMode ? "schmoke_a_spliff.mp3" : "schmoke_a_bowl.mp3"),
-                  ),
-                );
-                const serv = db.findServer(serverId); //TODO: better way to hold onto server, as you found it earlier?
-                db.insertBowl(serverId);
-                const bowl = db.countAllBowls();
-                if (serv.rank) {
-                  leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
-                } else {
-                  leaderboardsMap.delete(serverId);
-                }
-                io.emit("bowlcount", bowl);
+                leaderboardsMap.delete(serverId);
               }
-            } catch (err) {
-              logGuildError("session tick", ctx.guild, err);
+              io.emit("bowlcount", bowl);
             }
-          },
-          msg * 1000 * 60,
-        ),
+          } catch (err) {
+            logGuildError("session tick", ctx.guild, err);
+          }
+        },
+        msg * 1000 * 60,
       );
+      sesh.set(serverId, {
+        timer,
+        minutes: Number(msg),
+        startedAt: Date.now(),
+        channel: userVoiceChannel.name,
+      });
     },
   },
 
@@ -123,8 +124,7 @@ const commands = [
       const botVoiceChannel = discordVoice.getVoiceConnection(ctx.guild.id);
       if (botVoiceChannel) {
         ctx.reply({ content: "okay :3" });
-        clearInterval(sesh.get(serverId));
-        sesh.delete(serverId);
+        stopSesh(serverId);
         botVoiceChannel.destroy();
       } else {
         ctx.reply({ content: "i wasn't doing anything!" });
@@ -243,21 +243,6 @@ const commands = [
     response: "no not like that silly goose. actually specify a number... like `keef 15`", //TODO: rephrase?
   },
 
-  {
-    name: "server list",
-    slash: false,
-    hidden: true,
-    run(ctx) {
-      console.log("CONNECTED CLIENTS:");
-      console.log("(" + bot.guilds.cache.size + ")");
-      console.log(bot.guilds.cache.map((g) => [g.name, g.id]));
-      console.log("LEADERBOARDS MAP:");
-      console.log(leaderboardsMap);
-      console.log("SESH MAP:");
-      console.log(sesh);
-      ctx.reply({ content: "huh?" });
-    },
-  },
 ];
 
 module.exports = commands;

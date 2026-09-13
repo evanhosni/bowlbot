@@ -1,6 +1,3 @@
-// `text` is whatever followed `@keef `, lowercased and trimmed; slash commands
-// are translated into that same text first.
-
 const db = require("../db");
 const { leaderboardsMap } = require("../state");
 const { logGuildError } = require("../log");

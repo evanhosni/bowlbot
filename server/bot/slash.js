@@ -6,7 +6,7 @@ const bot = require("./client");
 const commands = require("./commands");
 const { interactionContext } = require("./context");
 const { execute, mentionPhrases } = require("./dispatch");
-const { logGuildError } = require("../log");
+const { logGuildError, ownerError } = require("../log");
 
 const slashCommands = commands.filter((c) => c.slash !== false);
 
@@ -41,10 +41,7 @@ function slashToText(command, interaction) {
 function registerSlashCommands() {
   return bot.application.commands
     .set(slashCommands.map(slashDefinition))
-    .then((cmds) =>
-      console.log(`registered ${cmds.size} slash command(s): ${cmds.map((c) => "/" + c.name).join(", ")}`),
-    )
-    .catch((err) => console.error("[slash] could not register commands:", err && err.stack ? err.stack : err));
+    .catch((err) => ownerError("[slash] could not register commands:", err && err.stack ? err.stack : err));
 }
 
 function handleInteraction(interaction) {

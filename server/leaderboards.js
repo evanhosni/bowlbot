@@ -4,18 +4,15 @@ const { leaderboardsMap } = require("./state");
 
 const RANGES = ["total", "year", "month", "week", "day", "hour"];
 
+// Same order as RANGES: sortedBoard() and leaderboardsMap index these by position.
 function serverStats(serverId) {
-  return [
-    db.countServerBowls(serverId),
-    db.countServerBowls(serverId, moment().subtract(1, "years").valueOf()),
-    db.countServerBowls(serverId, moment().subtract(1, "months").valueOf()),
-    db.countServerBowls(serverId, moment().subtract(1, "weeks").valueOf()),
-    db.countServerBowls(serverId, moment().subtract(1, "days").valueOf()),
-    db.countServerBowls(serverId, moment().subtract(1, "hours").valueOf()),
-  ];
+  return RANGES.map((range) =>
+    range === "total"
+      ? db.countServerBowls(serverId)
+      : db.countServerBowls(serverId, moment().subtract(1, range).valueOf()),
+  );
 }
 
-// Drops ranking for servers keef is no longer in.
 function vibeCheck(guildIds) {
   const servers = db.findRankedServers();
   for (let i = 0; i < servers.length; i++) {

@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const http = require("http");
+const { ownerLog } = require("../log");
 
 const CLIENT_DIR = path.join(__dirname, "..", "..", "client");
 
@@ -16,7 +17,7 @@ require("./socket").attach(io);
 function listen() {
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
-    console.log(`listening at http://localhost:${PORT} 🚀`);
+    ownerLog(`listening at http://localhost:${PORT} 🚀`);
   });
 }
 

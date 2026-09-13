@@ -95,7 +95,6 @@ function setActiveTab(i) {
   tabs.forEach((tab, idx) => tab.classList.toggle("active", idx === i));
 }
 
-// progress is fractional (e.g. 2.4 = 40% of the way from "month" to "week")
 function positionIndicator(progress) {
   const last = tabs.length - 1;
   const i = Math.max(0, Math.min(last, Math.floor(progress)));
@@ -132,7 +131,7 @@ track.addEventListener("scroll", () => {
 
 tabs.forEach((tab, i) => tab.addEventListener("click", () => goTo(i, true)));
 
-// Mouse drag to slide between ranges (touch uses native scroll snapping).
+// Touch uses native scroll snapping; this is the mouse equivalent.
 var drag = null;
 var snapTimer = null;
 track.addEventListener("pointerdown", (e) => {
@@ -206,7 +205,7 @@ function disclaimer() {
 document.querySelector("#btn-leaderboards").addEventListener("click", () => {
   if (!leaderboardsOpen) {
     leaderboards("week");
-    track("leaderboards_open");
+    gaEvent("leaderboards_open");
   } else {
     closeModal();
   }
@@ -215,20 +214,19 @@ document.querySelector("#btn-leaderboards").addEventListener("click", () => {
 document.querySelector("#toke-up-with-me").addEventListener("click", () => {
   if (!disclaimerOpen) {
     disclaimer();
-    track("invite_start");
+    gaEvent("invite_start");
   } else {
     closeModal();
   }
 });
 
 document.querySelector("#agree-btn").addEventListener("click", () => {
-  // the actual conversion: user accepted the waiver and is off to discord's oauth page
-  track("invite_accept");
+  gaEvent("invite_accept");
   closeModal();
 });
 
 document.querySelector("#feedback-link")?.addEventListener("click", () => {
-  track("support_server_click");
+  gaEvent("support_server_click");
 });
 
 var closeButtons = document.querySelectorAll(".close");
@@ -244,8 +242,7 @@ function closeModal() {
   disclaimerOpen = false;
 }
 
-// Only close when the press starts AND ends on the backdrop, so dragging a
-// board and releasing outside the modal does not close it.
+// Both ends of the press must be on the backdrop, or dragging a board closes the modal.
 var pressedOnBackdrop = false;
 modal.addEventListener("pointerdown", (e) => {
   pressedOnBackdrop = e.target === modal;

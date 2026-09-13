@@ -3,13 +3,12 @@ const db = require("../db");
 const { io } = require("../web");
 const { status } = require("../state");
 const { vibeCheck } = require("../leaderboards");
-const { describeGuild, logGuildError } = require("../log");
+const { describeGuild, logGuildError, ownerLog, ownerError } = require("../log");
 const { disclaimer, welcome } = require("../text");
 const { registerSlashCommands } = require("./slash");
 
 bot.on("clientReady", () => {
-  console.log(`ayyooo it's ${bot.user.tag}`);
-  console.log(bot.guilds.cache.map((g) => g.name).join("\n"));
+  ownerLog(`ayyooo it's ${bot.user.tag}! live in ${bot.guilds.cache.size} servers`);
   status.online = true;
   io.emit("bot_status", status.online);
   vibeCheck(bot.guilds.cache.map((g) => g.id));
@@ -17,10 +16,11 @@ bot.on("clientReady", () => {
 });
 
 bot.on("guildCreate", (guild) => {
-  console.log(db.findOrCreateServer(guild.id, guild.name));
+  db.findOrCreateServer(guild.id, guild.name);
+  ownerLog(`bowlbot added to: ${describeGuild(guild)}`);
   const channel = guild.systemChannel;
   if (!channel) {
-    console.log(`[guildCreate] ${describeGuild(guild)}: no system channel, skipping welcome message`);
+    ownerLog(`${describeGuild(guild)}: no system channel, skipping welcome message`);
     return;
   }
   channel
@@ -30,13 +30,13 @@ bot.on("guildCreate", (guild) => {
 });
 
 bot.on("error", (error) => {
-  console.log("bot error:", error);
+  ownerError("bot error:", error);
   status.online = false;
   io.emit("bot_status", status.online);
 });
 
 bot.on("disconnect", () => {
-  console.log("bot disconnected");
+  ownerLog("bot disconnected");
   status.online = false;
   io.emit("bot_status", status.online);
 });
