@@ -17,10 +17,10 @@
 
 body {
   font-family: "Nanum Pen Script", cursive;
-  background: linear-gradient(to bottom, var(--darkgreen) 0%, var(--green) 50% /*, var(--darkgreen) 100%*/);
+  background: linear-gradient(to bottom, var(--darkgreen) 0%, var(--green) 50%);
   background-attachment: fixed;
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 body::-webkit-scrollbar {
@@ -37,7 +37,7 @@ body::-webkit-scrollbar {
 }
 
 nav {
-  background-image: url("./images/papers.png");
+  background-image: url("../images/papers.png");
   box-shadow: 0 0 20px black;
   font-weight: bolder;
   position: fixed;
@@ -245,7 +245,7 @@ main h1 {
   height: 70%;
   max-width: 520px;
   padding: 8vw;
-  background-image: url("./images/smoke.png");
+  background-image: url("../images/smoke.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -483,7 +483,7 @@ main h1 {
   height: 65%;
   max-width: 500px;
   padding: 8vw;
-  background-image: url("./images/smoke.png");
+  background-image: url("../images/smoke.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   text-align: center;

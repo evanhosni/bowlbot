@@ -1,6 +1,4 @@
-// Connect to the page's own origin: the Express server that serves this file
-// also hosts the socket.io endpoint, so this works locally, on Railway, and
-// on the custom domain without a hard-coded URL.
+// Same origin as the page; the Express server also hosts socket.io.
 const socket = io();
 var connectedToServer;
 var currentBowls;
@@ -8,7 +6,6 @@ var is_online = false;
 var bowls = document.querySelector(".counter");
 var modal = document.querySelector("#modal");
 
-// ---------- leaderboards ----------
 const RANGES = ["total", "year", "month", "week", "day", "hour"];
 const leaderboardsEl = document.querySelector("#leaderboards");
 const track = document.querySelector("#tables");

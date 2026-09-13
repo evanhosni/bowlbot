@@ -1,9 +1,5 @@
-// Schema migrations for the bowlbot SQLite database.
-//
-// Append-only. Never edit or reorder an existing entry: PRAGMA user_version
-// records how many have run, and each migration is applied exactly once, in
-// order, inside its own transaction. Add new schema changes as a new function
-// at the end of the array.
+// Append-only. Never edit or reorder an entry: PRAGMA user_version records how
+// many have run, and each runs exactly once in its own transaction.
 
 const MIGRATIONS = [
   // 0: initial schema, mirroring what Sequelize 4 created on Heroku Postgres.

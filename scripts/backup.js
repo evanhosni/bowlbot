@@ -1,14 +1,6 @@
 #!/usr/bin/env node
-// Copy the live SQLite database to a backup file using node:sqlite's online
-// backup API. Unlike cp, this is safe while the bot is running and writing,
-// because it reads a consistent snapshot through the WAL rather than the raw
-// file bytes.
-//
-// Usage:
-//   DATABASE_PATH=/data/bowlbot.sqlite node scripts/backup.js [dest]
-//
-// If dest is omitted, the backup is written next to the source as
-// <name>.<UTC timestamp>.bak.sqlite.
+// Online backup of the live SQLite file. Safe while the bot is writing, unlike cp.
+// Usage: DATABASE_PATH=/data/bowlbot.sqlite node scripts/backup.js [dest]
 
 const { DatabaseSync, backup } = require("node:sqlite");
 const path = require("node:path");

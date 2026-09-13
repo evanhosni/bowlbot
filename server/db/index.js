@@ -1,8 +1,4 @@
-// Single data-access module. All SQL for the bot lives here.
-//
-// The database is opened once at module load from DATABASE_PATH and prepared
-// statements are created once, not per call. node:sqlite is synchronous, so
-// every export returns a plain value rather than a Promise.
+// All SQL lives here. node:sqlite is synchronous; every export returns a plain value.
 
 const { DatabaseSync } = require("node:sqlite");
 const path = require("node:path");
@@ -22,7 +18,6 @@ db.exec("PRAGMA foreign_keys = ON");
 db.exec("PRAGMA busy_timeout = 5000");
 migrate(db);
 
-// --- prepared statements -----------------------------------------------------
 
 const stmt = {
   selectServer: db.prepare("SELECT id, name, rank FROM servers WHERE id = ?"),
@@ -35,6 +30,13 @@ const stmt = {
   countAllBowls: db.prepare("SELECT COUNT(*) AS n FROM bowls"),
   countServerBowls: db.prepare("SELECT COUNT(*) AS n FROM bowls WHERE serverId = ?"),
   countServerBowlsSince: db.prepare("SELECT COUNT(*) AS n FROM bowls WHERE serverId = ? AND schmokedAt >= ?"),
+  countServerBowlsByWindow: db.prepare(
+    "SELECT CAST((? - schmokedAt) / ? AS INTEGER) AS w, COUNT(*) AS n FROM bowls WHERE serverId = ? AND schmokedAt > ? AND schmokedAt <= ? GROUP BY w",
+  ),
+  countServerBowlsByPeriod: db.prepare(
+    "SELECT strftime(?, schmokedAt / 1000, 'unixepoch') AS p, COUNT(*) AS n FROM bowls WHERE serverId = ? GROUP BY p",
+  ),
+  firstBowlAt: db.prepare("SELECT MIN(schmokedAt) AS t FROM bowls WHERE serverId = ?"),
 };
 
 function toServer(row) {
@@ -42,7 +44,6 @@ function toServer(row) {
   return { id: row.id, name: row.name, rank: row.rank === 1 };
 }
 
-// --- servers -----------------------------------------------------------------
 
 /** @returns {{id: string, name: string, rank: boolean} | null} */
 function findServer(id) {
@@ -74,7 +75,6 @@ function findRankedServers() {
   return stmt.selectRankedServers.all().map(toServer);
 }
 
-// --- bowls -------------------------------------------------------------------
 
 /** Records a bowl for the server right now. Returns the new bowl id. */
 function insertBowl(serverId) {
@@ -96,6 +96,33 @@ function countServerBowls(serverId, sinceMs) {
   return stmt.countServerBowlsSince.get(String(serverId), sinceMs).n;
 }
 
+/**
+ * Bowls per fixed-size window counted back from `anchorMs`: window 0 is the
+ * `windowMs` ending at the anchor, window 1 the one before it, and so on for
+ * `count` windows. Map of window index -> count; empty windows are absent.
+ * @returns {Map<number, number>}
+ */
+function countServerBowlsByWindow(serverId, windowMs, count, anchorMs) {
+  const rows = stmt.countServerBowlsByWindow.all(anchorMs, windowMs, String(serverId), anchorMs - count * windowMs, anchorMs);
+  return new Map(rows.map((r) => [Number(r.w), r.n]));
+}
+
+/**
+ * Bowls per UTC calendar period over all time, keyed by an SQLite strftime
+ * format applied to schmokedAt, e.g. "%Y-%m" -> Map of "2026-09" -> count.
+ * @returns {Map<string, number>}
+ */
+function countServerBowlsByPeriod(serverId, format) {
+  const rows = stmt.countServerBowlsByPeriod.all(format, String(serverId));
+  return new Map(rows.map((r) => [r.p, r.n]));
+}
+
+/** Epoch ms of the server's first bowl, or null if it has none. */
+function firstBowlAt(serverId) {
+  const t = stmt.firstBowlAt.get(String(serverId)).t;
+  return t === null ? null : Number(t);
+}
+
 module.exports = {
   db,
   findServer,
@@ -106,4 +133,7 @@ module.exports = {
   insertBowl,
   countAllBowls,
   countServerBowls,
+  countServerBowlsByWindow,
+  countServerBowlsByPeriod,
+  firstBowlAt,
 };

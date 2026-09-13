@@ -9,16 +9,48 @@ on the leaderboards at bowlbot.io.
 
 ## How it runs
 
-One Node process (`server.js`) does everything: the Discord client, and an
-Express + socket.io server that serves the website from `public/` and pushes
+One Node process (`node server`) does everything: the Discord client, and an
+Express + socket.io server that serves the website from `client/` and pushes
 live stats to it.
+
+## Layout
+
+```
+server/            everything that runs on Railway
+  index.js         entry point: env, web server, then the bot
+  log.js           guild-scoped error logging + process crash guards
+  state.js         in-memory state shared by bot and site (sessions, leaderboards, online flag)
+  text.js          long user-facing strings (disclaimer, help, welcome)
+  leaderboards.js  per-server stats and the sorted boards the site asks for
+  web/             Express static server + socket.io events
+  bot/
+    client.js      the discord.js Client
+    commands.js    THE command table: one object per command, both interfaces read it
+    dispatch.js    text -> command lookup, shared by mentions and slash
+    mentions.js    @keef message handling
+    slash.js       slash command definitions, registration, per-guild sync, handling
+    announce.js    owner-only @keef announce
+    events.js      ready / guildCreate / error / disconnect
+    context.js     the reply/announce abstraction over message vs interaction
+  db/              SQLite access and migrations
+client/            the website, served as-is
+  index.html
+  css/ js/ images/
+  vendor/counter/  third-party odometer widget
+audio/             the reminder clips the bot plays
+scripts/backup.js  online SQLite backup
+```
+
+To add a bot command, add one object to `server/bot/commands.js`. It shows up
+as both `@keef <name>` and `/<name>` with no other changes.
 
 - **Hosting:** [Railway](https://railway.com), single replica. Pushing to
   `main` deploys. Build and start settings live in `railway.json`, not the
   dashboard. Node version is pinned by `.node-version` and `engines`.
 - **Database:** SQLite via `node:sqlite`, one file on a Railway volume at
   `/data/bowlbot.sqlite`. Opened once at startup in WAL mode. All SQL is in
-  `db/index.js`; the schema and its migration runner are in `db/schema.js`.
+  `server/db/index.js`; the schema and its migration runner are in
+  `server/db/schema.js`.
   Migrations are an append-only array applied automatically at boot using
   `PRAGMA user_version`, each in its own transaction.
 - **DNS:** Cloudflare, proxied. `bowlbot.io` points at the Railway service.
@@ -50,7 +82,7 @@ gitignored.
 
 ## Adding a schema change
 
-Append a function to `MIGRATIONS` in `db/schema.js`. Never edit or reorder an
+Append a function to `MIGRATIONS` in `server/db/schema.js`. Never edit or reorder an
 existing entry. The new migration runs on the next deploy against the volume
 database; no data shuffling is needed for `CREATE INDEX` or
 `ALTER TABLE ADD COLUMN`.
@@ -71,7 +103,7 @@ or `npm run backup`. Without `dest` it writes a timestamped
 ## Operations
 
 - **Cloudflare Browser Cache TTL must stay on "Respect Existing Headers".**
-  The site's asset filenames are not hashed (`style.css`, `client.js`, ...),
+  The site's asset filenames are not hashed (`css/style.css`, `js/client.js`, ...),
   and Express serves them with `max-age=0` plus an ETag so browsers revalidate
   on every visit and get a cheap 304. Cloudflare's default of a fixed TTL
   (four hours) overrides that header, and returning visitors then get fresh
