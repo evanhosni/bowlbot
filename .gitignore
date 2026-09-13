@@ -107,5 +107,7 @@ dist
 *.sqlite-wal
 *.sqlite-shm
 *.bak.sqlite
-data/
+data/*
 *.dump
+# TEMPORARY: seed database shipped for the Railway cutover. Remove with db/seed.js.
+!data/bowlbot.sqlite

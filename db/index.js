@@ -16,6 +16,9 @@ if (!DATABASE_PATH) {
 
 fs.mkdirSync(path.dirname(path.resolve(DATABASE_PATH)), { recursive: true });
 
+// TEMPORARY cutover step: see db/seed.js. Must run before the database is opened.
+require("./seed").seedIfRequested(DATABASE_PATH);
+
 const db = new DatabaseSync(DATABASE_PATH);
 db.exec("PRAGMA journal_mode = WAL");
 db.exec("PRAGMA foreign_keys = ON");
