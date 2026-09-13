@@ -32,14 +32,20 @@ function syncGuildCommands(guild) {
   return require("./slash").syncGuildCommands(guild);
 }
 
+// "30" or "sesh 30" -> "30"
+function seshMinutes(text) {
+  return text.replace(/^sesh\s+/, "");
+}
+
 const commands = [
   {
-    name: "keef",
-    match: (text) => !isNaN(text),
+    name: "sesh",
+    match: (text) => text !== "sesh" && !isNaN(seshMinutes(text)),
     usage: "[minutes]",
     description: "joins call and sets a schmoke interval for [number] minutes",
     option: { name: "minutes", description: "how many minutes between schmokes", standalone: true },
-    run(ctx, { text: msg, ukMode, serverId }) {
+    run(ctx, { text, ukMode, serverId }) {
+      const msg = seshMinutes(text);
       const userVoiceChannel = ctx.member && ctx.member.voice ? ctx.member.voice.channel : null;
       if (!userVoiceChannel) {
         ctx.reply({
@@ -253,7 +259,7 @@ const commands = [
 
   {
     name: "number",
-    mention: ["number", "(number)", "[number]"],
+    mention: ["sesh", "number", "(number)", "[number]"],
     slash: false,
     hidden: true,
     response: "no not like that silly goose. actually specify a number... like `keef 15`", //TODO: rephrase?
