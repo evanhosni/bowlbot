@@ -9,8 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "backup": "node scripts/backup.js",
-    "convert:postgres": "node scripts/convert-from-postgres.js"
+    "backup": "node scripts/backup.js"
   },
   "repository": {
     "type": "git",
@@ -36,8 +35,5 @@
   },
   "allowScripts": {
     "ffmpeg-static@5.3.0": true
-  },
-  "devDependencies": {
-    "pg": "^8.22.0"
   }
 }
