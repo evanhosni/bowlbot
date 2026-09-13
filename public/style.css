@@ -69,7 +69,9 @@ nav p {
   margin-left: 10px;
   color: var(--lightgreen);
   text-decoration: none;
-  transition: text-shadow 1s, color 1s;
+  transition:
+    text-shadow 1s,
+    color 1s;
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
   padding: 0 12px;
   background: var(--clearbrown);
@@ -398,17 +400,35 @@ main h1 {
 }
 
 .row.top-1 {
-  background: linear-gradient(90deg, rgba(255, 200, 0, 0) 0%, rgba(255, 200, 0, 0.3) 8%, rgba(255, 200, 0, 0.3) 72%, rgba(255, 200, 0, 0) 92%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 200, 0, 0) 8%,
+    rgba(255, 200, 0, 0.3) 20%,
+    rgba(255, 200, 0, 0.3) 80%,
+    rgba(255, 200, 0, 0) 92%
+  );
   border-radius: 10px;
 }
 
 .row.top-2 {
-  background: linear-gradient(90deg, rgba(120, 130, 145, 0) 0%, rgba(120, 130, 145, 0.24) 8%, rgba(120, 130, 145, 0.24) 72%, rgba(120, 130, 145, 0) 92%);
+  background: linear-gradient(
+    90deg,
+    rgba(120, 130, 145, 0) 8%,
+    rgba(120, 130, 145, 0.24) 20%,
+    rgba(120, 130, 145, 0.24) 80%,
+    rgba(120, 130, 145, 0) 92%
+  );
   border-radius: 10px;
 }
 
 .row.top-3 {
-  background: linear-gradient(90deg, rgba(205, 127, 50, 0) 0%, rgba(205, 127, 50, 0.24) 8%, rgba(205, 127, 50, 0.24) 72%, rgba(205, 127, 50, 0) 92%);
+  background: linear-gradient(
+    90deg,
+    rgba(205, 127, 50, 0) 8%,
+    rgba(205, 127, 50, 0.24) 20%,
+    rgba(205, 127, 50, 0.24) 80%,
+    rgba(205, 127, 50, 0) 92%
+  );
   border-radius: 10px;
 }
 
