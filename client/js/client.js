@@ -206,6 +206,7 @@ function disclaimer() {
 document.querySelector("#btn-leaderboards").addEventListener("click", () => {
   if (!leaderboardsOpen) {
     leaderboards("week");
+    track("leaderboards_open");
   } else {
     closeModal();
   }
@@ -214,13 +215,20 @@ document.querySelector("#btn-leaderboards").addEventListener("click", () => {
 document.querySelector("#toke-up-with-me").addEventListener("click", () => {
   if (!disclaimerOpen) {
     disclaimer();
+    track("invite_start");
   } else {
     closeModal();
   }
 });
 
 document.querySelector("#agree-btn").addEventListener("click", () => {
+  // the actual conversion: user accepted the waiver and is off to discord's oauth page
+  track("invite_accept");
   closeModal();
+});
+
+document.querySelector("#feedback-link")?.addEventListener("click", () => {
+  track("support_server_click");
 });
 
 var closeButtons = document.querySelectorAll(".close");
