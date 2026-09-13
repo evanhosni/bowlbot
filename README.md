@@ -38,7 +38,7 @@ client/            the website, served as-is
   css/ js/ images/
   vendor/counter/  third-party odometer widget
 audio/             the reminder clips the bot plays
-scripts/           operator tools: online SQLite backup, one-off guild command cleanup
+scripts/backup.js  online SQLite backup
 ```
 
 To add a bot command, add one object to `server/bot/commands.js`. It shows up

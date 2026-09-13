@@ -33,8 +33,8 @@ const yearLabel = (ms) => fmt(ms, { year: "numeric" });
 // (day/week) are rolling windows counted back from now, so no viewer's midnight
 // is involved; calendar units step by UTC month/year, where hours don't show.
 const UNITS = [
-  { name: "day", plural: "days", short: "d", now: "today", prev: "yesterday", maxSpan: 60 * DAY, window: DAY },
-  { name: "week", plural: "weeks", short: "w", now: "this week", prev: "last week", maxSpan: 2 * YEAR, window: WEEK },
+  { name: "day", short: "d", now: "today", prev: "yesterday", maxSpan: 60 * DAY, window: DAY },
+  { name: "week", short: "w", now: "this week", prev: "last week", maxSpan: 2 * YEAR, window: WEEK },
   { name: "month", maxSpan: 6 * YEAR, format: "%Y-%m", label: monthLabel },
   { name: "year", maxSpan: Infinity, format: "%Y", label: yearLabel },
 ];
@@ -139,17 +139,13 @@ function bowlsChartPng(serverId) {
   const fromMs = firstBowl === null ? now : firstBowl;
   const unit = unitFor(Math.max(now - fromMs, MIN_WINDOWS * DAY));
   let series;
-  let title;
   if (unit.window) {
     const count = Math.max(MIN_WINDOWS, Math.ceil((now - fromMs) / unit.window));
     series = windowSeries(serverId, unit, count, now);
-    title = `bowls, last ${count} ${unit.plural}`;
   } else {
     series = periodSeries(serverId, unit, fromMs, now);
-    title = `bowls since ${unit.label(fromMs)}`;
   }
-  if (firstBowl === null) title = "no bowls yet";
-  return renderPng(chartConfig(title, series));
+  return renderPng(chartConfig("bowls schmoked", series));
 }
 
 module.exports = { bowlsChartPng };
