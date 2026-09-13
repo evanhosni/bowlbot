@@ -5,7 +5,7 @@ const { status } = require("../state");
 const { vibeCheck } = require("../leaderboards");
 const { describeGuild, logGuildError } = require("../log");
 const { disclaimer, welcome } = require("../text");
-const announce = require("./announce");
+const announcement = require("./announcement");
 const { registerSlashCommands, syncGuildCommands } = require("./slash");
 
 bot.on("clientReady", () => {
@@ -14,7 +14,7 @@ bot.on("clientReady", () => {
   status.online = true;
   io.emit("bot_status", status.online);
   vibeCheck(bot.guilds.cache.map((g) => g.id));
-  announce.fetchOwner();
+  announcement.fetchOwner();
   registerSlashCommands();
 });
 

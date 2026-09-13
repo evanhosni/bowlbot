@@ -1,5 +1,5 @@
 const bot = require("./client");
-const announce = require("./announce");
+const announcement = require("./announcement");
 const { messageContext } = require("./context");
 const { execute } = require("./dispatch");
 const { logGuildError } = require("../log");
@@ -10,7 +10,7 @@ function getMessage(message) {
 
 function handleMessage(message) {
   if (message.author.bot) return;
-  if (announce.interceptPending(message, getMessage(message))) return;
+  if (announcement.interceptPending(message)) return;
   if (message.mentions.here) return;
   if (message.mentions.everyone) return;
   if (!message.mentions.has(bot.user)) return;
@@ -19,8 +19,8 @@ function handleMessage(message) {
   const msg = getMessage(message);
 
   // Hidden, owner only. Anyone else falls through to "huh?".
-  if (msg === "announce" && announce.isOwner(message)) {
-    announce.arm(message);
+  if (msg === "announcement" && announcement.isOwner(message)) {
+    announcement.arm(message);
     return;
   }
 
