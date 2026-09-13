@@ -1,5 +1,7 @@
-// const socket = io("http://localhost:3000/")
-const socket = io("https://bowlbot-server.herokuapp.com");
+// Connect to the page's own origin: the Express server that serves this file
+// also hosts the socket.io endpoint, so this works locally, on Railway, and
+// on the custom domain without a hard-coded URL.
+const socket = io();
 var connectedToServer;
 var currentBowls;
 var is_online = false;
