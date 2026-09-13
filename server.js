@@ -37,6 +37,13 @@ let sesh = new Map();
 let leaderboardsMap = new Map();
 let is_online = false;
 
+// The one user allowed to run `@keef announce`: the application's owner,
+// fetched from Discord once the client is ready.
+let ownerId = null;
+
+// Set by `@keef announce`: the owner's next message is broadcast to every server.
+let announceNext = false;
+
 //CRASH RESISTANCE-------------------------------------------------------------------------------------
 // One bad guild (missing permissions, deleted channel, no system channel) must
 // not take down every other guild's active session. Errors are logged with the
@@ -100,7 +107,32 @@ bot.on("clientReady", () => {
   Promise.all(clientIds).then((data) => {
     vibeCheck(data);
   });
+
+  bot.application
+    .fetch()
+    .then((application) => {
+      ownerId = application.owner.id;
+      console.log(`announce enabled for owner ${ownerId}`);
+    })
+    .catch((err) => console.error("[owner] could not fetch the application owner:", err));
 });
+
+function isOwner(message) {
+  return Boolean(ownerId) && message.author.id === ownerId;
+}
+
+// Second step of `@keef announce`: post the owner's message verbatim to every
+// server's system channel. Servers without one are skipped.
+function broadcast(message) {
+  announceNext = false;
+  let sent = 0;
+  bot.guilds.cache.forEach((guild) => {
+    if (!guild.systemChannel) return;
+    sent++;
+    guild.systemChannel.send({ content: message.content }).catch((err) => logGuildError("announce", guild, err));
+  });
+  say(message, { content: `announced to ${sent} servers` });
+}
 
 bot.on("guildCreate", (guild) => {
   console.log(db.findOrCreateServer(guild.id, guild.name));
@@ -130,6 +162,10 @@ function handleMessage(message) {
   var ukMode = false;
 
   if (message.author.bot) return;
+  if (announceNext && isOwner(message)) {
+    broadcast(message);
+    return;
+  }
   if (message.mentions.here) return;
   if (message.mentions.everyone) return;
   if (!message.mentions.has(bot.user)) return;
@@ -140,6 +176,13 @@ function handleMessage(message) {
 
   if (msg == "") {
     say(message, { content: "sup?" });
+    return;
+  }
+
+  // Hidden, owner only. Anyone else falls through to "huh?" like server list.
+  if (msg === "announce" && isOwner(message)) {
+    announceNext = true;
+    say(message, { content: "ok your next message will be announced" });
     return;
   }
 
