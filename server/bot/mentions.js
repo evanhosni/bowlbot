@@ -1,5 +1,4 @@
 const bot = require("./client");
-const announcement = require("./announcement");
 const { messageContext } = require("./context");
 const { execute } = require("./dispatch");
 const { logGuildError } = require("../log");
@@ -10,10 +9,7 @@ function getMessage(message) {
 
 function handleMessage(message) {
   if (message.author.bot) return;
-  if (!message.guild) {
-    announcement.handleDm(message);
-    return;
-  }
+  if (!message.guild) return;
   if (message.mentions.here) return;
   if (message.mentions.everyone) return;
   if (!message.mentions.has(bot.user)) return;

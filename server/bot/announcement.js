@@ -2,7 +2,7 @@
 // announcement: keef asks `yes`/`no`, and on `yes` posts it verbatim to every
 // server's system channel. DMs are used because, without the Message Content
 // intent, Discord only shows keef the text of messages that mention it or are
-// DMs to it. DMs from anyone else are ignored.
+// DMs to it. Anyone else who DMs keef just gets an "ayyyy".
 
 const bot = require("./client");
 const { say } = require("./context");
@@ -37,7 +37,10 @@ function broadcast(message, content) {
 }
 
 function handleDm(message) {
-  if (!isOwner(message)) return;
+  if (!isOwner(message)) {
+    say(message, { content: "a" + "y".repeat(1 + Math.floor(Math.random() * 24)) });
+    return;
+  }
   const content = message.content.trim();
   if (content === "") return;
 
@@ -61,4 +64,15 @@ function handleDm(message) {
   say(message, { content: "would you like me to send this as an announcement? (`yes`/`no`)" });
 }
 
-module.exports = { fetchOwner, handleDm };
+bot.once("clientReady", fetchOwner);
+
+bot.on("messageCreate", (message) => {
+  if (message.author.bot || message.guild) return;
+  try {
+    handleDm(message);
+  } catch (err) {
+    logGuildError("announcement dm", null, err);
+  }
+});
+
+module.exports = { handleDm };
