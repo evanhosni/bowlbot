@@ -279,7 +279,7 @@ function handleMessage(message) {
           content:
             "you've schmoked a total of " +
             data[0] +
-            " bowls\n- - - - - - - - - - - - - - - - - - - - - -\n" +
+            " bowls\n\n" +
             data[1] +
             " bowls in the past year\n" +
             data[2] +
@@ -289,7 +289,7 @@ function handleMessage(message) {
             data[4] +
             " bowls in the past day\n" +
             data[5] +
-            " bowls in the past hour\n- - - - - - - - - - - - - - - - - - - - - -\nkeep up the great work!",
+            " bowls in the past hour\n\nkeep up the great work!",
         });
       }
       return;
