@@ -37,6 +37,37 @@ let sesh = new Map();
 let leaderboardsMap = new Map();
 let is_online = false;
 
+//CRASH RESISTANCE-------------------------------------------------------------------------------------
+// One bad guild (missing permissions, deleted channel, no system channel) must
+// not take down every other guild's active session. Errors are logged with the
+// guild they came from and the process keeps running.
+
+function describeGuild(guild) {
+  return guild ? `guild ${guild.id} "${guild.name}"` : "no guild";
+}
+
+function logGuildError(where, guild, err) {
+  const code = err && err.code !== undefined ? ` [${err.code}]` : "";
+  const detail = err && err.stack ? err.stack : String(err);
+  console.error(`[${where}] ${describeGuild(guild)}${code}: ${detail}`);
+}
+
+// Reply on the message's channel with the rejection handled. Same channel, same payload.
+function say(message, payload) {
+  return message.channel.send(payload).catch((err) => logGuildError("send", message.guild, err));
+}
+
+process.on("unhandledRejection", (reason) => {
+  console.error("[unhandledRejection]", reason && reason.stack ? reason.stack : reason);
+});
+
+process.on("uncaughtException", (err) => {
+  // Deliberately not exiting. The alternative is every active session in every
+  // guild dying because of one bad event; Railway would restart the process
+  // but the sessions would not come back.
+  console.error("[uncaughtException]", err && err.stack ? err.stack : err);
+});
+
 // [total, year, month, week, day, hour] bowl counts for a server
 function serverStats(serverId) {
   return [
@@ -72,14 +103,29 @@ bot.on("clientReady", () => {
 });
 
 bot.on("guildCreate", (guild) => {
-  guild.systemChannel.send(
-    "*cough cough* ayyooo it's keef!!\n\ntype `@keef help` for the list of commands, or we could jump right into a 30-min schmoke interval with `@keef 30`\n\n**IMPORTANT: Use bowlbot (me) at your own risk. By using bowlbot, you agree to the bowlbot disclaimer/waiver.**",
-  );
-  guild.systemChannel.send("@everyone\n\n" + disclaimer);
   console.log(db.findOrCreateServer(guild.id, guild.name));
+  const channel = guild.systemChannel;
+  if (!channel) {
+    console.log(`[guildCreate] ${describeGuild(guild)}: no system channel, skipping welcome message`);
+    return;
+  }
+  channel
+    .send(
+      "*cough cough* ayyooo it's keef!!\n\ntype `@keef help` for the list of commands, or we could jump right into a 30-min schmoke interval with `@keef 30`\n\n**IMPORTANT: Use bowlbot (me) at your own risk. By using bowlbot, you agree to the bowlbot disclaimer/waiver.**",
+    )
+    .then(() => channel.send("@everyone\n\n" + disclaimer))
+    .catch((err) => logGuildError("guildCreate", guild, err));
 });
 
 bot.on("messageCreate", (message) => {
+  try {
+    handleMessage(message);
+  } catch (err) {
+    logGuildError("messageCreate", message.guild, err);
+  }
+});
+
+function handleMessage(message) {
   var msg;
   var ukMode = false;
 
@@ -93,7 +139,7 @@ bot.on("messageCreate", (message) => {
   }
 
   if (msg == "") {
-    message.channel.send({ content: "sup?" });
+    say(message, { content: "sup?" });
     return;
   }
 
@@ -117,7 +163,7 @@ bot.on("messageCreate", (message) => {
 
     if (msg === "help" || msg === "commands") {
       //displays list of commands
-      message.channel.send({
+      say(message, {
         content:
           "here are my commands:\n`@keef help` - opens this command list (how meta)\n`@keef [number]` - sets a schmoke interval for [number] minutes\n`@keef stop` - stops the interval and kicks me from the call\n`@keef stats` - displays your server's schmokin' stats\n`@keef enable/disable rank` - enables/disables showing your server's name on website leaderboards (admins only)\n`@keef website` - displays website url in a fancy clickable link\n`@keef support` - displays an invite link to my support server\n`@keef disclaimer` - displays the bowlbot disclaimer/waiver",
       });
@@ -126,24 +172,24 @@ bot.on("messageCreate", (message) => {
 
     if (!isNaN(msg)) {
       if (!userVoiceChannel) {
-        message.channel.send({
+        say(message, {
           content: "it's no sesh without u, " + (ukMode ? "bruv" : message.author.toString()) + " <3",
         });
         return;
       }
 
       if (msg < 1) {
-        message.channel.send({ content: "woah slow down " + (ukMode ? "bruv" : "buddy") });
+        say(message, { content: "woah slow down " + (ukMode ? "bruv" : "buddy") });
         return;
       }
       if (msg > 1440) {
-        message.channel.send({ content: "sorry " + (ukMode ? "bruv" : "bud") + " i have work in the morning" });
+        say(message, { content: "sorry " + (ukMode ? "bruv" : "bud") + " i have work in the morning" });
         return;
       }
       if (msg == 420) {
-        message.channel.send({ content: "ayyy lmao" });
+        say(message, { content: "ayyy lmao" });
       }
-      message.channel.send({ content: `schmoke a ` + (ukMode ? "spliff" : "bowl") + ` every ${msg} min` });
+      say(message, { content: `schmoke a ` + (ukMode ? "spliff" : "bowl") + ` every ${msg} min` });
       clearInterval(sesh.get(serverId));
 
       const player = discordVoice.createAudioPlayer();
@@ -153,6 +199,9 @@ bot.on("messageCreate", (message) => {
         adapterCreator: message.guild.voiceAdapterCreator,
         selfDeaf: false,
       });
+
+      player.on("error", (err) => logGuildError("audio player", message.guild, err));
+      connection.on("error", (err) => logGuildError("voice connection", message.guild, err));
 
       connection.on("stateChange", (oldState, newState) => {
         if (
@@ -168,27 +217,31 @@ bot.on("messageCreate", (message) => {
         serverId,
         setInterval(
           () => {
-            if (botVoiceChannel && userVoiceChannel.members.size <= 1) {
-              //NOTE: just a safety measure. Kicks keef out upon next bowl if nobody else is there
-              message.channel.send({ content: "bru" + (ukMode ? "v" : "h") + " where'd everyone go" });
-              clearInterval(sesh.get(serverId));
-              sesh.delete(serverId);
-              botVoiceChannel.destroy();
-            } else {
-              player.play(
-                discordVoice.createAudioResource(
-                  ukMode ? "./audio/schmoke_a_spliff.mp3" : "./audio/schmoke_a_bowl.mp3",
-                ),
-              );
-              const serv = db.findServer(serverId); //TODO: better way to hold onto server, as you found it earlier?
-              db.insertBowl(serverId);
-              const bowl = db.countAllBowls();
-              if (serv.rank) {
-                leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
+            try {
+              if (botVoiceChannel && userVoiceChannel.members.size <= 1) {
+                //NOTE: just a safety measure. Kicks keef out upon next bowl if nobody else is there
+                say(message, { content: "bru" + (ukMode ? "v" : "h") + " where'd everyone go" });
+                clearInterval(sesh.get(serverId));
+                sesh.delete(serverId);
+                botVoiceChannel.destroy();
               } else {
-                leaderboardsMap.delete(serverId);
+                player.play(
+                  discordVoice.createAudioResource(
+                    ukMode ? "./audio/schmoke_a_spliff.mp3" : "./audio/schmoke_a_bowl.mp3",
+                  ),
+                );
+                const serv = db.findServer(serverId); //TODO: better way to hold onto server, as you found it earlier?
+                db.insertBowl(serverId);
+                const bowl = db.countAllBowls();
+                if (serv.rank) {
+                  leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
+                } else {
+                  leaderboardsMap.delete(serverId);
+                }
+                io.emit("bowlcount", bowl);
               }
-              io.emit("bowlcount", bowl);
+            } catch (err) {
+              logGuildError("session tick", message.guild, err);
             }
           },
           msg * 1000 * 60,
@@ -206,12 +259,12 @@ bot.on("messageCreate", (message) => {
       //ends sesh //TODO: do you want to be able to stop keef if other people are in the call but you are not?
       var botVoiceChannel = discordVoice.getVoiceConnection(message.guild.id);
       if (botVoiceChannel) {
-        message.channel.send({ content: "okay :3" });
+        say(message, { content: "okay :3" });
         clearInterval(sesh.get(serverId));
         sesh.delete(serverId);
         botVoiceChannel.destroy();
       } else {
-        message.channel.send({ content: "i wasn't doing anything!" });
+        say(message, { content: "i wasn't doing anything!" });
       }
       return;
     }
@@ -221,7 +274,7 @@ bot.on("messageCreate", (message) => {
       {
         var data = serverStats(serverId);
         //TODO: emojis based on amount of bowls
-        message.channel.send({
+        say(message, {
           content:
             "you've schmoked a total of " +
             data[0] +
@@ -242,17 +295,17 @@ bot.on("messageCreate", (message) => {
     }
 
     if (msg === "website" || msg === "leaderboards" || msg === "leaderboard") {
-      message.channel.send({ content: "https://bowlbot.io" });
+      say(message, { content: "https://bowlbot.io" });
       return;
     }
 
     if (msg === "support") {
-      message.channel.send({ content: "https://discord.gg/CzmtRZa9Zd" });
+      say(message, { content: "https://discord.gg/CzmtRZa9Zd" });
       return;
     }
 
     if (msg === "disclaimer" || msg === "waiver") {
-      message.channel.send({ content: disclaimer });
+      say(message, { content: disclaimer });
       return;
     }
 
@@ -262,17 +315,17 @@ bot.on("messageCreate", (message) => {
         if (!serv.rank) {
           if (message.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
             db.setServerRank(serverId, true);
-            message.channel.send({
+            say(message, {
               content:
                 "ranking enabled. your server's name and schmokin' stats will now appear on the leaderboards at https://bowlbot.io",
             });
 
             leaderboardsMap.set(serverId, [serv.name, ...serverStats(serverId)]);
           } else {
-            message.channel.send({ content: "you don't have this permission. get your server admin to do it." });
+            say(message, { content: "you don't have this permission. get your server admin to do it." });
           }
         } else {
-          message.channel.send({ content: "ranking is already enabled." });
+          say(message, { content: "ranking is already enabled." });
         }
       }
       return;
@@ -284,23 +337,23 @@ bot.on("messageCreate", (message) => {
         if (serv.rank) {
           if (message.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
             db.setServerRank(serverId, false);
-            message.channel.send({
+            say(message, {
               content:
                 "ranking disabled. your server's name and schmokin' stats will no longer appear on the leaderboards at https://bowlbot.io",
             });
             leaderboardsMap.delete(serverId);
           } else {
-            message.channel.send({ content: "you don't have this permission. get your server admin to do it." });
+            say(message, { content: "you don't have this permission. get your server admin to do it." });
           }
         } else {
-          message.channel.send({ content: "ranking is already disabled." });
+          say(message, { content: "ranking is already disabled." });
         }
       }
       return;
     }
 
     if (msg === "number" || msg === "(number)" || msg === "[number]") {
-      message.channel.send({ content: "no not like that silly goose. actually specify a number... like `keef 15`" }); //TODO: rephrase?
+      say(message, { content: "no not like that silly goose. actually specify a number... like `keef 15`" }); //TODO: rephrase?
       return;
     }
 
@@ -314,9 +367,9 @@ bot.on("messageCreate", (message) => {
       console.log(sesh);
     }
 
-    message.channel.send({ content: "huh?" }); //all unknown commands return "huh?" //TODO: array ["huh?","what?","hmm?"]? TODO: after 3rd huh in a row offer 'keef help'?
+    say(message, { content: "huh?" }); //all unknown commands return "huh?" //TODO: array ["huh?","what?","hmm?"]? TODO: after 3rd huh in a row offer 'keef help'?
   }
-});
+}
 
 bot.on("error", (error) => {
   console.log("bot error:", error);
@@ -330,7 +383,10 @@ bot.on("disconnect", () => {
   io.emit("bot_status", is_online);
 });
 
-bot.login(process.env.DISCORD_TOKEN);
+bot.login(process.env.DISCORD_TOKEN).catch((err) => {
+  console.error("[login] failed, exiting:", err && err.stack ? err.stack : err);
+  process.exit(1);
+});
 
 //SOCKETIO STUFF----------------------------------------------------------------------------------------
 
