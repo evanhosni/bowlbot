@@ -1,8 +1,5 @@
-// A context is { guild, member, user, defer, reply, announce }. `payload.quiet`
-// means ephemeral where supported. defer() is for commands that take a moment:
-// it shows a typing indicator (mention) or acknowledges the interaction (slash)
-// so Discord doesn't time out. announce() is for messages sent long after the
-// command (the session tick); interaction tokens expire after 15 minutes.
+// announce() exists because interaction tokens expire after 15 minutes, long
+// before a session tick is done posting.
 
 const Discord = require("discord.js");
 const { describeGuild, logGuildError } = require("../log");

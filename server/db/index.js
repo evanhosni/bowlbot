@@ -1,5 +1,3 @@
-// All SQL lives here. node:sqlite is synchronous; every export returns a plain value.
-
 const { DatabaseSync } = require("node:sqlite");
 const path = require("node:path");
 const fs = require("node:fs");
@@ -45,16 +43,10 @@ function toServer(row) {
 }
 
 
-/** @returns {{id: string, name: string, rank: boolean} | null} */
 function findServer(id) {
   return toServer(stmt.selectServer.get(String(id)));
 }
 
-/**
- * Equivalent of Sequelize findOrCreate: returns the existing row, or inserts
- * a new one with rank = false and returns it.
- * @returns {{id: string, name: string, rank: boolean}}
- */
 function findOrCreateServer(id, name) {
   const existing = findServer(id);
   if (existing) return existing;
@@ -70,13 +62,11 @@ function setServerRank(id, rank) {
   stmt.updateServerRank.run(rank ? 1 : 0, String(id));
 }
 
-/** @returns {{id: string, name: string, rank: boolean}[]} */
 function findRankedServers() {
   return stmt.selectRankedServers.all().map(toServer);
 }
 
 
-/** Records a bowl for the server right now. Returns the new bowl id. */
 function insertBowl(serverId) {
   return Number(stmt.insertBowl.run(Date.now(), String(serverId)).lastInsertRowid);
 }
@@ -85,10 +75,6 @@ function countAllBowls() {
   return stmt.countAllBowls.get().n;
 }
 
-/**
- * Count bowls for a server, optionally only those at or after `sinceMs`
- * (epoch milliseconds).
- */
 function countServerBowls(serverId, sinceMs) {
   if (sinceMs === undefined || sinceMs === null) {
     return stmt.countServerBowls.get(String(serverId)).n;
@@ -96,28 +82,18 @@ function countServerBowls(serverId, sinceMs) {
   return stmt.countServerBowlsSince.get(String(serverId), sinceMs).n;
 }
 
-/**
- * Bowls per fixed-size window counted back from `anchorMs`: window 0 is the
- * `windowMs` ending at the anchor, window 1 the one before it, and so on for
- * `count` windows. Map of window index -> count; empty windows are absent.
- * @returns {Map<number, number>}
- */
+/** Window 0 is the `windowMs` ending at `anchorMs`, window 1 the one before it. */
 function countServerBowlsByWindow(serverId, windowMs, count, anchorMs) {
   const rows = stmt.countServerBowlsByWindow.all(anchorMs, windowMs, String(serverId), anchorMs - count * windowMs, anchorMs);
   return new Map(rows.map((r) => [Number(r.w), r.n]));
 }
 
-/**
- * Bowls per UTC calendar period over all time, keyed by an SQLite strftime
- * format applied to schmokedAt, e.g. "%Y-%m" -> Map of "2026-09" -> count.
- * @returns {Map<string, number>}
- */
+/** Keyed by an SQLite strftime `format` over schmokedAt, e.g. "%Y-%m" -> "2026-09". */
 function countServerBowlsByPeriod(serverId, format) {
   const rows = stmt.countServerBowlsByPeriod.all(format, String(serverId));
   return new Map(rows.map((r) => [r.p, r.n]));
 }
 
-/** Epoch ms of the server's first bowl, or null if it has none. */
 function firstBowlAt(serverId) {
   const t = stmt.firstBowlAt.get(String(serverId)).t;
   return t === null ? null : Number(t);

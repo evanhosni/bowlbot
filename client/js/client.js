@@ -1,4 +1,3 @@
-// Same origin as the page; the Express server also hosts socket.io.
 const socket = io();
 var connectedToServer;
 var currentBowls;
@@ -75,7 +74,6 @@ function renderBoard(board, list) {
   });
 }
 
-// Long server names slowly slide back and forth so the whole name is readable.
 function refreshMarquees() {
   track.querySelectorAll(".name").forEach((cell) => {
     const inner = cell.firstElementChild;
@@ -160,7 +158,6 @@ function endDrag(e) {
   let target = start;
   if (moved && Math.abs(dx) > 40) target = start - Math.sign(dx);
   goTo(target, moved);
-  // re-enable snapping once the smooth scroll has settled
   snapTimer = setTimeout(() => track.classList.remove("dragging"), moved ? 500 : 0);
 }
 window.addEventListener("pointerup", endDrag);

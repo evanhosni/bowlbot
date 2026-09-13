@@ -1,5 +1,5 @@
-// `text` is whatever followed `@keef `, lowercased and trimmed. Slash commands
-// are translated into that same text first, so both interfaces share this.
+// `text` is whatever followed `@keef `, lowercased and trimmed; slash commands
+// are translated into that same text first.
 
 const db = require("../db");
 const { leaderboardsMap } = require("../state");

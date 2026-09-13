@@ -1,23 +1,17 @@
-// Chart images for Discord. Discord only shows pictures, so the chart is a
-// Chart.js config rendered to PNG by quickchart.io and attached to the message.
-
 const db = require("./db");
 
 const HOUR = 3600000;
 const DAY = 24 * HOUR;
 const WEEK = 7 * DAY;
 const YEAR = 365 * DAY;
-const MIN_WINDOWS = 7; // never fewer than 7 points
-const RELATIVE_LABELS_UPTO = 14; // "3d ago" style labels for short charts, dates beyond that
+const MIN_WINDOWS = 7;
+const RELATIVE_LABELS_UPTO = 14;
 
 const QUICKCHART = "https://quickchart.io/chart";
-const RENDER_TIMEOUT_MS = 8000; // the reply is deferred while this runs
-// Wide aspect: Discord scales attachments to a fixed max width, so wider means
-// more chart per pixel of height. Fonts are sized for the scaled-down result.
+const RENDER_TIMEOUT_MS = 8000;
 const WIDTH = 1200;
 const HEIGHT = 450;
 
-// Discord embed gray behind it; only the line and its fill are green.
 const BACKGROUND = "rgb(43, 45, 49)";
 const LINE = "rgb(120, 200, 120)";
 const FILL = "rgba(10, 104, 10, 0.55)";
@@ -26,12 +20,9 @@ const TEXT = "rgba(255, 255, 255, 0.75)";
 
 const fmt = (ms, opts) => new Date(ms).toLocaleString("en-US", { ...opts, timeZone: "UTC" });
 const dayLabel = (ms) => fmt(ms, { month: "short", day: "numeric" });
-const monthLabel = (ms) => `${fmt(ms, { month: "short" })} '${String(new Date(ms).getUTCFullYear()).slice(-2)}`; // "Sep '26", never "Sep 26"
+const monthLabel = (ms) => `${fmt(ms, { month: "short" })} '${String(new Date(ms).getUTCFullYear()).slice(-2)}`;
 const yearLabel = (ms) => fmt(ms, { year: "numeric" });
 
-// Smallest unit whose span limit covers the chart range. Fixed-size units
-// (day/week) are rolling windows counted back from now, so no viewer's midnight
-// is involved; calendar units step by UTC month/year, where hours don't show.
 const UNITS = [
   { name: "day", short: "d", now: "today", prev: "yesterday", maxSpan: 60 * DAY, window: DAY },
   { name: "week", short: "w", now: "this week", prev: "last week", maxSpan: 2 * YEAR, window: WEEK },
@@ -43,11 +34,9 @@ function unitFor(spanMs) {
   return UNITS.find((u) => spanMs <= u.maxSpan);
 }
 
-// `count` windows of unit.window ending at `nowMs`, oldest first.
 function windowSeries(serverId, unit, count, nowMs) {
   const counts = db.countServerBowlsByWindow(serverId, unit.window, count, nowMs);
   const relative = count <= RELATIVE_LABELS_UPTO;
-  // Past a year, bare dates like "Sep 13" would repeat; show month + year instead.
   const dateLabel = count * unit.window > YEAR ? monthLabel : dayLabel;
   const labels = [];
   const data = [];
@@ -59,7 +48,6 @@ function windowSeries(serverId, unit, count, nowMs) {
   return { labels, data };
 }
 
-// Calendar month or year steps from `fromMs` through `toMs`, UTC.
 function periodSeries(serverId, unit, fromMs, toMs) {
   const counts = db.countServerBowlsByPeriod(serverId, unit.format);
   const monthly = unit.name === "month";
@@ -112,8 +100,6 @@ function chartConfig(title, { labels, data }) {
   };
 }
 
-// PNG bytes from quickchart, or null if it fails or is slow. Callers send
-// the text without a chart in that case rather than failing the command.
 async function renderPng(config) {
   const body = { width: WIDTH, height: HEIGHT, backgroundColor: BACKGROUND, chart: config };
   try {
@@ -131,8 +117,6 @@ async function renderPng(config) {
   return null;
 }
 
-// PNG of bowls over time from the server's first bowl to now, never fewer than
-// seven points, aggregated by whichever unit fits the span. Null on failure.
 function bowlsChartPng(serverId) {
   const now = Date.now();
   const firstBowl = db.firstBowlAt(serverId);

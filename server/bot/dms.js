@@ -1,8 +1,5 @@
-// Owner-only, DM-driven. Any DM the app owner sends keef is offered as an
-// announcement: keef asks `yes`/`no`, and on `yes` posts it verbatim to every
-// server's system channel. DMs are used because, without the Message Content
-// intent, Discord only shows keef the text of messages that mention it or are
-// DMs to it. Anyone else who DMs keef just gets an "ayyyy".
+// Owner-only. DMs are the channel because, without the Message Content intent,
+// Discord only shows keef the text of messages that mention it or are DMs to it.
 
 const bot = require("./client");
 const { say } = require("./context");
@@ -10,7 +7,7 @@ const { logGuildError } = require("../log");
 
 let ownerId = null;
 
-let pending = null; // the DM text waiting for a yes/no
+let pending = null;
 
 function fetchOwner() {
   return bot.application

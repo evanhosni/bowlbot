@@ -2,12 +2,7 @@
 // many have run, and each runs exactly once in its own transaction.
 
 const MIGRATIONS = [
-  // 0: initial schema, mirroring what Sequelize 4 created on Heroku Postgres.
-  //   servers.id     BIGINT -> TEXT (Discord snowflakes exceed 2^53; pg returned them as strings)
-  //   servers.rank   BOOLEAN -> INTEGER 0/1
-  //   bowls.id       SERIAL -> INTEGER PRIMARY KEY AUTOINCREMENT
-  //   bowls.schmokedAt TIMESTAMPTZ -> INTEGER epoch milliseconds
-  //   bowls.serverId BIGINT FK -> TEXT FK, same ON DELETE / ON UPDATE rules
+  // ids are TEXT: Discord snowflakes exceed 2^53.
   (db) => {
     db.exec(`
       CREATE TABLE servers (
@@ -27,12 +22,6 @@ const MIGRATIONS = [
   },
 ];
 
-/**
- * Bring the database at `db` up to the latest schema version.
- * Each pending migration runs in its own BEGIN/COMMIT with the user_version
- * bump inside the transaction, so a crash mid-migration leaves the version
- * untouched and the migration re-runs cleanly next boot.
- */
 function migrate(db) {
   const current = db.prepare("PRAGMA user_version").get().user_version;
   for (let v = current; v < MIGRATIONS.length; v++) {

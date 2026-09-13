@@ -80,7 +80,6 @@ const commands = [
           () => {
             try {
               if (botVoiceChannel && userVoiceChannel.members.size <= 1) {
-                // nobody left in the call
                 ctx.announce({ content: "bru" + (ukMode ? "v" : "h") + " where'd everyone go" });
                 clearInterval(sesh.get(serverId));
                 sesh.delete(serverId);
@@ -139,8 +138,7 @@ const commands = [
     async run(ctx, { serverId }) {
       await ctx.defer();
       const data = serverStats(serverId);
-      // Attached rather than linked or embedded: shows with the message instead
-      // of a placeholder, and Discord renders attachments wider than embed images.
+      // Attachments show inline and render wider than embed images.
       const png = await charts.bowlsChartPng(serverId);
       ctx.reply({
         //TODO: emojis based on amount of bowls
