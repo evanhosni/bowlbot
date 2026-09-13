@@ -2,4 +2,83 @@
 
 https://bowlbot.io
 
-a discord bot for cannabis patients and adults
+A Discord bot for cannabis patients and adults. Mention it with a number of
+minutes and it joins your voice channel and plays a reminder on that interval,
+recording each one so servers can see their stats and, if they opt in, appear
+on the leaderboards at bowlbot.io.
+
+## How it runs
+
+One Node process (`server.js`) does everything: the Discord client, and an
+Express + socket.io server that serves the website from `public/` and pushes
+live stats to it.
+
+- **Hosting:** [Railway](https://railway.com), single replica. Pushing to
+  `main` deploys. Build and start settings live in `railway.json`, not the
+  dashboard. Node version is pinned by `.node-version` and `engines`.
+- **Database:** SQLite via `node:sqlite`, one file on a Railway volume at
+  `/data/bowlbot.sqlite`. Opened once at startup in WAL mode. All SQL is in
+  `db/index.js`; the schema and its migration runner are in `db/schema.js`.
+  Migrations are an append-only array applied automatically at boot using
+  `PRAGMA user_version`, each in its own transaction.
+- **DNS:** Cloudflare, proxied. `bowlbot.io` points at the Railway service.
+  `bowlbot.app` (the old domain) redirects to it from Cloudflare.
+
+## Configuration
+
+Copy `.env.example` to `.env` for local development. Every variable is
+documented there. In short:
+
+| Variable        | Purpose                                                  |
+| --------------- | -------------------------------------------------------- |
+| `token`         | Discord bot token. Lowercase; Linux env vars are case-sensitive. |
+| `DATABASE_PATH` | Path to the SQLite file. `/data/bowlbot.sqlite` on Railway, `./data/bowlbot.sqlite` locally. |
+| `PORT`          | HTTP port. Injected by Railway; defaults to 3000 locally. |
+
+## Running locally
+
+```
+npm install
+cp .env.example .env   # fill in token
+npm start
+```
+
+The database file and its directory are created on first start. `data/` is
+gitignored.
+
+## Adding a schema change
+
+Append a function to `MIGRATIONS` in `db/schema.js`. Never edit or reorder an
+existing entry. The new migration runs on the next deploy against the volume
+database; no data shuffling is needed for `CREATE INDEX` or
+`ALTER TABLE ADD COLUMN`.
+
+## Backups
+
+The volume is a single point of failure. `scripts/backup.js` copies the live
+database using `node:sqlite`'s online backup API, which is safe while the bot
+is running and writing. A plain `cp` is not, because of the WAL.
+
+```
+DATABASE_PATH=/data/bowlbot.sqlite node scripts/backup.js [dest]
+```
+
+or `npm run backup`. Without `dest` it writes a timestamped
+`bowlbot.<UTC time>.bak.sqlite` next to the source.
+
+## Operations
+
+- **Cloudflare Browser Cache TTL must stay on "Respect Existing Headers".**
+  The site's asset filenames are not hashed (`style.css`, `client.js`, ...),
+  and Express serves them with `max-age=0` plus an ETag so browsers revalidate
+  on every visit and get a cheap 304. Cloudflare's default of a fixed TTL
+  (four hours) overrides that header, and returning visitors then get fresh
+  HTML with stale JS and CSS for up to four hours after a deploy. Cloudflare
+  still edge-caches the assets either way; this setting only affects what the
+  browser is told.
+- **Single replica only.** `railway.json` pins `numReplicas` to 1. Two
+  containers writing one SQLite file on the same volume would corrupt it.
+- **The `SEED_DATABASE` mechanism used for the initial cutover is gone.** To
+  restore the database from a backup, stop the service, replace
+  `/data/bowlbot.sqlite` (and delete any `-wal` / `-shm` files next to it),
+  and start it again.
