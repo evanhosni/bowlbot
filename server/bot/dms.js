@@ -149,15 +149,14 @@ function handleDm(message) {
     return;
   }
 
-  // Before the steps below so it interrupts one instead of becoming the announcement text.
-  if (word === "/cancel") {
-    pending = null;
-    reply(message, "kk, nevermind");
-    return;
-  }
-
   if (pending) {
     if (pending.step === "text") {
+      // checked first so it cancels instead of becoming the announcement text
+      if (word === "/cancel") {
+        pending = null;
+        reply(message, "kk, nevermind");
+        return;
+      }
       pending = { step: "confirm", text: content };
       const quoted = content
         .split("\n")
@@ -165,7 +164,7 @@ function handleDm(message) {
         .join("\n");
       reply(
         message,
-        `send this to all ${bot.guilds.cache.size} servers?\n\n${quoted}\n\n\`/yes\` / \`/no\` / \`/cancel\``,
+        `send this to all ${bot.guilds.cache.size} servers?\n\n${quoted}\n\n\`/yes\` / \`/no\``,
       );
       return;
     }
@@ -180,7 +179,7 @@ function handleDm(message) {
       reply(message, "kk, not sending it");
       return;
     }
-    reply(message, "`/yes` or `/no` (or `/cancel`)");
+    reply(message, "`/yes` or `/no`");
     return;
   }
 
