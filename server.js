@@ -201,16 +201,17 @@ function handleMessage(message) {
       });
 
       player.on("error", (err) => logGuildError("audio player", message.guild, err));
-      connection.on("error", (err) => logGuildError("voice connection", message.guild, err));
+      // The connection may be reused across interval changes; only attach once.
+      if (connection.listenerCount("error") === 0) {
+        connection.on("error", (err) => logGuildError("voice connection", message.guild, err));
+      }
 
-      connection.on("stateChange", (oldState, newState) => {
-        if (
-          newState.status === discordVoice.VoiceConnectionStatus.Ready &&
-          oldState.status !== discordVoice.VoiceConnectionStatus.Ready
-        ) {
-          connection.subscribe(player);
-        }
-      });
+      // Subscribe right away rather than waiting for a Ready transition. If keef is
+      // already in the call, joinVoiceChannel hands back the existing (already Ready)
+      // connection, so a "wait for Ready" listener never fires and the new player
+      // would play into nothing. Subscribing replaces the previous player, and the
+      // player only sends audio once the connection is actually Ready.
+      connection.subscribe(player);
 
       var botVoiceChannel = discordVoice.getVoiceConnection(message.guild.id);
       sesh.set(
