@@ -157,12 +157,22 @@ bot.on("messageCreate", (message) => {
   }
 });
 
+// The message text with the @keef mention stripped, lowercased and trimmed.
+function getMessage(message) {
+  return message.content.toLowerCase().replace(`<@${bot.user.id}>`, "").trim();
+}
+
 function handleMessage(message) {
   var msg;
   var ukMode = false;
 
   if (message.author.bot) return;
   if (announceNext && isOwner(message)) {
+    if (getMessage(message) === "cancel") {
+      announceNext = false;
+      say(message, { content: "announcement cancelled" });
+      return;
+    }
     broadcast(message);
     return;
   }
@@ -170,9 +180,7 @@ function handleMessage(message) {
   if (message.mentions.everyone) return;
   if (!message.mentions.has(bot.user)) return;
 
-  if (message.mentions.has(bot.user)) {
-    msg = message.content.toLowerCase().replace(`<@${bot.user.id}>`, "").trim();
-  }
+  msg = getMessage(message);
 
   if (msg == "") {
     say(message, { content: "sup?" });
@@ -182,7 +190,7 @@ function handleMessage(message) {
   // Hidden, owner only. Anyone else falls through to "huh?" like server list.
   if (msg === "announce" && isOwner(message)) {
     announceNext = true;
-    say(message, { content: "ok your next message will be announced" });
+    say(message, { content: "ok your next message will be announced. type `@keef cancel` to cancel" });
     return;
   }
 
