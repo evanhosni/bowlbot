@@ -130,7 +130,9 @@ function leaderboards(range) {
     document.querySelector("#tabs").style.display = "none";
     document.querySelector("#tables").style.display = "none";
     document.querySelector("#hint").style.display = "none";
-    error.style.display = "block";
+    for (let i = 0; i < error.length; i++) {
+      error[i].style.display = "block";
+    }
   } else {
     document.querySelector("#tabs").style.display = "flex";
     document.querySelector("#tables").style.display = "block";
