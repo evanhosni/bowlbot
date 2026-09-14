@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const http = require("http");
+const { ownerLog } = require("../log");
 
 const CLIENT_DIR = path.join(__dirname, "..", "..", "client");
 
@@ -16,8 +17,7 @@ require("./socket").attach(io);
 function listen() {
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
-    // Not ownerLog: the startup DM is left to clientReady, which can name the bot.
-    console.log(`website's up on port ${PORT} 🚀`);
+    ownerLog(`website's up on port ${PORT} 🚀`);
   });
 }
 
