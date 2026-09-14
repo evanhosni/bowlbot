@@ -39,15 +39,15 @@ function isOwner(message) {
   return Boolean(ownerId) && message.author.id === ownerId;
 }
 
-function paginate(title, lines) {
+function paginate(title, lines, separator) {
   const messages = [];
   let current = title;
   for (const line of lines) {
-    if (current.length + line.length + 2 > MAX_MESSAGE) {
+    if (current.length + line.length + separator.length > MAX_MESSAGE) {
       messages.push(current);
       current = "";
     }
-    current += (current ? "\n\n" : "") + line;
+    current += (current ? separator : "") + line;
   }
   if (current) messages.push(current);
   return messages;
@@ -60,22 +60,20 @@ function serverList() {
     const serv = db.findServer(guild.id);
     const bits = [`${db.countServerBowls(guild.id).toLocaleString()} bowls`, serv && serv.rank ? "ranked" : "unranked"];
     if (sesh.has(guild.id)) bits.push("**sesh running**");
-    return `**${guild.name}**\n\`${guild.id}\`\n${bits.join(" · ")}`;
+    return `**${guild.name}** · \`${guild.id}\` · ${bits.join(" · ")}`;
   });
-  return paginate(`**servers (${guilds.length})**`, lines);
+  return paginate(`**servers (${guilds.length})**`, lines, "\n");
 }
 
 function seshList() {
-  if (sesh.size === 0) return "**seshes (0)**\n\nnobody's schmokin' right now";
+  if (sesh.size === 0) return "**seshes (0)**\nnobody's schmokin' right now";
   const lines = [...sesh.entries()].map(([serverId, running]) => {
     const guild = bot.guilds.cache.get(serverId);
     const going = Math.round((Date.now() - running.startedAt) / 60000);
-    return (
-      `**${guild ? guild.name : `unknown server ${serverId}`}**\n` +
-      `every ${running.minutes} min · in ${running.channel} · going ${going} min`
-    );
+    const name = guild ? guild.name : `unknown server ${serverId}`;
+    return `**${name}** · every ${running.minutes} min · in ${running.channel} · going ${going} min`;
   });
-  return paginate(`**seshes (${sesh.size})**`, lines);
+  return paginate(`**seshes (${sesh.size})**`, lines, "\n");
 }
 
 function broadcast(text) {
