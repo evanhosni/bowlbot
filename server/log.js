@@ -90,12 +90,12 @@ function logGuildError(where, guild, err) {
 }
 
 process.on("unhandledRejection", (reason) => {
-  ownerError("[unhandledRejection]", reason && reason.stack ? reason.stack : reason);
+  ownerError("[unhandled rejection]", reason && reason.stack ? reason.stack : reason);
 });
 
 process.on("uncaughtException", (err) => {
   // Not exiting on purpose: a restart would kill every guild's active session.
-  ownerError("[uncaughtException]", err && err.stack ? err.stack : err);
+  ownerError("[uncaught exception]", err && err.stack ? err.stack : err);
 });
 
 module.exports = { describeGuild, logGuildError, ownerLog, ownerWarn, ownerError, sendLogsTo, flushLogs: flush };

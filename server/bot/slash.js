@@ -48,7 +48,7 @@ function handleInteraction(interaction) {
   if (!interaction.guild || !interaction.member) {
     interaction
       .reply({ content: "i only work inside a server", flags: Discord.MessageFlags.Ephemeral })
-      .catch((err) => logGuildError("interaction reply", interaction.guild, err));
+      .catch((err) => logGuildError("slash", interaction.guild, err));
     return;
   }
 
@@ -59,7 +59,7 @@ bot.on("interactionCreate", (interaction) => {
   try {
     handleInteraction(interaction);
   } catch (err) {
-    logGuildError("interactionCreate", interaction.guild, err);
+    logGuildError("slash", interaction.guild, err);
   }
 });
 

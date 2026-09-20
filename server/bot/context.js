@@ -5,7 +5,7 @@ const { describeGuild, logGuildError, ownerWarn } = require("../log");
 const UNANSWERABLE = { 10062: "unknown interaction", 40060: "already acknowledged" };
 
 function say(message, payload) {
-  return message.channel.send(payload).catch((err) => logGuildError("send", message.guild, err));
+  return message.channel.send(payload).catch((err) => logGuildError("send message", message.guild, err));
 }
 
 function messageContext(message) {
@@ -29,12 +29,12 @@ function interactionContext(interaction) {
   let deferred = false;
   let unanswerable = false;
   const received = Date.now() - interaction.createdTimestamp;
-  const failed = (where) => (err) => {
+  const replyFailed = (err) => {
     const reason = err && UNANSWERABLE[err.code];
-    if (!reason) return logGuildError(where, interaction.guild, err);
+    if (!reason) return logGuildError("slash", interaction.guild, err);
     unanswerable = true;
     ownerWarn(
-      `[${where}] ${describeGuild(interaction.guild)} [${err.code}]: ${reason} ` +
+      `[slash] ${describeGuild(interaction.guild)} [${err.code}]: ${reason} ` +
         `(received +${received}ms, failed +${Date.now() - interaction.createdTimestamp}ms) - ` +
         `took too long to answer, or another instance of this bot answered first`,
     );
@@ -49,7 +49,7 @@ function interactionContext(interaction) {
       deferred = true;
       return interaction.deferReply().catch((err) => {
         deferred = false;
-        failed("interaction defer")(err);
+        replyFailed(err);
       });
     },
     reply(payload) {
@@ -61,15 +61,15 @@ function interactionContext(interaction) {
       else if (deferred) p = interaction.editReply(rest);
       else p = interaction.reply(rest);
       replied = true;
-      return p.catch(failed("interaction reply"));
+      return p.catch(replyFailed);
     },
     announce(payload) {
       const { quiet, ...rest } = payload;
       if (!interaction.channel) {
-        ownerWarn(`[announce] ${describeGuild(interaction.guild)}: no channel on interaction, dropping message`);
+        ownerWarn(`[send message] ${describeGuild(interaction.guild)}: no channel on interaction, dropping message`);
         return Promise.resolve();
       }
-      return interaction.channel.send(rest).catch((err) => logGuildError("send", interaction.guild, err));
+      return interaction.channel.send(rest).catch((err) => logGuildError("send message", interaction.guild, err));
     },
   };
 }

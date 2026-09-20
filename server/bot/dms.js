@@ -24,12 +24,12 @@ function fetchOwner() {
     .then((application) => {
       ownerId = ownerIdOf(application);
       if (!ownerId) {
-        ownerError("[owner] application has no owner; owner DMs are disabled");
+        ownerError("[owner dm] application has no owner; owner DMs are disabled");
         return;
       }
       sendLogsTo((text) => bot.users.send(ownerId, text));
     })
-    .catch((err) => ownerError("[owner] could not fetch the application owner:", err));
+    .catch((err) => ownerError("[owner dm] could not fetch the application owner:", err));
 }
 
 function isOwner(message) {

@@ -24,7 +24,7 @@ application owner, so every line is read by a person on a phone.
 | --- | --- | --- |
 | `ownerError` | 🛑 | Something unexpected in bowlbot's own code, or something that stopped the bot working. Include the stack. |
 | `ownerWarn` | ⚠️ | An outside service (Discord, QuickChart) let a user down but the bot behaved and recovered. One line, no stack. |
-| `ownerLog` | none | Facts and lifecycle: startup, joins, a server's permission setup, a sesh ending involuntarily. |
+| `ownerLog` | none | Facts and lifecycle: startup, shutdown, joins, a server's permission setup. Never a user action such as a kick. |
 | `logGuildError(where, guild, err)` | 🛑 | The error path when a guild is in scope. Builds the standard format below with the error code and stack. |
 
 **Format.** Every line starts with a bracketed category, then the guild if
@@ -32,15 +32,18 @@ one is in scope, then what happened and what the consequence was:
 
 ```
 [chart] guild 123 "Server Name": rate limited by quickchart, stats sent without the chart
-[guildCreate] guild 123 "Server Name": can't post in system channel #general, skipping welcome message
-[voice connection] guild 123 "Server Name": dropped from the call, sesh ended
+[guild create] guild 123 "Server Name": can't post in system channel #general, skipping welcome message
+[voice connection] guild 123 "Server Name": dropped in a gateway blip, rejoining
 ```
 
-- The category is the Discord event name (`guildCreate`, `interactionCreate`,
-  `messageCreate`) or the subsystem (`voice connection`, `audio player`,
-  `session tick`, `chart`, `web`, `bot`, `owner`, `slash`, `login`, `send`,
-  `announce`, `announcement`, `welcome`, `disclaimer`, `command <name>`).
-  Reuse an existing one before inventing a new one.
+- The category is lowercase words naming the part of keef that is speaking,
+  optionally plus the action: `bot`, `web`, `login`, `guild create`,
+  `welcome`, `disclaimer`, `mention`, `slash`,
+  `command <name>`, `send message`, `announcement`, `owner dm`, `voice connection`,
+  `audio player`, `session tick`, `chart`, `unhandled rejection`,
+  `uncaught exception`. Never a Discord event name in camelCase. Reuse an
+  existing one before inventing a new one. `send message` is any failed message to a
+  server channel; `announcement` is the owner's broadcast feature.
 - Use `describeGuild(guild)` for the guild part, never format it by hand.
 - Say the consequence in words. "Stats sent without the chart" tells the
   reader whether a user was affected; a bare status code does not.
@@ -134,9 +137,17 @@ One object in `server/bot/commands.js` serves both `@keef <name>` and
   a channel; 50013 (Missing Permissions) when it can see it but cannot act.
   Discord is not always consistent between the two.
 - Voice close code 4014 means keef was disconnected, moved somewhere it
-  cannot join, or the channel was deleted. `@discordjs/voice` parks the
-  connection in Disconnected and never recovers on its own; our handler gives
-  it five seconds to re-signal, then destroys it.
+  cannot join, the channel was deleted, **or the main gateway session was
+  dropped by Discord**. `@discordjs/voice` parks the connection in
+  Disconnected and never recovers on its own. Our handler gives it five
+  seconds to re-signal, then decides: if the gateway is not Ready, the
+  adapter was unavailable, or a shard disconnect/reconnect/resume happened
+  in the last minute, it is a blip and we rejoin with retries; otherwise a
+  person did it and keef leaves silently. Nothing is posted to the server on
+  a kick or a failed rejoin; only "where'd everyone go" when a call is empty.
+- Shard events (`shardDisconnect`, `shardReconnecting`, `shardResume`) only
+  record a timestamp for that check. They are routine, several times a day,
+  and are not logged.
 - Any other voice close makes the library re-send the join with no retry
   cap. "Unexpected server response: 521/522" is Cloudflare in front of
   Discord's voice edge, not us.

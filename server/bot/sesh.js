@@ -1,4 +1,5 @@
 const path = require("path");
+const Discord = require("discord.js");
 const discordVoice = require("@discordjs/voice");
 const bot = require("./client");
 const db = require("../db");
@@ -9,8 +10,12 @@ const sesh = new Map(); // serverId -> { timer, minutes, startedAt, voiceChannel
 const AUDIO_DIR = path.join(__dirname, "..", "..", "audio");
 const TRANSIENT_VOICE = ["Unexpected server response", "ECONNRESET", "ETIMEDOUT"];
 const REJOIN_GRACE_MS = 5000;
+const REJOIN_RETRY_MS = 5000;
+const REJOIN_ATTEMPTS = 12;
+const GATEWAY_BLIP_MS = 60000;
 
 let shuttingDown = false;
+let gatewayDroppedAt = 0;
 
 function bruh(ukMode) {
   return "bru" + (ukMode ? "v" : "h");
@@ -19,10 +24,10 @@ function bruh(ukMode) {
 function announce(guild, textChannelId, content) {
   const channel = guild.channels.cache.get(textChannelId);
   if (!channel) {
-    ownerWarn(`[announce] ${describeGuild(guild)}: text channel ${textChannelId} is gone, dropping message`);
+    ownerWarn(`[send message] ${describeGuild(guild)}: text channel ${textChannelId} is gone, dropping message`);
     return Promise.resolve();
   }
-  return channel.send({ content }).catch((err) => logGuildError("announce", guild, err));
+  return channel.send({ content }).catch((err) => logGuildError("send message", guild, err));
 }
 
 function logVoiceError(guild, err) {
@@ -31,8 +36,27 @@ function logVoiceError(guild, err) {
   ownerWarn(`[voice connection] ${describeGuild(guild)}: ${text} (discord voice hiccup, reconnecting)`);
 }
 
+function gatewayDropped() {
+  gatewayDroppedAt = Date.now();
+}
+
+bot.on("shardDisconnect", gatewayDropped);
+bot.on("shardReconnecting", gatewayDropped);
+bot.on("shardResume", gatewayDropped);
+
+function gatewayIsShaky(connection) {
+  return (
+    connection.state.reason === discordVoice.VoiceConnectionDisconnectReason.AdapterUnavailable ||
+    bot.ws.status !== Discord.Status.Ready ||
+    Date.now() - gatewayDroppedAt < GATEWAY_BLIP_MS
+  );
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 function watchVoiceConnection(connection, guild) {
   const { VoiceConnectionStatus, entersState } = discordVoice;
+  let kicked = false;
   connection.on("error", (err) => logVoiceError(guild, err));
   connection.on(VoiceConnectionStatus.Disconnected, async () => {
     try {
@@ -40,20 +64,27 @@ function watchVoiceConnection(connection, guild) {
         entersState(connection, VoiceConnectionStatus.Signalling, REJOIN_GRACE_MS),
         entersState(connection, VoiceConnectionStatus.Connecting, REJOIN_GRACE_MS),
       ]);
-    } catch {
-      if (connection.state.status !== VoiceConnectionStatus.Destroyed) connection.destroy();
+      return;
+    } catch {}
+    if (connection.state.status !== VoiceConnectionStatus.Disconnected) return;
+    if (!gatewayIsShaky(connection)) {
+      kicked = true;
+      return connection.destroy();
     }
+    ownerWarn(`[voice connection] ${describeGuild(guild)}: dropped in a gateway blip, rejoining`);
+    for (let attempt = 0; attempt < REJOIN_ATTEMPTS; attempt++) {
+      if (connection.state.status !== VoiceConnectionStatus.Disconnected) return;
+      if (bot.ws.status === Discord.Status.Ready && connection.rejoin()) return;
+      await sleep(REJOIN_RETRY_MS);
+    }
+    if (connection.state.status === VoiceConnectionStatus.Disconnected) connection.destroy();
   });
   connection.on(VoiceConnectionStatus.Destroyed, () => {
     if (shuttingDown) return;
-    const running = sesh.get(guild.id);
     if (!stopSesh(guild.id)) return;
     setImmediate(() => {
-      if (!bot.guilds.cache.has(guild.id)) {
-        return ownerLog(`[voice connection] ${describeGuild(guild)}: removed from the server mid-sesh`);
-      }
-      ownerLog(`[voice connection] ${describeGuild(guild)}: dropped from the call`);
-      announce(guild, running.textChannelId, bruh(running.ukMode) + " who kicked me");
+      if (kicked || !bot.guilds.cache.has(guild.id)) return;
+      ownerWarn(`[voice connection] ${describeGuild(guild)}: couldn't rejoin after the gateway blip, sesh ended`);
     });
   });
 }

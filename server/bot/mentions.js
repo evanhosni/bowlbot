@@ -21,7 +21,7 @@ bot.on("messageCreate", (message) => {
   try {
     handleMessage(message);
   } catch (err) {
-    logGuildError("messageCreate", message.guild, err);
+    logGuildError("mention", message.guild, err);
   }
 });
 
