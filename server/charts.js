@@ -1,4 +1,5 @@
 const db = require("./db");
+const { describeGuild, ownerWarn } = require("./log");
 
 const HOUR = 3600000;
 const DAY = 24 * HOUR;
@@ -100,7 +101,7 @@ function chartConfig(title, { labels, data }) {
   };
 }
 
-async function renderPng(config) {
+async function renderPng(config, guild) {
   const body = { width: WIDTH, height: HEIGHT, backgroundColor: BACKGROUND, chart: config };
   try {
     const res = await fetch(QUICKCHART, {
@@ -110,14 +111,16 @@ async function renderPng(config) {
       signal: AbortSignal.timeout(RENDER_TIMEOUT_MS),
     });
     if (res.ok) return Buffer.from(await res.arrayBuffer());
-    console.error(`[charts] quickchart returned ${res.status}`);
+    const why = res.status === 429 ? "rate limited by quickchart" : `quickchart returned ${res.status}`;
+    ownerWarn(`[chart] ${describeGuild(guild)}: ${why}, stats sent without the chart`);
   } catch (err) {
-    console.error("[charts] quickchart render failed:", err && err.message ? err.message : err);
+    const why = err && err.message ? err.message : err;
+    ownerWarn(`[chart] ${describeGuild(guild)}: ${why}, stats sent without the chart`);
   }
   return null;
 }
 
-function bowlsChartPng(serverId) {
+function bowlsChartPng(serverId, guild) {
   const now = Date.now();
   const firstBowl = db.firstBowlAt(serverId);
   const fromMs = firstBowl === null ? now : firstBowl;
@@ -129,7 +132,7 @@ function bowlsChartPng(serverId) {
   } else {
     series = periodSeries(serverId, unit, fromMs, now);
   }
-  return renderPng(chartConfig("bowls schmoked", series));
+  return renderPng(chartConfig("bowls schmoked", series), guild);
 }
 
 module.exports = { bowlsChartPng };

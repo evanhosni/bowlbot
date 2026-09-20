@@ -407,8 +407,6 @@ main h1 {
   font-variant-numeric: tabular-nums;
 }
 
-/* Medals for the top three. Width is in em and paired with aspect-ratio, so the
-   badge scales with the row's font size and stays perfectly round at any page width. */
 .medal {
   box-sizing: border-box;
   justify-self: center;
@@ -419,7 +417,7 @@ main h1 {
   line-height: 1;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  border: 0.12em solid;
+  border: 0.1em solid;
   color: rgb(48, 30, 10);
   box-shadow:
     inset 0 0.14em 0.16em rgba(255, 255, 255, 0.6),
@@ -669,7 +667,6 @@ main h1 {
     font-size: large;
   }
 
-  /* claw back horizontal room for server names on narrow screens */
   .row {
     padding-left: 0.15em;
     padding-right: 0.15em;

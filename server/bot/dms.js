@@ -1,11 +1,9 @@
-// Owner-only DM commands. DMs are the channel because, without the Message Content
-// intent, Discord only shows keef the text of messages that mention it or are DMs to it.
-
 const bot = require("./client");
 const db = require("../db");
 const { sesh } = require("../state");
 const { say } = require("./context");
 const { logGuildError, ownerLog, ownerError, sendLogsTo } = require("../log");
+const { postableSystemChannel } = require("./channels");
 
 // Discord rejects a message over 2000.
 const MAX_MESSAGE = 1900;
@@ -13,7 +11,6 @@ const MAX_MESSAGE = 1900;
 let ownerId = null;
 let pending = null;
 
-// Team-owned apps put a Team here rather than a user; the human to DM is the team's owner.
 function ownerIdOf(application) {
   const owner = application.owner;
   if (!owner) return null;
@@ -80,14 +77,15 @@ function broadcast(text) {
   let sent = 0;
   const skipped = [];
   bot.guilds.cache.forEach((guild) => {
-    if (!guild.systemChannel) {
-      skipped.push(guild.name);
+    const { channel, reason } = postableSystemChannel(guild);
+    if (!channel) {
+      skipped.push(`${guild.name} (${reason})`);
       return;
     }
     sent++;
-    guild.systemChannel.send({ content: text }).catch((err) => logGuildError("announcement", guild, err));
+    channel.send({ content: text }).catch((err) => logGuildError("announcement", guild, err));
   });
-  return `announced to ${sent} servers` + (skipped.length ? `\nno system channel, skipped: ${skipped.join(", ")}` : "");
+  return `announced to ${sent} servers` + (skipped.length ? `\nskipped: ${skipped.join(", ")}` : "");
 }
 
 const ANSWERS = ["/yes", "/no", "/cancel"];
@@ -128,7 +126,6 @@ function helpText() {
 
 function reply(message, payload) {
   const messages = Array.isArray(payload) ? payload : [payload];
-  // Sequential so multi-page output can't arrive out of order.
   return messages.reduce((prev, content) => prev.then(() => say(message, { content })), Promise.resolve());
 }
 
@@ -149,7 +146,6 @@ function handleDm(message) {
 
   if (pending) {
     if (pending.step === "text") {
-      // checked first so it cancels instead of becoming the announcement text
       if (word === "/cancel") {
         pending = null;
         reply(message, "kk, nevermind");

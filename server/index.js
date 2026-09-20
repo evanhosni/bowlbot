@@ -1,4 +1,3 @@
-// dotenv must load before the db module opens DATABASE_PATH.
 require("dotenv").config();
 require("./log");
 

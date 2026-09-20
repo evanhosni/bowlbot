@@ -17,7 +17,7 @@ require("./socket").attach(io);
 function listen() {
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
-    ownerLog(`website's up on port ${PORT} 🚀`);
+    ownerLog(`[web] site's up on port ${PORT} 🚀`);
   });
 }
 

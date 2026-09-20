@@ -1,4 +1,4 @@
-const sesh = new Map(); // serverId -> { timer, minutes, startedAt, channel }
+const sesh = new Map(); // serverId -> { timer, minutes, startedAt, channel, ukMode, announce }
 
 function stopSesh(serverId) {
   const running = sesh.get(serverId);

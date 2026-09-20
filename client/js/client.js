@@ -131,7 +131,6 @@ track.addEventListener("scroll", () => {
 
 tabs.forEach((tab, i) => tab.addEventListener("click", () => goTo(i, true)));
 
-// Touch uses native scroll snapping; this is the mouse equivalent.
 var drag = null;
 var snapTimer = null;
 track.addEventListener("pointerdown", (e) => {
@@ -242,7 +241,6 @@ function closeModal() {
   disclaimerOpen = false;
 }
 
-// Both ends of the press must be on the backdrop, or dragging a board closes the modal.
 var pressedOnBackdrop = false;
 modal.addEventListener("pointerdown", (e) => {
   pressedOnBackdrop = e.target === modal;

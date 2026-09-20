@@ -7,7 +7,6 @@ const bot = new Discord.Client({
     Discord.GatewayIntentBits.GuildVoiceStates,
     Discord.GatewayIntentBits.DirectMessages,
   ],
-  // DM channels aren't cached until first seen; without this DM messages are dropped.
   partials: [Discord.Partials.Channel],
 });
 

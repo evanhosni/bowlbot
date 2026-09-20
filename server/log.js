@@ -46,7 +46,7 @@ async function flush() {
   while (queue.length && body.length + queue[0].length + 1 <= room) {
     body += (body ? "\n" : "") + queue.shift();
   }
-  if (!body) body = queue.shift().slice(0, room); // one line longer than a whole message
+  if (!body) body = queue.shift().slice(0, room);
   if (dropped) {
     body += `\n... ${dropped} more line(s) dropped`;
     dropped = 0;

@@ -1,6 +1,3 @@
-// Append-only. Never edit or reorder an entry: PRAGMA user_version records how
-// many have run, and each runs exactly once in its own transaction.
-
 const MIGRATIONS = [
   // ids are TEXT: Discord snowflakes exceed 2^53.
   (db) => {

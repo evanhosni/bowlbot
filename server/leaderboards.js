@@ -15,7 +15,6 @@ function serverStats(serverId) {
   );
 }
 
-/** Drop servers the bot is no longer in off the leaderboards. */
 function vibeCheck(guildIds) {
   const present = new Set(guildIds);
   for (const server of db.findRankedServers()) {
@@ -23,7 +22,6 @@ function vibeCheck(guildIds) {
   }
 }
 
-// Ties break on each wider range in turn, down to total.
 function sortedBoard(rows, column) {
   return rows
     .slice()
@@ -37,7 +35,6 @@ function sortedBoard(rows, column) {
     .map((data) => ({ name: data[0], bowls: data[column] }));
 }
 
-// Counted at read time off one query, so windowed ranges age out on their own.
 function allBoards() {
   const rows = db.rankedServerStats(cutoffs()).map((s) => [s.name, ...s.stats]);
   return RANGES.map((_, i) => sortedBoard(rows, i + 1));

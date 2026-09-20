@@ -1,17 +1,3 @@
-// One object per command; both @mention and slash read this table. First match wins.
-//   name           slash name and default @mention word
-//   mention        @mention phrases (exact match), defaults to [name]
-//   match(text)    predicate instead of `mention`
-//   slash: false   @mention only
-//   option         { name, description, required?, choices?, standalone? } free-text slash option.
-//                  Value is appended to the mention phrase, or is the whole text if standalone
-//   sub            { name, description } renders as `/name sub`
-//   adminOnly      hidden from non-admins in the slash picker
-//   quiet          ephemeral where supported
-//   usage          how the command is written after `@keef ` in the help list, defaults to name
-//   hidden: true   left out of the help list
-//   response       fixed reply, or run(ctx, { text, ukMode, serverId })
-
 const path = require("path");
 const Discord = require("discord.js");
 const discordVoice = require("@discordjs/voice");
@@ -19,11 +5,45 @@ const db = require("../db");
 const { io } = require("../web");
 const { sesh, stopSesh } = require("../state");
 const { serverStats } = require("../leaderboards");
-const { logGuildError } = require("../log");
+const { describeGuild, logGuildError, ownerLog, ownerWarn } = require("../log");
 const { disclaimer } = require("../text");
 const charts = require("../charts");
 
 const AUDIO_DIR = path.join(__dirname, "..", "..", "audio");
+
+const TRANSIENT_VOICE = /Unexpected server response: \d+|ECONNRESET|ETIMEDOUT/;
+
+function logVoiceError(guild, err) {
+  const text = err && err.message ? err.message : String(err);
+  if (!TRANSIENT_VOICE.test(text)) return logGuildError("voice connection", guild, err);
+  ownerWarn(`[voice connection] ${describeGuild(guild)}: ${text} (discord voice hiccup, reconnecting)`);
+}
+
+function watchVoiceConnection(connection, guild, serverId) {
+  const { VoiceConnectionStatus, entersState } = discordVoice;
+  connection.on("error", (err) => logVoiceError(guild, err));
+  connection.on(VoiceConnectionStatus.Disconnected, async () => {
+    try {
+      await Promise.race([
+        entersState(connection, VoiceConnectionStatus.Signalling, 5000),
+        entersState(connection, VoiceConnectionStatus.Connecting, 5000),
+      ]);
+    } catch {
+      if (connection.state.status !== VoiceConnectionStatus.Destroyed) connection.destroy();
+    }
+  });
+  connection.on(VoiceConnectionStatus.Destroyed, () => {
+    const running = sesh.get(serverId);
+    if (!stopSesh(serverId)) return;
+    setImmediate(() => {
+      if (!guild.client.guilds.cache.has(guild.id)) {
+        return ownerLog(`[voice connection] ${describeGuild(guild)}: removed from the server mid-sesh`);
+      }
+      ownerLog(`[voice connection] ${describeGuild(guild)}: dropped from the call`);
+      running.announce({ content: "bru" + (running.ukMode ? "v" : "h") + " who kicked me" });
+    });
+  });
+}
 
 const commands = [
   {
@@ -65,11 +85,9 @@ const commands = [
 
       player.on("error", (err) => logGuildError("audio player", ctx.guild, err));
       if (connection.listenerCount("error") === 0) {
-        connection.on("error", (err) => logGuildError("voice connection", ctx.guild, err));
+        watchVoiceConnection(connection, ctx.guild, serverId);
       }
 
-      // Don't wait for Ready: if keef is already in the call the connection is
-      // already Ready and a Ready listener would never fire.
       connection.subscribe(player);
 
       const botVoiceChannel = discordVoice.getVoiceConnection(ctx.guild.id);
@@ -100,6 +118,8 @@ const commands = [
         minutes: Number(msg),
         startedAt: Date.now(),
         channel: userVoiceChannel.name,
+        ukMode,
+        announce: ctx.announce,
       });
     },
   },
@@ -130,12 +150,16 @@ const commands = [
     description: "displays your server's schmokin' stats in a lil chart",
     async run(ctx, { serverId }) {
       await ctx.defer();
-      const data = serverStats(serverId);
-      // Attachments show inline and render wider than embed images.
-      const png = await charts.bowlsChartPng(serverId);
+      const [total, ...windows] = serverStats(serverId);
+      const png = await charts.bowlsChartPng(serverId, ctx.guild);
+      const breakdown = png
+        ? ""
+        : "\n\n" +
+          ["year", "month", "week", "day", "hour"].map((range, i) => `${range}: ${windows[i]}`).join(" · ") +
+          "\n";
       ctx.reply({
         //TODO: emojis based on amount of bowls
-        content: "you've schmoked a total of " + data[0] + " bowls\nkeep up the great work!",
+        content: `you've schmoked a total of ${total} bowls${breakdown}\nkeep up the great work!`,
         files: png ? [{ attachment: png, name: "stats.png" }] : undefined,
       });
     },
@@ -232,7 +256,6 @@ const commands = [
     hidden: true,
     response: "no not like that silly goose. actually specify a number... like `keef 15`", //TODO: rephrase?
   },
-
 ];
 
 module.exports = commands;

@@ -1,6 +1,3 @@
-// Slash commands only appear in servers that granted the `applications.commands`
-// OAuth scope.
-
 const Discord = require("discord.js");
 const bot = require("./client");
 const commands = require("./commands");

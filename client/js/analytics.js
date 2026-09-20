@@ -7,8 +7,6 @@ function gtag() {
 }
 window.gtag = gtag;
 
-// Named gaEvent, not track: client.js already has a `track` const (the leaderboard
-// slider element) that would shadow a global of that name.
 window.gaEvent = function (name, params) {
   gtag("event", name, params || {});
 };

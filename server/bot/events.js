@@ -6,9 +6,10 @@ const { vibeCheck } = require("../leaderboards");
 const { describeGuild, logGuildError, ownerLog, ownerError } = require("../log");
 const { disclaimer, welcome } = require("../text");
 const { registerSlashCommands } = require("./slash");
+const { postableSystemChannel } = require("./channels");
 
 bot.on("clientReady", () => {
-  ownerLog(`ayyooo it's ${bot.user.tag}! live in ${bot.guilds.cache.size} servers`);
+  ownerLog(`[bot] ayyooo it's ${bot.user.tag}! live in ${bot.guilds.cache.size} servers`);
   status.online = true;
   io.emit("bot_status", status.online);
   vibeCheck(bot.guilds.cache.map((g) => g.id));
@@ -17,26 +18,27 @@ bot.on("clientReady", () => {
 
 bot.on("guildCreate", (guild) => {
   db.findOrCreateServer(guild.id, guild.name);
-  ownerLog(`bowlbot added to: ${describeGuild(guild)}`);
-  const channel = guild.systemChannel;
+  ownerLog(`[guild create] bowlbot added to: ${describeGuild(guild)}`);
+  const { channel, reason, canMentionEveryone } = postableSystemChannel(guild);
   if (!channel) {
-    ownerLog(`${describeGuild(guild)}: no system channel, skipping welcome message`);
+    ownerLog(`[guild create] ${describeGuild(guild)}: ${reason}, skipping welcome message`);
     return;
   }
-  channel
-    .send(welcome)
-    .then(() => channel.send("@everyone\n\n" + disclaimer))
-    .catch((err) => logGuildError("guildCreate", guild, err));
+  const ping = canMentionEveryone ? "@everyone\n\n" : "";
+  channel.send(welcome).then(
+    () => channel.send(ping + disclaimer).catch((err) => logGuildError("disclaimer", guild, err)),
+    (err) => logGuildError("welcome", guild, err),
+  );
 });
 
 bot.on("error", (error) => {
-  ownerError("bot error:", error);
+  ownerError("[bot] error:", error);
   status.online = false;
   io.emit("bot_status", status.online);
 });
 
 bot.on("disconnect", () => {
-  ownerLog("bot disconnected");
+  ownerLog("[bot] disconnected");
   status.online = false;
   io.emit("bot_status", status.online);
 });

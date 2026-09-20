@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Online backup of the live SQLite file. Safe while the bot is writing, unlike cp.
 
 const { DatabaseSync, backup } = require("node:sqlite");
 const path = require("node:path");
