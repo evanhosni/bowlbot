@@ -288,6 +288,7 @@ main h1 {
 #leaderboards.down #boards,
 #leaderboards.down #chart,
 #leaderboards.down #chart-legend,
+#leaderboards.down #legend-tip,
 #leaderboards.down #btn-chart {
   display: none;
 }
@@ -299,12 +300,47 @@ main h1 {
   flex-direction: column;
 }
 
-#chart {
+#chart,
+#chart-legend {
   display: none;
+  flex: none;
+  align-self: center;
+  width: min(860px, 84vw);
+}
+
+#chart-legend {
+  --fade: 40px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: calc(100% + 2 * var(--fade)) 100%;
+  mask-size: calc(100% + 2 * var(--fade)) 100%;
+}
+
+#chart {
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
-  padding: 6px 3%;
+}
+
+#chart-box {
+  position: absolute;
+  inset: 6px 3%;
+  overflow: hidden;
+}
+
+@keyframes reveal {
+  from {
+    -webkit-mask-size: min(520px, 84vw) 100%;
+    mask-size: min(520px, 84vw) 100%;
+  }
+  to {
+    -webkit-mask-size: calc(100% + 2 * var(--fade)) 100%;
+    mask-size: calc(100% + 2 * var(--fade)) 100%;
+  }
 }
 
 #leaderboards.charting #boards {
@@ -313,11 +349,25 @@ main h1 {
 
 #leaderboards.charting #chart {
   display: block;
+  animation: stretch 0.5s ease both;
 }
 
-#chart-legend {
-  display: none;
-  flex: none;
+#leaderboards.charting #chart-legend {
+  display: block;
+  animation: reveal 0.5s ease both;
+}
+
+@keyframes stretch {
+  from {
+    transform: scaleX(var(--from-scale, 1));
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+#legend-list {
+  display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0 0.9em;
@@ -331,7 +381,7 @@ main h1 {
   mask-image: linear-gradient(to bottom, #000 calc(100% - 1em), transparent);
 }
 
-#chart-legend::-webkit-scrollbar {
+#legend-list::-webkit-scrollbar {
   display: none;
 }
 
@@ -359,10 +409,6 @@ main h1 {
   border-top: 3px solid;
 }
 
-#leaderboards.charting #chart-legend {
-  display: flex;
-}
-
 #chart canvas {
   cursor: crosshair;
   touch-action: none;
@@ -387,7 +433,7 @@ main h1 {
   color: var(--orange);
 }
 
-#chart-tip {
+.tip {
   position: absolute;
   z-index: 1;
   transform: translate(-50%, calc(-100% - 12px));
@@ -401,8 +447,15 @@ main h1 {
   white-space: nowrap;
 }
 
-#chart-tip[hidden] {
+.tip[hidden] {
   display: none;
+}
+
+#legend-tip {
+  transform: translate(-50%, calc(-100% - 6px));
+  max-width: 22em;
+  white-space: normal;
+  text-align: center;
 }
 
 .tip-title {
@@ -419,8 +472,9 @@ main h1 {
   flex: none;
   font-size: x-large;
   line-height: 1;
-  margin-top: 0.3em;
+  margin-top: 0.75em;
   color: var(--darkpurp);
+  text-shadow: none;
 }
 
 #btn-chart:hover {
@@ -829,6 +883,14 @@ main h1 {
 
   #leaderboards::before {
     inset: 0 -2%;
+  }
+
+  #chart,
+  #chart-legend {
+    width: 100%;
+    -webkit-mask-image: none;
+    mask-image: none;
+    animation: none;
   }
 }
 

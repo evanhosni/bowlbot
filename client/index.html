@@ -166,14 +166,15 @@
           </div>
         </div>
         <div id="chart">
-          <canvas id="chart-canvas"></canvas>
+          <div id="chart-box"><canvas id="chart-canvas"></canvas></div>
           <span id="zoom-reset" hidden>(reset zoom)</span>
-          <div id="chart-tip" hidden>
+          <div id="chart-tip" class="tip" hidden>
             <div class="tip-title"></div>
             <div class="tip-row"><span class="tip-date"></span><span class="tip-count"></span></div>
           </div>
         </div>
-        <div id="chart-legend"></div>
+        <div id="chart-legend"><div id="legend-list"></div></div>
+        <div id="legend-tip" class="tip" hidden></div>
         <a id="btn-chart" class="link-btn">- view chart -</a>
         <div class="close">(close)</div>
       </div>

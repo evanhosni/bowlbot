@@ -23,6 +23,10 @@ const zoomReset = document.querySelector("#zoom-reset");
 const chartEl = document.querySelector("#chart");
 const chartTip = document.querySelector("#chart-tip");
 const chartLegend = document.querySelector("#chart-legend");
+const legendList = document.querySelector("#legend-list");
+const legendTip = document.querySelector("#legend-tip");
+const chartBox = document.querySelector("#chart-box");
+var resizeTimer = null;
 var zoom = null;
 var zoomDrag = null;
 
@@ -31,6 +35,8 @@ const DAY = 86400000;
 const YEAR = 365 * DAY;
 const MIN_ZOOM = 7 * DAY;
 const DASHES = [undefined, [6, 4], [2, 3], [8, 3, 2, 3]];
+const LEGEND_TIP_DELAY_MS = 1000;
+const RESIZE_SETTLE_MS = 100;
 
 socket.on("init", (data) => {
   connectedToServer = true;
@@ -96,28 +102,77 @@ function chartTicks(from, to) {
   return ticks;
 }
 
+function compact(n) {
+  if (n < 1000) return String(n);
+  const k = n / 1000;
+  return (k >= 10 || Number.isInteger(k) ? Math.round(k) : k.toFixed(1)) + "k";
+}
+
 function legendText(name) {
   const max = window.innerWidth < 480 ? 18 : 28;
   return name.length > max ? name.slice(0, max - 1).trimEnd() + "…" : name;
 }
 
+var legendTipTimer = null;
+
+function showLegendTip(item, name) {
+  legendTip.textContent = name;
+  legendTip.hidden = false;
+  const box = leaderboardsEl.getBoundingClientRect();
+  const r = item.getBoundingClientRect();
+  const half = legendTip.offsetWidth / 2;
+  legendTip.style.left = Math.max(half, Math.min(box.width - half, r.left + r.width / 2 - box.left)) + "px";
+  legendTip.style.top = r.top - box.top + "px";
+}
+
+function hideLegendTip() {
+  clearTimeout(legendTipTimer);
+  legendTip.hidden = true;
+}
+
+function setVisibility(c, visible) {
+  const modes = c.data.datasets.map((_, i) => {
+    if (c.isDatasetVisible(i) === visible[i]) return undefined;
+    const mode = visible[i] ? "show" : "hide";
+    const meta = c.getDatasetMeta(i);
+    c.setDatasetVisibility(i, visible[i]);
+    meta.controller._resolveAnimations(undefined, mode).update(meta, { visible: visible[i] });
+    return mode;
+  });
+  syncZoom();
+  c.update((ctx) => modes[ctx.datasetIndex]);
+}
+
 const htmlLegend = {
   id: "htmlLegend",
   afterUpdate(c) {
-    chartLegend.innerHTML = "";
+    hideLegendTip();
+    legendList.innerHTML = "";
+    const n = c.data.datasets.length;
     c.data.datasets.forEach((ds, i) => {
-      const item = el("span", "legend-item" + (c.isDatasetVisible(i) ? "" : " off"), legendText(ds.label));
-      item.title = ds.label;
+      const short = legendText(ds.label);
+      const item = el("span", "legend-item" + (c.isDatasetVisible(i) ? "" : " off"), short);
       const swatch = el("i", "swatch");
       swatch.style.borderColor = ds.borderColor;
       swatch.style.borderTopStyle = ["solid", "dashed", "dotted", "double"][Math.floor(i / SERIES.length) % DASHES.length];
       item.prepend(swatch);
-      item.addEventListener("click", () => {
-        c.setDatasetVisibility(i, !c.isDatasetVisible(i));
-        syncZoom();
-        c.update("none");
+      item.addEventListener("click", (e) => {
+        hideLegendTip();
+        if (e.ctrlKey || e.metaKey || e.shiftKey) {
+          const soloed = c.data.datasets.every((_, j) => c.isDatasetVisible(j) === (j === i));
+          setVisibility(c, Array.from({ length: n }, (_, j) => soloed || j === i));
+        } else {
+          setVisibility(c, Array.from({ length: n }, (_, j) => (j === i ? !c.isDatasetVisible(j) : c.isDatasetVisible(j))));
+        }
       });
-      chartLegend.append(item);
+      if (short !== ds.label) {
+        item.addEventListener("pointerenter", () => {
+          clearTimeout(legendTipTimer);
+          legendTipTimer = setTimeout(() => showLegendTip(item, ds.label), LEGEND_TIP_DELAY_MS);
+        });
+        item.addEventListener("pointerleave", hideLegendTip);
+      }
+      legendList.append(item);
     });
   },
 };
@@ -153,9 +208,13 @@ function renderChart() {
     data: { datasets },
     plugins: [zoomSelection, htmlLegend],
     options: {
-      responsive: true,
+      responsive: false,
       maintainAspectRatio: false,
-      animation: false,
+      animation: { duration: 500, easing: "easeOutQuart" },
+      transitions: {
+        show: { animations: { colors: { from: "transparent" }, visible: { type: "boolean", duration: 0 } } },
+        hide: { animations: { colors: { to: "transparent" }, visible: { type: "boolean", easing: "linear", fn: (v) => v | 0 } } },
+      },
       parsing: false,
       normalized: true,
       interaction: { mode: "nearest", intersect: false },
@@ -183,7 +242,7 @@ function renderChart() {
           suggestedMax: Math.max(0, ...servers.map((s) => s.points[s.points.length - 1].y)),
           grid: { color: grid },
           border: { color: grid },
-          ticks: { precision: 0, callback: (v) => v.toLocaleString() },
+          ticks: { precision: 0, callback: (v) => compact(v) },
         },
       },
       plugins: {
@@ -192,6 +251,15 @@ function renderChart() {
       },
     },
   });
+  fitChart();
+  new ResizeObserver(() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fitChart, RESIZE_SETTLE_MS);
+  }).observe(chartBox);
+}
+
+function fitChart() {
+  if (chart && chartBox.clientWidth) chart.resize(chartBox.clientWidth, chartBox.clientHeight);
 }
 
 function showChartTip({ chart: c, tooltip: t }) {
@@ -207,9 +275,11 @@ function showChartTip({ chart: c, tooltip: t }) {
   chartTip.querySelector(".tip-count").textContent = `${n.toLocaleString()} ${n === 1 ? "bowl" : "bowls"}`;
   chartTip.hidden = false;
   const half = chartTip.offsetWidth / 2;
-  const x = Math.max(half, Math.min(chartEl.clientWidth - half, c.canvas.offsetLeft + t.caretX));
+  const box = chartEl.getBoundingClientRect();
+  const canvas = c.canvas.getBoundingClientRect();
+  const x = Math.max(half, Math.min(box.width - half, canvas.left - box.left + t.caretX));
   chartTip.style.left = x + "px";
-  chartTip.style.top = c.canvas.offsetTop + t.caretY + "px";
+  chartTip.style.top = canvas.top - box.top + t.caretY + "px";
 }
 
 function valueAt(points, x) {
@@ -249,7 +319,7 @@ function applyZoom(lo, hi) {
     zoom = { min: lo, max: hi };
   }
   syncZoom();
-  chart.update("none");
+  chart.update();
 }
 
 const zoomSelection = {
@@ -310,10 +380,13 @@ zoomReset.addEventListener("click", () => applyZoom(null));
 
 function setCharting(on) {
   charting = on;
+  const fromWidth = leaderboardsEl.clientWidth - 2 * parseFloat(getComputedStyle(leaderboardsEl).paddingLeft);
   leaderboardsEl.classList.toggle("charting", on);
+  if (on) chartEl.style.setProperty("--from-scale", Math.min(1, fromWidth / chartEl.offsetWidth));
   chartButton.textContent = on ? "- view boards -" : "- view chart -";
   if (on) {
     socket.emit("chart");
+    fitChart();
     renderChart();
   } else {
     goTo(activeIndex, false);
