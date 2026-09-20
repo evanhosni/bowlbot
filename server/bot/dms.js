@@ -68,7 +68,8 @@ function seshList() {
     const guild = bot.guilds.cache.get(serverId);
     const going = Math.round((Date.now() - running.startedAt) / 60000);
     const name = guild ? guild.name : `unknown server ${serverId}`;
-    return `**${name}** · ${running.voiceChannelName} · every ${running.minutes} min · going ${going} min`;
+    const channel = guild && guild.channels.cache.get(running.voiceChannelId);
+    return `**${name}** · ${channel ? channel.name : "unknown channel"} · every ${running.minutes} min · going ${going} min`;
   });
   return paginate(`**seshes (${sesh.size})**`, lines, "\n");
 }

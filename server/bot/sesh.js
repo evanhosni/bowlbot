@@ -5,7 +5,7 @@ const db = require("../db");
 const { io } = require("../web");
 const { describeGuild, logGuildError, ownerLog, ownerWarn } = require("../log");
 
-const sesh = new Map(); // serverId -> { timer, minutes, startedAt, voiceChannelId, voiceChannelName, textChannelId, ukMode }
+const sesh = new Map(); // serverId -> { timer, minutes, startedAt, voiceChannelId, textChannelId, ukMode }
 const AUDIO_DIR = path.join(__dirname, "..", "..", "audio");
 const TRANSIENT_VOICE = ["Unexpected server response", "ECONNRESET", "ETIMEDOUT"];
 const REJOIN_GRACE_MS = 5000;
@@ -95,7 +95,6 @@ function startSesh(guild, voiceChannel, textChannelId, minutes, ukMode, startedA
       }
       if (here.id !== entry.voiceChannelId) {
         entry.voiceChannelId = here.id;
-        entry.voiceChannelName = here.name;
         db.upsertSesh({ serverId, voiceChannelId: here.id, textChannelId, minutes, startedAt, ukMode });
       }
       player.play(
@@ -113,7 +112,6 @@ function startSesh(guild, voiceChannel, textChannelId, minutes, ukMode, startedA
     timer: null,
     minutes,
     startedAt,
-    voiceChannelName: voiceChannel.name,
     voiceChannelId: voiceChannel.id,
     ukMode,
     textChannelId,
