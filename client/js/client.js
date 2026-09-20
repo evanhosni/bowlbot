@@ -41,6 +41,9 @@ const MIN_ZOOM = 7 * DAY;
 const DASHES = [undefined, [6, 4], [2, 3], [8, 3, 2, 3]];
 const LEGEND_TIP_DELAY_MS = 1000;
 const RESIZE_SETTLE_MS = 100;
+const CHART_WARM_MS = 1100;
+var chartWarmTimer = null;
+var modalOpenedAt = 0;
 
 socket.on("init", (data) => {
   connectedToServer = true;
@@ -53,7 +56,7 @@ socket.on("init", (data) => {
 
 socket.on("bowlcount", (data) => {
   socket.emit("leaderboards");
-  if (leaderboardsOpen && charting) socket.emit("chart");
+  if (leaderboardsOpen) socket.emit("chart");
   setTimeout(() => {
     bowls.innerHTML = data;
   }, 3500);
@@ -80,8 +83,21 @@ socket.on("chart", (data) => {
     return { name: s.name, points };
   });
   chartData = { from, to, servers };
-  if (leaderboardsOpen && charting) renderChart();
+  if (!leaderboardsOpen) return;
+  if (charting) renderChart();
+  else warmChart();
 });
+
+function warmChart() {
+  if (chart || !chartData) return;
+  clearTimeout(chartWarmTimer);
+  chartWarmTimer = setTimeout(
+    () => {
+      if (leaderboardsOpen && !chart) renderChart();
+    },
+    Math.max(0, modalOpenedAt + CHART_WARM_MS - performance.now()),
+  );
+}
 
 function dateLabel(ms, spanMs) {
   const d = new Date(ms);
@@ -406,7 +422,7 @@ function setCharting(on) {
   if (on) chartEl.style.setProperty("--from-scale", Math.min(1, fromWidth / chartEl.offsetWidth));
   chartButton.textContent = on ? "- view boards -" : "- view chart -";
   if (on) {
-    socket.emit("chart");
+    clearTimeout(chartWarmTimer);
     fitChart();
     renderChart();
   } else {
@@ -571,6 +587,7 @@ function resetLeaderboards() {
 
 function openModal(panel) {
   clearTimeout(modalTimer);
+  modalOpenedAt = performance.now();
   modal.classList.remove("closing");
   modal.style.display = "flex";
   leaderboardsEl.style.display = panel === leaderboardsEl ? "flex" : "none";
@@ -592,11 +609,12 @@ function leaderboards(range) {
   leaderboardsEl.classList.toggle("down", !connectedToServer);
   if (!connectedToServer) return;
 
+  socket.emit("chart");
   if (charting) {
-    socket.emit("chart");
     renderChart();
     return;
   }
+  warmChart();
   const idx = RANGES.indexOf(range);
   goTo(idx === -1 ? activeIndex : idx, false);
   refreshMarquees();
@@ -670,6 +688,7 @@ for (let i = 0; i < closeButtons.length; i++) {
 function closeModal() {
   if (modalClosing) return;
   clearTimeout(modalTimer);
+  clearTimeout(chartWarmTimer);
   modalClosing = true;
   leaderboardsOpen = false;
   disclaimerOpen = false;
@@ -689,15 +708,16 @@ function closeModal() {
   }, MODAL_CLOSE_MS);
 }
 
-var pressedOnBackdrop = false;
+const BACKDROP_TAP_PX = 8;
+var backdropPress = null;
 modal.addEventListener("pointerdown", (e) => {
-  pressedOnBackdrop = e.target === modal;
+  backdropPress = e.target === modal ? { x: e.clientX, y: e.clientY } : null;
 });
 modal.addEventListener("click", (e) => {
-  if (e.target === modal && pressedOnBackdrop) {
-    closeModal();
-  }
-  pressedOnBackdrop = false;
+  const press = backdropPress;
+  backdropPress = null;
+  if (e.target !== modal || !press) return;
+  if (Math.hypot(e.clientX - press.x, e.clientY - press.y) < BACKDROP_TAP_PX) closeModal();
 });
 
 function updateBotStatus() {

@@ -19,7 +19,10 @@ const OPEN_MS = 1000;
 const OPEN_GROW = 0.6;
 const CLOSE_MS = 1800;
 const OPEN_RELAX = 40;
-const CLOSE_FADE = 2.5;
+const CLOSE_FADE = 1.2;
+const CLOSE_DRIFT = 30;
+const CLOSE_DRIFT_SPREAD = 0.6;
+const CLOSE_TURBULENCE = 1.4;
 const POOF_SPLATS = 6;
 const POOF_FORCE = 350;
 const POOF_RADIUS = 1.2;
@@ -243,11 +246,12 @@ uniform float dt;
 uniform float time;
 uniform float force;
 uniform float buoyancy;
+uniform vec2 drift;
 void main() {
   vec2 v = texture2D(uVelocity, vUv).xy;
   vec2 p = (vUv - 0.5) * aspect;
   vec2 f = vec2(snoise(p * 1.5 + vec2(time * 0.12, 0.0)), snoise(p * 1.5 + vec2(7.3, -time * 0.1)));
-  v += (f * force + vec2(0.0, buoyancy)) * dt;
+  v += (f * force + vec2(0.0, buoyancy) + drift) * dt;
   gl_FragColor = vec4(v, 0.0, 1.0);
 }`,
   source: `${HEAD}
@@ -289,7 +293,7 @@ void main() {
   float target = shapeTarget(p) * gain;
   float detail = billow(p * 0.55 + vec2(0.0, -time * 0.02) + seed + 31.0);
   detail = prev.g + (detail - prev.g) * min(1.0, detailRelax * dt);
-  float erode = billow(p * 2.6 + vec2(time * 0.12, time * 0.18) + seed * 2.0);
+  float erode = billow(p * 1.3 + vec2(time * 0.12, time * 0.18) + seed * 2.0);
   float rate = target > dens ? densityRelax : densityFade;
   dens += (target - dens) * min(1.0, rate * dt);
   gl_FragColor = vec4(dens, detail, erode, 1.0);
@@ -308,7 +312,7 @@ vec4 layer(float dens, float detail, float erode, float gx, float gy, float tone
   vec3 col = mix(vec3(0.77, 0.79, 0.84), vec3(1.0, 1.0, 0.99), clamp(lit * 0.5 + detail * 0.5, 0.0, 1.0));
   col = mix(vec3(0.72, 0.74, 0.78), col, smoothstep(0.0, 0.8, dens)) * tone;
   float a = pow(dens, 1.6) * (0.9 + 0.1 * detail);
-  a *= smoothstep(dissolve * 1.2 - 0.2, dissolve * 1.2 + 0.05, mix(detail, erode, 0.65)) * (1.0 - dissolve * dissolve);
+  a *= smoothstep(dissolve * 0.7, dissolve * 0.7 + 0.4, mix(detail, erode, 0.65)) * (1.0 - smoothstep(0.7, 1.0, dissolve));
   return vec4(col * a, a);
 }
 vec4 over(vec4 top, vec4 under) {
@@ -329,8 +333,7 @@ void main() {
   vec4 mid = layer(c.b, c.a, bc.b, l.a - r.a, b.a - t.a, 0.97);
   vec4 front = layer(c.r, c.g, bc.b, l.g - r.g, b.g - t.g, 1.0) * frontOpacity;
   vec4 o = over(front, over(mid, base));
-  float edge = smoothstep(0.0, 0.03, min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y)));
-  gl_FragColor = o * edge * opacity;
+  gl_FragColor = o * opacity;
 }`,
 };
 
@@ -385,6 +388,7 @@ void main() {
       pointer: null,
       mouseSplat: null,
       splats: [],
+      closeDrift: [0, 0],
     };
   }
 
@@ -578,7 +582,16 @@ void main() {
 
   function phaseState(panel, now) {
     const s = panel.shape || { cx: 0, cy: 0, hx: 0.4, hy: 0.4, scale: 1 };
-    const st = { ...s, relax: DENSITY_RELAX, fade: DENSITY_FADE, gain: 1, dissolve: 0 };
+    const st = {
+      ...s,
+      relax: DENSITY_RELAX,
+      fade: DENSITY_FADE,
+      gain: 1,
+      dissolve: 0,
+      force: AMBIENT_FORCE,
+      buoyancy: BUOYANCY,
+      drift: [0, 0],
+    };
     const age = still ? Infinity : panel.phaseStart < 0 ? 0 : Math.max(0, now - panel.phaseStart);
     if (panel.phase === "opening" || panel.phase === "open") {
       const u = Math.min(1, age / OPEN_MS);
@@ -596,6 +609,8 @@ void main() {
       const u = Math.min(1, age / CLOSE_MS);
       st.gain = 0;
       st.fade = CLOSE_FADE;
+      st.force = AMBIENT_FORCE * CLOSE_TURBULENCE;
+      st.drift = panel.closeDrift;
       st.dissolve = u * u * (3 - 2 * u);
     }
     return st;
@@ -681,8 +696,9 @@ void main() {
     gl.uniform2f(u.aspect, panel.canvas.width / panel.canvas.height, 1);
     gl.uniform1f(u.dt, dt);
     gl.uniform1f(u.time, time);
-    gl.uniform1f(u.force, AMBIENT_FORCE);
-    gl.uniform1f(u.buoyancy, BUOYANCY);
+    gl.uniform1f(u.force, st.force);
+    gl.uniform1f(u.buoyancy, st.buoyancy);
+    gl.uniform2f(u.drift, st.drift[0], st.drift[1]);
     blit(gl);
     fbos.velocity.swap();
 
@@ -834,7 +850,9 @@ void main() {
       if (panel.phase === "idle" || panel.phase === "closing") continue;
       panel.phase = "closing";
       panel.phaseStart = -1;
-      poof(panel, POOF_SPLATS, POOF_FORCE * 1.5);
+      const a = (Math.random() * 2 - 1) * CLOSE_DRIFT_SPREAD;
+      panel.closeDrift = [Math.sin(a) * CLOSE_DRIFT, Math.cos(a) * CLOSE_DRIFT];
+      poof(panel, POOF_SPLATS, POOF_FORCE);
     }
     start();
   }
@@ -861,13 +879,13 @@ void main() {
   for (const panel of panels) observer.observe(panel.canvas);
   document.addEventListener("visibilitychange", start);
 
-  window.addEventListener("pointermove", (e) => {
+  function stir(clientX, clientY) {
     if (still) return;
     for (const panel of panels) {
       if (!visible(panel) || panel.phase === "idle") continue;
       const r = panel.canvas.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width;
-      const y = 1 - (e.clientY - r.top) / r.height;
+      const x = (clientX - r.left) / r.width;
+      const y = 1 - (clientY - r.top) / r.height;
       const prev = panel.pointer;
       panel.pointer = { x, y };
       if (!prev) continue;
@@ -879,5 +897,16 @@ void main() {
       const s = panel.mouseSplat;
       panel.mouseSplat = s ? { x, y, dx: s.dx + dx, dy: s.dy + dy } : { x, y, dx, dy };
     }
+  }
+
+  function release() {
+    for (const panel of panels) panel.pointer = null;
+  }
+
+  window.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "touch") stir(e.clientX, e.clientY);
   });
+  window.addEventListener("touchmove", (e) => stir(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+  window.addEventListener("touchend", release);
+  window.addEventListener("touchcancel", release);
 })();
