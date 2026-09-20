@@ -23,6 +23,10 @@ const CLOSE_FADE = 1.2;
 const CLOSE_DRIFT = 30;
 const CLOSE_DRIFT_SPREAD = 0.6;
 const CLOSE_TURBULENCE = 1.4;
+const WIDEN_FORCE = 1200;
+const WIDEN_MAX = 300;
+const WIDEN_MIN_DELTA = 0.0005;
+const WIDEN_RADIUS = 50;
 const POOF_SPLATS = 6;
 const POOF_FORCE = 350;
 const POOF_RADIUS = 1.2;
@@ -389,6 +393,8 @@ void main() {
       mouseSplat: null,
       splats: [],
       closeDrift: [0, 0],
+      lastHx: null,
+      smokeHx: 0,
     };
   }
 
@@ -679,6 +685,25 @@ void main() {
     }
   }
 
+  function widenPush(panel, dt) {
+    const { cx, cy, hx } = panel.shape;
+    const prev = panel.lastHx;
+    panel.lastHx = hx;
+    if (prev === null) {
+      panel.smokeHx = hx;
+      return;
+    }
+    const swept = hx - Math.max(prev, panel.smokeHx);
+    const relax = hx > panel.smokeHx ? DENSITY_RELAX : DENSITY_FADE;
+    panel.smokeHx += (hx - panel.smokeHx) * Math.min(1, relax * dt);
+    if (swept <= WIDEN_MIN_DELTA) return;
+    const m = Math.min(WIDEN_MAX, swept * WIDEN_FORCE);
+    const aspect = panel.canvas.width / panel.canvas.height;
+    const y = 0.5 + cy;
+    panel.splats.push({ x: 0.5 + (cx - hx) / aspect, y, dx: -m, dy: 0, radius: WIDEN_RADIUS });
+    panel.splats.push({ x: 0.5 + (cx + hx) / aspect, y, dx: m, dy: 0, radius: WIDEN_RADIUS });
+  }
+
   function step(panel, st, dt, time) {
     const { gl, fbos } = panel;
     let u;
@@ -810,6 +835,7 @@ void main() {
       const st = phaseState(panel, now);
       const elapsed = panel.last ? Math.min((now - panel.last) / 1000, MAX_DT * MAX_SUBSTEPS) : MAX_DT;
       panel.last = now;
+      if (!still && panel.phase === "open") widenPush(panel, elapsed);
       if (!still) {
         const n = Math.max(1, Math.ceil(elapsed / MAX_DT));
         for (let i = 0; i < n; i++) step(panel, st, elapsed / n, time);
@@ -835,6 +861,8 @@ void main() {
       panel.pointer = null;
       panel.mouseSplat = null;
       panel.splats = [];
+      panel.lastHx = null;
+      panel.smokeHx = 0;
       fit(panel, 0);
       panel.shape = shapeOf(panel) || panel.shape;
       clearFields(panel);
