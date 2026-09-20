@@ -168,7 +168,7 @@ const commands = [
     mention: ["number", "(number)", "[number]"],
     slash: false,
     hidden: true,
-    response: "no not like that silly goose. actually specify a number... like `keef 15`", //TODO: rephrase?
+    response: "no not like that silly goose. actually specify a number... like `keef 15`",
   },
 ];
 
