@@ -14,6 +14,9 @@ const indicator = document.querySelector("#tab-indicator");
 var activeIndex = RANGES.indexOf("week");
 var leaderboardsOpen = false;
 var disclaimerOpen = false;
+const disclaimerText = document.querySelector("#disclaimer > div");
+const agreeBtn = document.querySelector("#agree-btn");
+const READ_SLACK_PX = 20;
 var charting = false;
 var chart = null;
 var chartData = null;
@@ -154,15 +157,23 @@ const htmlLegend = {
       const item = el("span", "legend-item" + (c.isDatasetVisible(i) ? "" : " off"), short);
       const swatch = el("i", "swatch");
       swatch.style.borderColor = ds.borderColor;
-      swatch.style.borderTopStyle = ["solid", "dashed", "dotted", "double"][Math.floor(i / SERIES.length) % DASHES.length];
+      swatch.style.borderTopStyle = ["solid", "dashed", "dotted", "double"][
+        Math.floor(i / SERIES.length) % DASHES.length
+      ];
       item.prepend(swatch);
       item.addEventListener("click", (e) => {
         hideLegendTip();
         if (e.ctrlKey || e.metaKey || e.shiftKey) {
           const soloed = c.data.datasets.every((_, j) => c.isDatasetVisible(j) === (j === i));
-          setVisibility(c, Array.from({ length: n }, (_, j) => soloed || j === i));
+          setVisibility(
+            c,
+            Array.from({ length: n }, (_, j) => soloed || j === i),
+          );
         } else {
-          setVisibility(c, Array.from({ length: n }, (_, j) => (j === i ? !c.isDatasetVisible(j) : c.isDatasetVisible(j))));
+          setVisibility(
+            c,
+            Array.from({ length: n }, (_, j) => (j === i ? !c.isDatasetVisible(j) : c.isDatasetVisible(j))),
+          );
         }
       });
       if (short !== ds.label) {
@@ -213,7 +224,12 @@ function renderChart() {
       animation: { duration: 500, easing: "easeOutQuart" },
       transitions: {
         show: { animations: { colors: { from: "transparent" }, visible: { type: "boolean", duration: 0 } } },
-        hide: { animations: { colors: { to: "transparent" }, visible: { type: "boolean", easing: "linear", fn: (v) => v | 0 } } },
+        hide: {
+          animations: {
+            colors: { to: "transparent" },
+            visible: { type: "boolean", easing: "linear", fn: (v) => v | 0 },
+          },
+        },
       },
       parsing: false,
       normalized: true,
@@ -560,7 +576,21 @@ function disclaimer() {
   document.querySelector("#disclaimer").style.display = "flex";
   document.querySelector("body").style.overflowY = "hidden";
   document.querySelector("main").style.visibility = "hidden";
+  agreeBtn.classList.add("disabled");
+  disclaimerText.scrollTop = 0;
+  checkDisclaimerRead();
 }
+
+function checkDisclaimerRead() {
+  if (disclaimerText.scrollTop + disclaimerText.clientHeight >= disclaimerText.scrollHeight - READ_SLACK_PX) {
+    agreeBtn.classList.remove("disabled");
+  }
+}
+
+disclaimerText.addEventListener("scroll", checkDisclaimerRead);
+window.addEventListener("resize", () => {
+  if (disclaimerOpen) checkDisclaimerRead();
+});
 
 document.querySelector("#btn-leaderboards").addEventListener("click", () => {
   if (!leaderboardsOpen) {
@@ -580,7 +610,11 @@ document.querySelector("#toke-up-with-me").addEventListener("click", () => {
   }
 });
 
-document.querySelector("#agree-btn").addEventListener("click", () => {
+agreeBtn.addEventListener("click", (e) => {
+  if (agreeBtn.classList.contains("disabled")) {
+    e.preventDefault();
+    return;
+  }
   gaEvent("invite_accept");
   closeModal();
 });

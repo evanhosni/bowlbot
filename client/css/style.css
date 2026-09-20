@@ -310,7 +310,13 @@ main h1 {
 
 #chart-legend {
   --fade: 40px;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--fade),
+    #000 calc(100% - var(--fade)),
+    transparent
+  );
   mask-image: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
@@ -472,7 +478,7 @@ main h1 {
   flex: none;
   font-size: x-large;
   line-height: 1;
-  margin-top: 0.75em;
+  margin-top: 0.5em;
   color: var(--darkpurp);
   text-shadow: none;
 }
@@ -756,7 +762,7 @@ main h1 {
   user-select: none;
   cursor: pointer;
   margin: 0 auto 10px;
-  padding: 12px 5px 6px;
+  padding: 8px 5px 6px;
 }
 
 .close:hover {
@@ -766,9 +772,7 @@ main h1 {
 #disclaimer {
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  overflow: hidden;
   line-height: normal;
   width: 85%;
   height: 65%;
@@ -780,7 +784,18 @@ main h1 {
   text-align: center;
 }
 
-#disclaimer::-webkit-scrollbar {
+#disclaimer > div {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 12px 0 28px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12px, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 12px, #000 calc(100% - 28px), transparent);
+}
+
+#disclaimer > div::-webkit-scrollbar {
   display: none;
 }
 
@@ -813,10 +828,17 @@ main h1 {
   cursor: pointer;
   text-decoration: none;
   margin: 0 auto;
+  flex: none;
+  transition: opacity 0.3s ease;
 }
 
 #agree-btn:hover {
   background-color: white;
+}
+
+#agree-btn.disabled {
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 .online {
@@ -878,7 +900,7 @@ main h1 {
   #leaderboards,
   #leaderboards.charting {
     width: 70%;
-    padding: 9vw 13vw;
+    padding: 12vw 13vw 9vw;
   }
 
   #leaderboards::before {
@@ -917,6 +939,11 @@ main h1 {
     --col-rank: 2.3rem;
     --col-bowls: 3.4rem;
     height: 72%;
+  }
+
+  #leaderboards,
+  #leaderboards.charting {
+    padding-top: 20vw;
   }
 
   #lb-title {
