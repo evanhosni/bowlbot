@@ -287,8 +287,8 @@ main h1 {
 #leaderboards.down #lb-title,
 #leaderboards.down #boards,
 #leaderboards.down #chart,
-#leaderboards.down #btn-chart,
-#leaderboards.down #hint {
+#leaderboards.down #chart-legend,
+#leaderboards.down #btn-chart {
   display: none;
 }
 
@@ -313,6 +313,54 @@ main h1 {
 
 #leaderboards.charting #chart {
   display: block;
+}
+
+#chart-legend {
+  display: none;
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.9em;
+  max-height: 7em;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 0 3%;
+  font-size: large;
+  line-height: 1.4;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1em), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1em), transparent);
+}
+
+#chart-legend::-webkit-scrollbar {
+  display: none;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.legend-item:hover {
+  color: var(--orange);
+}
+
+.legend-item.off {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.swatch {
+  display: inline-block;
+  width: 1em;
+  border-top: 3px solid;
+}
+
+#leaderboards.charting #chart-legend {
+  display: flex;
 }
 
 #chart canvas {
@@ -587,20 +635,63 @@ main h1 {
   width: 75%;
 }
 
-#hint {
-  flex: none;
-  font-size: larger;
-  line-height: 1.05;
-  margin: 0.4em auto 0;
-  padding-top: 0.5em;
+#lb-title {
+  position: relative;
+}
+
+#info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: 1.4em;
+  width: 1.2em;
+  height: 1.2em;
+  margin-left: -0.1em;
+  font-size: 0.3em;
+  font-weight: bold;
+  line-height: 1;
+  border: 2.5px solid currentColor;
+  border-radius: 50%;
+  color: inherit;
+  user-select: none;
+}
+
+#info:hover,
+#info:focus-visible {
+  color: var(--orange);
+  outline: none;
+}
+
+#info-tip {
+  display: none;
+  position: absolute;
+  z-index: 3;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(80vw, 16em);
+  padding: 0.4em 0.8em;
+  font-size: 1.8em;
+  font-weight: normal;
+  line-height: 1.15;
   text-align: center;
-  width: 85%;
+  white-space: normal;
+  color: white;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 8px;
 
   .command {
-    font-size: large;
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(0, 0, 0, 0.3);
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
   }
+}
+
+#info:hover #info-tip,
+#info:focus #info-tip,
+#info.open #info-tip {
+  display: block;
 }
 
 .close {

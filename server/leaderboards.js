@@ -44,27 +44,22 @@ function allBoards() {
 function chartSeries() {
   const now = Date.now();
   const servers = new Map();
-  let from = now;
+  let firstDay = Math.floor(now / DAY);
   for (const row of db.rankedServerBowlsByDay(DAY)) {
     let server = servers.get(row.id);
     if (!server) {
-      server = { name: row.name, total: 0, points: [] };
+      server = { name: row.name, total: 0, days: [] };
       servers.set(row.id, server);
     }
     if (row.day === null) continue;
-    const dayStart = row.day * DAY;
-    if (dayStart < from) from = dayStart;
+    if (row.day < firstDay) firstDay = row.day;
     server.total += row.n;
-    server.points.push({ x: Math.min(dayStart + DAY, now), y: server.total });
+    server.days.push([row.day, server.total]);
   }
   const list = [...servers.values()]
     .sort((a, b) => b.total - a.total)
-    .map((s) => {
-      const points = [{ x: from, y: 0 }, ...s.points];
-      if (points[points.length - 1].x < now) points.push({ x: now, y: s.total });
-      return { name: s.name, points };
-    });
-  return { from, to: now, servers: list };
+    .map((s) => ({ name: s.name, days: s.days }));
+  return { from: firstDay * DAY, to: now, servers: list };
 }
 
 module.exports = { RANGES, serverStats, vibeCheck, allBoards, chartSeries };

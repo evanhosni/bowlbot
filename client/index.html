@@ -134,7 +134,13 @@
     <div id="modal">
       <div id="leaderboards">
         <p class="error">hmm...looks like the server is down. my bad.</p>
-        <h2 id="lb-title">leaderboards</h2>
+        <h2 id="lb-title">
+          leaderboards
+          <span id="info" tabindex="0" role="button" aria-label="how to join the leaderboards">
+            i
+            <span id="info-tip">include your server on the leaderboards with <span class="command">/enable rank</span></span>
+          </span>
+        </h2>
         <div id="boards">
           <div id="tabs">
             <a data-range="total">total</a>
@@ -167,8 +173,8 @@
             <div class="tip-row"><span class="tip-date"></span><span class="tip-count"></span></div>
           </div>
         </div>
+        <div id="chart-legend"></div>
         <a id="btn-chart" class="link-btn">- view chart -</a>
-        <p id="hint">include your server on the leaderboards with <span class="command">/enable rank</span></p>
         <div class="close">(close)</div>
       </div>
       <div id="disclaimer">
@@ -233,5 +239,6 @@
     crossorigin="anonymous"
   ></script>
   <script src="./vendor/counter/counter.js"></script>
+  <script src="./config.js"></script>
   <script src="./js/client.js"></script>
 </html>

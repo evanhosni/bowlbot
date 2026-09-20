@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io(window.SOCKET_URL);
 var connectedToServer;
 var currentBowls;
 var is_online = false;
@@ -22,6 +22,7 @@ const chartCanvas = document.querySelector("#chart-canvas");
 const zoomReset = document.querySelector("#zoom-reset");
 const chartEl = document.querySelector("#chart");
 const chartTip = document.querySelector("#chart-tip");
+const chartLegend = document.querySelector("#chart-legend");
 var zoom = null;
 var zoomDrag = null;
 
@@ -29,6 +30,7 @@ const SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300"
 const DAY = 86400000;
 const YEAR = 365 * DAY;
 const MIN_ZOOM = 7 * DAY;
+const DASHES = [undefined, [6, 4], [2, 3], [8, 3, 2, 3]];
 
 socket.on("init", (data) => {
   connectedToServer = true;
@@ -60,7 +62,14 @@ socket.on("leaderboards", (data) => {
 });
 
 socket.on("chart", (data) => {
-  chartData = data;
+  const { from, to } = data;
+  const servers = data.servers.map((s) => {
+    const points = [{ x: from, y: 0 }];
+    for (const [day, total] of s.days) points.push({ x: Math.min((day + 1) * DAY, to), y: total });
+    if (points[points.length - 1].x < to) points.push({ x: to, y: points[points.length - 1].y });
+    return { name: s.name, points };
+  });
+  chartData = { from, to, servers };
   if (leaderboardsOpen && charting) renderChart();
 });
 
@@ -92,6 +101,27 @@ function legendText(name) {
   return name.length > max ? name.slice(0, max - 1).trimEnd() + "…" : name;
 }
 
+const htmlLegend = {
+  id: "htmlLegend",
+  afterUpdate(c) {
+    chartLegend.innerHTML = "";
+    c.data.datasets.forEach((ds, i) => {
+      const item = el("span", "legend-item" + (c.isDatasetVisible(i) ? "" : " off"), legendText(ds.label));
+      item.title = ds.label;
+      const swatch = el("i", "swatch");
+      swatch.style.borderColor = ds.borderColor;
+      swatch.style.borderTopStyle = ["solid", "dashed", "dotted", "double"][Math.floor(i / SERIES.length) % DASHES.length];
+      item.prepend(swatch);
+      item.addEventListener("click", () => {
+        c.setDatasetVisibility(i, !c.isDatasetVisible(i));
+        syncZoom();
+        c.update("none");
+      });
+      chartLegend.append(item);
+    });
+  },
+};
+
 function renderChart() {
   if (!chartData || typeof Chart === "undefined") return;
   const { from, to, servers } = chartData;
@@ -103,7 +133,7 @@ function renderChart() {
     borderColor: SERIES[i % SERIES.length],
     backgroundColor: SERIES[i % SERIES.length],
     borderWidth: 2,
-    borderDash: i >= SERIES.length ? [6, 4] : undefined,
+    borderDash: DASHES[Math.floor(i / SERIES.length) % DASHES.length],
     pointRadius: 0,
     pointHitRadius: 12,
     pointHoverRadius: 4,
@@ -121,7 +151,7 @@ function renderChart() {
   chart = new Chart(chartCanvas, {
     type: "line",
     data: { datasets },
-    plugins: [zoomSelection],
+    plugins: [zoomSelection, htmlLegend],
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -157,16 +187,7 @@ function renderChart() {
         },
       },
       plugins: {
-        legend: {
-          position: "bottom",
-          labels: {
-            boxWidth: 14,
-            boxHeight: 3,
-            padding: small ? 6 : 10,
-            generateLabels: (c) =>
-              Chart.defaults.plugins.legend.labels.generateLabels(c).map((item) => ({ ...item, text: legendText(item.text) })),
-          },
-        },
+        legend: { display: false },
         tooltip: { enabled: false, external: showChartTip },
       },
     },
@@ -201,7 +222,8 @@ function valueAt(points, x) {
 }
 
 function syncZoom() {
-  const { from, to, servers } = chartData;
+  const { from, to } = chartData;
+  const servers = chartData.servers.filter((s, i) => chart.isDatasetVisible(i));
   if (zoom && (zoom.max - zoom.min >= to - from || zoom.min >= to)) zoom = null;
   const min = zoom ? Math.max(from, zoom.min) : from;
   const max = zoom ? Math.min(to, zoom.max) : to;
@@ -492,6 +514,15 @@ document.querySelector("#agree-btn").addEventListener("click", () => {
 
 document.querySelector("#feedback-link")?.addEventListener("click", () => {
   gaEvent("support_server_click");
+});
+
+const info = document.querySelector("#info");
+info.addEventListener("click", (e) => {
+  e.stopPropagation();
+  info.classList.toggle("open");
+});
+document.addEventListener("pointerdown", (e) => {
+  if (!info.contains(e.target)) info.classList.remove("open");
 });
 
 var closeButtons = document.querySelectorAll(".close");

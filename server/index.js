@@ -4,5 +4,7 @@ require("./log");
 const web = require("./web");
 const bot = require("./bot");
 
-web.listen();
-bot.start();
+const dev = process.argv.includes("--web-only");
+
+web.listen(dev ? "https://bowlbot.io" : "");
+if (!dev) bot.start();

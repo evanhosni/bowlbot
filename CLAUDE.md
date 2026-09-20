@@ -10,7 +10,9 @@ not repeat it here. The bot calls itself keef; "bowlbot" is the project.
 - Never install, update, or remove a package without asking first.
 - There is no test suite. Verify with `node --check <file>` on every touched
   file, and a local run (`npm start`, needs `DISCORD_TOKEN` and
-  `DATABASE_PATH`) when the change touches Discord behaviour.
+  `DATABASE_PATH`) when the change touches Discord behaviour. For website
+  work use `npm run web`: no bot, and the page reads production data over
+  the live site's socket (see `README.md`).
 - Node 24 built-ins are fine and preferred: `node:sqlite`, `fetch`,
   `AbortSignal.timeout`.
 

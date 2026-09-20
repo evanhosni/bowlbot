@@ -9,6 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server",
+    "web": "node server --web-only",
     "backup": "node scripts/backup.js"
   },
   "repository": {

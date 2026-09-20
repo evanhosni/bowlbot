@@ -5,7 +5,12 @@ const { ownerLog } = require("../log");
 
 const CLIENT_DIR = path.join(__dirname, "..", "..", "client");
 
+let socketUrl = "";
+
 const app = express();
+app.get("/config.js", (req, res) => {
+  res.type("js").send(socketUrl ? `window.SOCKET_URL = ${JSON.stringify(socketUrl)}` : "");
+});
 app.use(express.static(CLIENT_DIR));
 app.get("/", (req, res) => res.sendFile(path.join(CLIENT_DIR, "index.html")));
 
@@ -14,7 +19,8 @@ const io = require("socket.io")(server, { cors: { origin: "*" } }); //TODO: only
 
 require("./socket").attach(io);
 
-function listen() {
+function listen(url = "") {
+  socketUrl = url;
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
     ownerLog(`[web] site's up on port ${PORT} 🚀`);

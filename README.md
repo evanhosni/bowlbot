@@ -83,6 +83,20 @@ npm start
 The database file and its directory are created on first start. `data/` is
 gitignored.
 
+To work on the website against the live numbers without starting the bot:
+
+```
+npm run web
+```
+
+This serves `client/` on port 3000 with no Discord login. The page loads
+`/config.js`, which in this mode points the socket at `https://bowlbot.io`,
+so leaderboards, the counter, and the chart show production data. In a
+normal run and on Railway that route is empty and the socket stays on the
+same origin. This relies on the production socket.io server accepting any
+origin. The database itself never leaves the Railway volume; it is SQLite on
+a mounted disk, so nothing can open it from outside the container.
+
 ## Adding a schema change
 
 Append a function to `MIGRATIONS` in `server/db/schema.js`. Never edit or reorder an
