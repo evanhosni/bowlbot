@@ -150,6 +150,7 @@ const htmlLegend = {
   id: "htmlLegend",
   afterUpdate(c) {
     hideLegendTip();
+    const scrollTop = legendList.scrollTop;
     legendList.innerHTML = "";
     const n = c.data.datasets.length;
     c.data.datasets.forEach((ds, i) => {
@@ -185,6 +186,7 @@ const htmlLegend = {
       }
       legendList.append(item);
     });
+    legendList.scrollTop = scrollTop;
   },
 };
 
