@@ -1,6 +1,6 @@
 const bot = require("./client");
 const db = require("../db");
-const { sesh } = require("../state");
+const { sesh } = require("./sesh");
 const { say } = require("./context");
 const { logGuildError, ownerLog, ownerError, sendLogsTo } = require("../log");
 const { postableSystemChannel } = require("./channels");

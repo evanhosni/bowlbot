@@ -1,19 +1,19 @@
 const bot = require("./client");
 const db = require("../db");
-const { io } = require("../web");
-const { status } = require("../state");
+const { setBotStatus } = require("../web/socket");
 const { vibeCheck } = require("../leaderboards");
-const { describeGuild, logGuildError, ownerLog, ownerError } = require("../log");
+const { describeGuild, logGuildError, ownerLog, ownerError, flushLogs } = require("../log");
 const { disclaimer, welcome } = require("../text");
 const { registerSlashCommands } = require("./slash");
 const { postableSystemChannel } = require("./channels");
+const { sesh, announce, resumeSeshes, beginShutdown } = require("./sesh");
 
 bot.on("clientReady", () => {
   ownerLog(`[bot] ayyooo it's ${bot.user.tag}! live in ${bot.guilds.cache.size} servers`);
-  status.online = true;
-  io.emit("bot_status", status.online);
+  setBotStatus(true);
   vibeCheck(bot.guilds.cache.map((g) => g.id));
   registerSlashCommands();
+  resumeSeshes();
 });
 
 bot.on("guildCreate", (guild) => {
@@ -33,12 +33,28 @@ bot.on("guildCreate", (guild) => {
 
 bot.on("error", (error) => {
   ownerError("[bot] error:", error);
-  status.online = false;
-  io.emit("bot_status", status.online);
+  setBotStatus(false);
 });
 
 bot.on("disconnect", () => {
   ownerLog("[bot] disconnected");
-  status.online = false;
-  io.emit("bot_status", status.online);
+  setBotStatus(false);
 });
+
+const SHUTDOWN_GRACE_MS = 5000;
+
+async function shutdown(signal) {
+  beginShutdown();
+  const running = [...sesh.entries()];
+  ownerLog(`[bot] ${signal}, telling ${running.length} seshes brb`);
+  const notices = running.map(([serverId, s]) => {
+    const guild = bot.guilds.cache.get(serverId);
+    return guild ? announce(guild, s.textChannelId, "brb, i need to go get some water") : Promise.resolve();
+  });
+  const work = Promise.allSettled(notices).then(flushLogs);
+  await Promise.race([work, new Promise((r) => setTimeout(r, SHUTDOWN_GRACE_MS))]);
+  process.exit(0);
+}
+
+process.once("SIGTERM", () => shutdown("SIGTERM"));
+process.once("SIGINT", () => shutdown("SIGINT"));

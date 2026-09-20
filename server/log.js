@@ -98,4 +98,4 @@ process.on("uncaughtException", (err) => {
   ownerError("[uncaughtException]", err && err.stack ? err.stack : err);
 });
 
-module.exports = { describeGuild, logGuildError, ownerLog, ownerWarn, ownerError, sendLogsTo };
+module.exports = { describeGuild, logGuildError, ownerLog, ownerWarn, ownerError, sendLogsTo, flushLogs: flush };

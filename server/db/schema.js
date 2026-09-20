@@ -17,6 +17,18 @@ const MIGRATIONS = [
       CREATE INDEX bowls_serverId_schmokedAt ON bowls (serverId, schmokedAt);
     `);
   },
+  (db) => {
+    db.exec(`
+      CREATE TABLE seshes (
+        serverId       TEXT    NOT NULL PRIMARY KEY REFERENCES servers(id) ON DELETE CASCADE ON UPDATE CASCADE,
+        voiceChannelId TEXT    NOT NULL,
+        textChannelId  TEXT    NOT NULL,
+        minutes        INTEGER NOT NULL,
+        startedAt      INTEGER NOT NULL,
+        ukMode         INTEGER NOT NULL DEFAULT 0 CHECK (ukMode IN (0, 1))
+      ) STRICT;
+    `);
+  },
 ];
 
 function migrate(db) {

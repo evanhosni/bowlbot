@@ -47,6 +47,12 @@ const stmt = {
     "SELECT strftime(?, schmokedAt / 1000, 'unixepoch') AS p, COUNT(*) AS n FROM bowls WHERE serverId = ? GROUP BY p",
   ),
   firstBowlAt: db.prepare("SELECT MIN(schmokedAt) AS t FROM bowls WHERE serverId = ?"),
+
+  upsertSesh: db.prepare(
+    "INSERT OR REPLACE INTO seshes (serverId, voiceChannelId, textChannelId, minutes, startedAt, ukMode) VALUES (?, ?, ?, ?, ?, ?)",
+  ),
+  deleteSesh: db.prepare("DELETE FROM seshes WHERE serverId = ?"),
+  selectSeshes: db.prepare("SELECT serverId, voiceChannelId, textChannelId, minutes, startedAt, ukMode FROM seshes"),
 };
 
 function toServer(row) {
@@ -115,6 +121,18 @@ function firstBowlAt(serverId) {
   return t === null ? null : Number(t);
 }
 
+function upsertSesh({ serverId, voiceChannelId, textChannelId, minutes, startedAt, ukMode }) {
+  stmt.upsertSesh.run(String(serverId), String(voiceChannelId), String(textChannelId), minutes, startedAt, ukMode ? 1 : 0);
+}
+
+function deleteSesh(serverId) {
+  stmt.deleteSesh.run(String(serverId));
+}
+
+function findSeshes() {
+  return stmt.selectSeshes.all().map((row) => ({ ...row, ukMode: row.ukMode === 1 }));
+}
+
 module.exports = {
   db,
   findServer,
@@ -129,4 +147,7 @@ module.exports = {
   countServerBowlsByWindow,
   countServerBowlsByPeriod,
   firstBowlAt,
+  upsertSesh,
+  deleteSesh,
+  findSeshes,
 };

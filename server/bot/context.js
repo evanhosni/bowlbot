@@ -15,6 +15,7 @@ function messageContext(message) {
   };
   return {
     guild: message.guild,
+    channelId: message.channel.id,
     member: message.member,
     user: message.author,
     defer: () => message.channel.sendTyping().catch(() => {}),
@@ -40,6 +41,7 @@ function interactionContext(interaction) {
   };
   return {
     guild: interaction.guild,
+    channelId: interaction.channelId,
     member: interaction.member,
     user: interaction.user,
     defer() {

@@ -1,49 +1,10 @@
-const path = require("path");
 const Discord = require("discord.js");
 const discordVoice = require("@discordjs/voice");
 const db = require("../db");
-const { io } = require("../web");
-const { sesh, stopSesh } = require("../state");
 const { serverStats } = require("../leaderboards");
-const { describeGuild, logGuildError, ownerLog, ownerWarn } = require("../log");
+const { startSesh, stopSesh } = require("./sesh");
 const { disclaimer } = require("../text");
 const charts = require("../charts");
-
-const AUDIO_DIR = path.join(__dirname, "..", "..", "audio");
-
-const TRANSIENT_VOICE = /Unexpected server response: \d+|ECONNRESET|ETIMEDOUT/;
-
-function logVoiceError(guild, err) {
-  const text = err && err.message ? err.message : String(err);
-  if (!TRANSIENT_VOICE.test(text)) return logGuildError("voice connection", guild, err);
-  ownerWarn(`[voice connection] ${describeGuild(guild)}: ${text} (discord voice hiccup, reconnecting)`);
-}
-
-function watchVoiceConnection(connection, guild, serverId) {
-  const { VoiceConnectionStatus, entersState } = discordVoice;
-  connection.on("error", (err) => logVoiceError(guild, err));
-  connection.on(VoiceConnectionStatus.Disconnected, async () => {
-    try {
-      await Promise.race([
-        entersState(connection, VoiceConnectionStatus.Signalling, 5000),
-        entersState(connection, VoiceConnectionStatus.Connecting, 5000),
-      ]);
-    } catch {
-      if (connection.state.status !== VoiceConnectionStatus.Destroyed) connection.destroy();
-    }
-  });
-  connection.on(VoiceConnectionStatus.Destroyed, () => {
-    const running = sesh.get(serverId);
-    if (!stopSesh(serverId)) return;
-    setImmediate(() => {
-      if (!guild.client.guilds.cache.has(guild.id)) {
-        return ownerLog(`[voice connection] ${describeGuild(guild)}: removed from the server mid-sesh`);
-      }
-      ownerLog(`[voice connection] ${describeGuild(guild)}: dropped from the call`);
-      running.announce({ content: "bru" + (running.ukMode ? "v" : "h") + " who kicked me" });
-    });
-  });
-}
 
 const commands = [
   {
@@ -73,54 +34,7 @@ const commands = [
         ctx.reply({ content: "ayyy lmao" });
       }
       ctx.reply({ content: `schmoke a ` + (ukMode ? "spliff" : "bowl") + ` every ${msg} min` });
-      stopSesh(serverId);
-
-      const player = discordVoice.createAudioPlayer();
-      const connection = discordVoice.joinVoiceChannel({
-        channelId: userVoiceChannel.id,
-        guildId: ctx.guild.id,
-        adapterCreator: ctx.guild.voiceAdapterCreator,
-        selfDeaf: false,
-      });
-
-      player.on("error", (err) => logGuildError("audio player", ctx.guild, err));
-      if (connection.listenerCount("error") === 0) {
-        watchVoiceConnection(connection, ctx.guild, serverId);
-      }
-
-      connection.subscribe(player);
-
-      const botVoiceChannel = discordVoice.getVoiceConnection(ctx.guild.id);
-      const timer = setInterval(
-        () => {
-          try {
-            if (botVoiceChannel && userVoiceChannel.members.size <= 1) {
-              ctx.announce({ content: "bru" + (ukMode ? "v" : "h") + " where'd everyone go" });
-              stopSesh(serverId);
-              botVoiceChannel.destroy();
-            } else {
-              player.play(
-                discordVoice.createAudioResource(
-                  path.join(AUDIO_DIR, ukMode ? "schmoke_a_spliff.mp3" : "schmoke_a_bowl.mp3"),
-                ),
-              );
-              db.insertBowl(serverId);
-              io.emit("bowlcount", db.countAllBowls());
-            }
-          } catch (err) {
-            logGuildError("session tick", ctx.guild, err);
-          }
-        },
-        msg * 1000 * 60,
-      );
-      sesh.set(serverId, {
-        timer,
-        minutes: Number(msg),
-        startedAt: Date.now(),
-        channel: userVoiceChannel.name,
-        ukMode,
-        announce: ctx.announce,
-      });
+      startSesh(ctx.guild, userVoiceChannel, ctx.channelId, Number(msg), ukMode);
     },
   },
 

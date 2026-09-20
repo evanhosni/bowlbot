@@ -54,7 +54,7 @@ one is in scope, then what happened and what the consequence was:
   nothing, because the guild payload lists channels keef cannot see.
 - A known-transient external failure is `ownerWarn` with the reason in words:
   Discord voice handshake 5xx, connection reset, timeout (see
-  `TRANSIENT_VOICE` in `server/bot/commands.js`), QuickChart 429 or timeout.
+  `TRANSIENT_VOICE` in `server/bot/sesh.js`), QuickChart 429 or timeout.
   Extend those classifiers rather than adding a new mechanism. Anything not
   matched stays a full `ownerError` with the stack.
 - **Every occurrence is sent.** Do not dedupe, rate-limit, or "warn once then
@@ -97,16 +97,35 @@ One object in `server/bot/commands.js` serves both `@keef <name>` and
   attachments render inline and wider.
 - A trailing `bruv` sets `ukMode`; wording should branch on it where the
   existing commands do.
-- `serverId` is the `servers` table row id, not the Discord guild id.
-- The `sesh` map in `server/state.js` documents the per-server session shape.
-  Call `stopSesh` before destroying a voice connection; the Destroyed
+- `serverId` is the `servers` table primary key, which is the Discord guild
+  id stored as TEXT. The sesh map and the db are both keyed by it.
+- Sesh lifecycle lives in `server/bot/sesh.js`: `startSesh`, `stopSesh`,
+  `resumeSeshes`, `announce`. The `sesh` map exported from there is the
+  in-memory view and documents the entry shape; the `seshes` table mirrors
+  it so a restart can rebuild it. Every start upserts a row and every stop
+  deletes it, so the table is empty whenever nobody is mid-sesh.
+- Call `stopSesh` before destroying a voice connection; the Destroyed
   handler treats a missing sesh as "already ended on purpose".
 - Voice connection listeners belong in `watchVoiceConnection`, behind the
   once-per-connection guard. `joinVoiceChannel` returns the existing
   connection when keef is already in the call, so listeners added elsewhere
   stack.
+- The next bowl is arithmetic from `startedAt` and `minutes`, never stored.
+  A resumed sesh fires its first bowl at the original due time, then falls
+  into the normal interval.
 - Owner-only DM commands live in `server/bot/dms.js`: `/servers`, `/seshes`,
   `/announcement`, `/help`.
+- Seshes survive a redeploy. The `shutdown` handler in
+  `server/bot/events.js` marks the process as shutting down (so nothing
+  deletes rows or announces a kick while the old container dies), posts
+  "brb" to every running sesh, flushes the owner log, and exits. On the next
+  `clientReady`, `resumeSeshes` rejoins each row's call, posts "ok i'm
+  back", and drops rows whose call is empty or gone. Keep the shutdown grace
+  short; Railway force-kills a container that lingers after SIGTERM.
+- Railway runs the old and new containers together for a few seconds. The
+  new one rejoining while the old is still in the call relies on Discord
+  handing the voice state to the most recent gateway session. Unverified on
+  this bot as of 2026-09-19; the first redeploy with a live sesh is the test.
 
 ## Discord facts that have bitten us
 

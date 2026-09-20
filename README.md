@@ -19,13 +19,14 @@ live stats to it.
 server/            everything that runs on Railway
   index.js         entry point: env, web server, then the bot
   log.js           guild-scoped error logging + process crash guards
-  state.js         in-memory state shared by bot and site (sessions, leaderboards, online flag)
   text.js          long user-facing strings (disclaimer, help, welcome)
   leaderboards.js  per-server stats and the sorted boards the site asks for
   web/             Express static server + socket.io events
   bot/
     client.js      the discord.js Client
     commands.js    THE command table: one object per command, both interfaces read it
+    sesh.js        sesh lifecycle: join voice, tick, stop, resume after a restart
+    channels.js    which channel keef can actually post in
     dispatch.js    text -> command lookup, shared by mentions and slash
     mentions.js    @keef message handling
     slash.js       slash command definitions, registration, handling
@@ -52,7 +53,9 @@ as both `@keef <name>` and `/<name>` with no other changes.
   `server/db/index.js`; the schema and its migration runner are in
   `server/db/schema.js`.
   Migrations are an append-only array applied automatically at boot using
-  `PRAGMA user_version`, each in its own transaction.
+  `PRAGMA user_version`, each in its own transaction. Three tables:
+  `servers`, `bowls`, and `seshes`, which holds one row per sesh running
+  right now so a redeploy can rejoin them.
 - **DNS:** Cloudflare, proxied. `bowlbot.io` points at the Railway service.
   `bowlbot.app` (the old domain) is not on Cloudflare yet and currently
   resolves to a stale GitHub Pages site; a redirect to `bowlbot.io` is
