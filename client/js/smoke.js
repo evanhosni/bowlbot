@@ -13,6 +13,7 @@ const DENSITY_FADE = 0.15;
 const DETAIL_RELAX = 0.22;
 const MID_DRIFT = 0.25;
 const BASE_DRIFT = 0.1;
+const ERODE_DRIFT = 0.216;
 const SHAPE_HALF_W = 0.42;
 const SHAPE_HALF_H = 0.39;
 const OPEN_MS = 1000;
@@ -21,8 +22,8 @@ const CLOSE_MS = 1800;
 const OPEN_RELAX = 40;
 const CLOSE_FADE = 1.2;
 const CLOSE_DRIFT = 30;
-const CLOSE_DRIFT_SPREAD = 0.6;
 const CLOSE_TURBULENCE = 1.4;
+const CLOSE_SYNC_MS = 250;
 const WIDEN_FORCE = 1200;
 const WIDEN_MAX = 300;
 const WIDEN_MIN_DELTA = 0.0005;
@@ -290,6 +291,7 @@ uniform float gain;
 uniform float densityRelax;
 uniform float densityFade;
 uniform float detailRelax;
+uniform vec2 erodeDrift;
 void main() {
   vec2 prev = texture2D(uBase, vUv).rg;
   float dens = prev.r;
@@ -297,7 +299,7 @@ void main() {
   float target = shapeTarget(p) * gain;
   float detail = billow(p * 0.55 + vec2(0.0, -time * 0.02) + seed + 31.0);
   detail = prev.g + (detail - prev.g) * min(1.0, detailRelax * dt);
-  float erode = billow(p * 1.3 + vec2(time * 0.12, time * 0.18) + seed * 2.0);
+  float erode = billow(p * 1.3 + time * erodeDrift + seed * 2.0);
   float rate = target > dens ? densityRelax : densityFade;
   dens += (target - dens) * min(1.0, rate * dt);
   gl_FragColor = vec4(dens, detail, erode, 1.0);
@@ -393,6 +395,7 @@ void main() {
       mouseSplat: null,
       splats: [],
       closeDrift: [0, 0],
+      erodeDrift: [0, ERODE_DRIFT],
       lastHx: null,
       smokeHx: 0,
     };
@@ -597,6 +600,8 @@ void main() {
       force: AMBIENT_FORCE,
       buoyancy: BUOYANCY,
       drift: [0, 0],
+      midDrift: MID_DRIFT,
+      baseDrift: BASE_DRIFT,
     };
     const age = still ? Infinity : panel.phaseStart < 0 ? 0 : Math.max(0, now - panel.phaseStart);
     if (panel.phase === "opening" || panel.phase === "open") {
@@ -618,6 +623,10 @@ void main() {
       st.force = AMBIENT_FORCE * CLOSE_TURBULENCE;
       st.drift = panel.closeDrift;
       st.dissolve = u * u * (3 - 2 * u);
+      const k = Math.min(1, age / CLOSE_SYNC_MS);
+      const sync = k * k * (3 - 2 * k);
+      st.midDrift = MID_DRIFT + (1 - MID_DRIFT) * sync;
+      st.baseDrift = BASE_DRIFT + (1 - BASE_DRIFT) * sync;
     }
     return st;
   }
@@ -647,6 +656,7 @@ void main() {
 
     u = use(panel, "base", fbos.base.write);
     gl.uniform1i(u.uBase, fbos.base.read.attach(0));
+    gl.uniform2f(u.erodeDrift, panel.erodeDrift[0], panel.erodeDrift[1]);
     setShape(panel, u, st, time);
     gl.uniform1f(u.dt, dt);
     gl.uniform1f(u.gain, st.gain);
@@ -778,7 +788,7 @@ void main() {
     gl.uniform1i(u.uVelocity, fbos.velocity.read.attach(0));
     gl.uniform1i(u.uSource, fbos.dye.read.attach(1));
     gl.uniform1f(u.dt, dt);
-    gl.uniform1f(u.midDrift, MID_DRIFT);
+    gl.uniform1f(u.midDrift, st.midDrift);
     blit(gl);
     fbos.dye.swap();
 
@@ -786,7 +796,7 @@ void main() {
     gl.uniform2f(u.texelSize, fbos.velocity.texelSizeX, fbos.velocity.texelSizeY);
     gl.uniform1i(u.uVelocity, fbos.velocity.read.attach(0));
     gl.uniform1i(u.uSource, fbos.base.read.attach(1));
-    gl.uniform1f(u.dt, dt * BASE_DRIFT);
+    gl.uniform1f(u.dt, dt * st.baseDrift);
     gl.uniform1f(u.dissipation, 0);
     blit(gl);
     fbos.base.swap();
@@ -855,6 +865,7 @@ void main() {
     for (const panel of panels) {
       if (!visible(panel)) continue;
       panel.seed = [Math.random() * 100, Math.random() * 100];
+      panel.erodeDrift = randomDrift(ERODE_DRIFT);
       panel.phase = still ? "open" : "opening";
       panel.phaseStart = -1;
       panel.last = 0;
@@ -872,14 +883,18 @@ void main() {
     start();
   }
 
+  function randomDrift(magnitude) {
+    const a = Math.random() * Math.PI * 2;
+    return [Math.cos(a) * magnitude, Math.sin(a) * magnitude];
+  }
+
   function close() {
     if (still) return;
     for (const panel of panels) {
       if (panel.phase === "idle" || panel.phase === "closing") continue;
       panel.phase = "closing";
       panel.phaseStart = -1;
-      const a = (Math.random() * 2 - 1) * CLOSE_DRIFT_SPREAD;
-      panel.closeDrift = [Math.sin(a) * CLOSE_DRIFT, Math.cos(a) * CLOSE_DRIFT];
+      panel.closeDrift = randomDrift(CLOSE_DRIFT);
       poof(panel, POOF_SPLATS, POOF_FORCE);
     }
     start();
