@@ -116,33 +116,35 @@ function startSesh(guild, voiceChannel, textChannelId, minutes, ukMode, startedA
 function resumeSeshes() {
   const rows = db.findSeshes();
   if (rows.length === 0) return;
-  ownerLog(`[resume] ${rows.length} sesh(es) were running before the restart`);
+  let resumed = 0;
+  const dropped = [];
   for (const row of rows) {
     const guild = bot.guilds.cache.get(row.serverId);
     try {
       if (!guild) {
         db.deleteSesh(row.serverId);
-        ownerLog(`[resume] guild ${row.serverId}: not in this server anymore, sesh dropped`);
+        dropped.push(`guild ${row.serverId}: not in this server anymore`);
         continue;
       }
       const voiceChannel = guild.channels.cache.get(row.voiceChannelId);
       const humans = voiceChannel && voiceChannel.isVoiceBased() ? voiceChannel.members.filter((m) => !m.user.bot).size : 0;
       if (humans === 0) {
         db.deleteSesh(row.serverId);
-        ownerLog(`[resume] ${describeGuild(guild)}: call is empty or gone, sesh dropped`);
-        announce(guild, row.textChannelId, "looks like the sesh ended while i was away");
+        dropped.push(`${describeGuild(guild)}: call is empty or gone`);
+        announce(guild, row.textChannelId, bruh(row.ukMode) + " where'd everyone go");
         continue;
       }
-      const untilFirst = startSesh(guild, voiceChannel, row.textChannelId, row.minutes, row.ukMode, row.startedAt);
-      ownerLog(
-        `[resume] ${describeGuild(guild)}: sesh resumed in ${voiceChannel.name}, next bowl in ${Math.ceil(untilFirst / 60000)} min`,
-      );
+      startSesh(guild, voiceChannel, row.textChannelId, row.minutes, row.ukMode, row.startedAt);
       announce(guild, row.textChannelId, "ok i'm back" + (row.ukMode ? " bruv" : ""));
+      resumed++;
     } catch (err) {
       db.deleteSesh(row.serverId);
-      logGuildError("resume", guild, err);
+      dropped.push(`${describeGuild(guild)}: ${err && err.message ? err.message : err}`);
     }
   }
+  const summary = `[resume] resuming ${resumed} of ${rows.length} sesh(es)`;
+  if (dropped.length === 0) return ownerLog(summary);
+  ownerWarn(summary + "\n  dropped: " + dropped.join("\n  dropped: "));
 }
 
 function beginShutdown() {
