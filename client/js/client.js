@@ -11,7 +11,8 @@ const track = document.querySelector("#tables");
 const boards = RANGES.map((r) => document.querySelector(`#board-${r}`));
 const tabs = RANGES.map((r) => document.querySelector(`#tabs [data-range="${r}"]`));
 const indicator = document.querySelector("#tab-indicator");
-var activeIndex = RANGES.indexOf("week");
+const DEFAULT_RANGE = "week";
+var activeIndex = RANGES.indexOf(DEFAULT_RANGE);
 var leaderboardsOpen = false;
 var disclaimerOpen = false;
 const disclaimerText = document.querySelector("#disclaimer > div");
@@ -550,14 +551,43 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") goTo(activeIndex + 1, true);
 });
 
+const MODAL_CONTENT_DELAY_MS = 550;
+const MODAL_PANEL_FADE_MS = 200;
+const MODAL_CLOSE_MS = 1800;
+const disclaimerEl = document.querySelector("#disclaimer");
+var modalTimer = null;
+var resetTimer = null;
+var modalClosing = false;
+
+function resetLeaderboards() {
+  clearTimeout(resetTimer);
+  resetTimer = null;
+  activeIndex = RANGES.indexOf(DEFAULT_RANGE);
+  if (charting) setCharting(false);
+  else goTo(activeIndex, false);
+  zoom = null;
+  if (chart) setVisibility(chart, chart.data.datasets.map(() => true));
+}
+
+function openModal(panel) {
+  clearTimeout(modalTimer);
+  modal.classList.remove("closing");
+  modal.style.display = "flex";
+  leaderboardsEl.style.display = panel === leaderboardsEl ? "flex" : "none";
+  disclaimerEl.style.display = panel === disclaimerEl ? "flex" : "none";
+  if (resetTimer) resetLeaderboards();
+  document.body.classList.add("modal-open");
+  document.body.style.overflowY = "hidden";
+  modalClosing = false;
+  panel.classList.remove("shown");
+  if (window.smoke) window.smoke.open();
+  modalTimer = setTimeout(() => panel.classList.add("shown"), MODAL_CONTENT_DELAY_MS);
+}
+
 function leaderboards(range) {
   disclaimerOpen = false;
   leaderboardsOpen = true;
-  modal.style.display = "flex";
-  document.querySelector("#disclaimer").style.display = "none";
-  leaderboardsEl.style.display = "flex";
-  document.querySelector("body").style.overflowY = "hidden";
-  document.querySelector("main").style.visibility = "hidden";
+  openModal(leaderboardsEl);
 
   leaderboardsEl.classList.toggle("down", !connectedToServer);
   if (!connectedToServer) return;
@@ -575,11 +605,7 @@ function leaderboards(range) {
 function disclaimer() {
   leaderboardsOpen = false;
   disclaimerOpen = true;
-  modal.style.display = "flex";
-  leaderboardsEl.style.display = "none";
-  document.querySelector("#disclaimer").style.display = "flex";
-  document.querySelector("body").style.overflowY = "hidden";
-  document.querySelector("main").style.visibility = "hidden";
+  openModal(disclaimerEl);
   agreeBtn.classList.add("disabled");
   disclaimerText.scrollTop = 0;
   checkDisclaimerRead();
@@ -598,7 +624,7 @@ window.addEventListener("resize", () => {
 
 document.querySelector("#btn-leaderboards").addEventListener("click", () => {
   if (!leaderboardsOpen) {
-    leaderboards("week");
+    leaderboards(DEFAULT_RANGE);
     gaEvent("leaderboards_open");
   } else {
     closeModal();
@@ -642,11 +668,25 @@ for (let i = 0; i < closeButtons.length; i++) {
 }
 
 function closeModal() {
-  modal.style.display = "none";
-  document.querySelector("body").style.overflowY = "visible";
-  document.querySelector("main").style.visibility = "visible";
+  if (modalClosing) return;
+  clearTimeout(modalTimer);
+  modalClosing = true;
   leaderboardsOpen = false;
   disclaimerOpen = false;
+  leaderboardsEl.classList.remove("shown");
+  disclaimerEl.classList.remove("shown");
+  document.body.classList.remove("modal-open");
+  document.body.style.overflowY = "visible";
+  modal.classList.add("closing");
+  if (window.smoke) window.smoke.close();
+  clearTimeout(resetTimer);
+  resetTimer = setTimeout(resetLeaderboards, MODAL_PANEL_FADE_MS);
+  modalTimer = setTimeout(() => {
+    modal.style.display = "none";
+    modal.classList.remove("closing");
+    modalClosing = false;
+    if (window.smoke) window.smoke.reset();
+  }, MODAL_CLOSE_MS);
 }
 
 var pressedOnBackdrop = false;

@@ -259,9 +259,42 @@ main h1 {
   max-width: 520px;
   padding: 8vw;
   position: relative;
+  opacity: 0;
   transition:
     width 0.5s ease,
-    max-width 0.5s ease;
+    max-width 0.5s ease,
+    opacity 0.2s ease;
+}
+
+#leaderboards.shown,
+#disclaimer.shown {
+  opacity: 1;
+}
+
+#leaderboards.shown {
+  transition-duration: 0.5s, 0.5s, 0.45s;
+}
+
+#disclaimer.shown {
+  transition-duration: 0.45s;
+}
+
+#modal.closing {
+  pointer-events: none;
+}
+
+main {
+  transition:
+    opacity 0.4s ease 0.1s,
+    visibility 0s linear 0.1s;
+}
+
+body.modal-open main {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.4s ease,
+    visibility 0s linear 0.4s;
 }
 
 #leaderboards::before {
@@ -273,6 +306,25 @@ main h1 {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   pointer-events: none;
+}
+
+.smoke-gl #leaderboards::before,
+.smoke-gl #disclaimer {
+  background-image: none;
+}
+
+canvas.smoke {
+  display: none;
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.smoke-gl canvas.smoke {
+  display: block;
 }
 
 #leaderboards.charting {
@@ -778,6 +830,8 @@ main h1 {
   height: 65%;
   max-width: 500px;
   padding: 8vw;
+  opacity: 0;
+  transition: opacity 0.2s ease;
   background-image: url("../images/smoke.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -893,9 +947,11 @@ main h1 {
 /* The smoke panel is content-box, so its real width is `width` + both paddings.
    At 85% + 8vw + 8vw that totals 101vw and runs off a phone screen, clipping the
    smoke's soft edges while the rows sit right on the boundary. 76% + 10vw + 10vw
-   totals 96vw. smoke.png is only reliably opaque between 10.4% and 91.4% of its
-   width (measured per horizontal band — it is wispier at some heights than the
-   average suggests), so the 13vw padding keeps rows inside that with margin. */
+   totals 96vw. The smoke is only reliably opaque between about 10% and 90% of
+   the panel's width (the fluid in js/smoke.js is anchored to the panel box and
+   holds full density to roughly 40% of the panel width either side of centre,
+   thinning outward with noise; smoke.png, the no-WebGL fallback, was measured
+   at 10.4% to 91.4%), so the 13vw padding keeps rows inside that with margin. */
 @media screen and (max-width: 620px) {
   #leaderboards,
   #leaderboards.charting {

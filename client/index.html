@@ -132,7 +132,8 @@
       </section>
     </main>
     <div id="modal">
-      <div id="leaderboards">
+      <canvas class="smoke"></canvas>
+      <div id="leaderboards" data-smoke>
         <p class="error">hmm...looks like the server is down. my bad.</p>
         <h2 id="lb-title">
           leaderboards
@@ -178,7 +179,7 @@
         <a id="btn-chart" class="link-btn">- view chart -</a>
         <div class="close">(close)</div>
       </div>
-      <div id="disclaimer">
+      <div id="disclaimer" data-smoke>
         <h2>DISCLAIMER / WAIVER:</h2>
         <div>
           <p>
@@ -241,5 +242,6 @@
   ></script>
   <script src="./vendor/counter/counter.js"></script>
   <script src="./config.js"></script>
+  <script src="./js/smoke.js"></script>
   <script src="./js/client.js"></script>
 </html>

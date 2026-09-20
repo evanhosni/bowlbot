@@ -37,6 +37,8 @@ server/            everything that runs on Railway
 client/            the website, served as-is
   index.html
   css/ js/ images/
+  js/smoke.js      GPU fluid simulation drawing the smoke behind the modals;
+                   images/smoke.png is the fallback when WebGL2 is unavailable
   vendor/counter/  third-party odometer widget
 audio/             the reminder clips the bot plays
 scripts/backup.js  online SQLite backup
