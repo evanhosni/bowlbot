@@ -2,6 +2,7 @@ const moment = require("moment");
 const db = require("./db");
 
 const RANGES = ["total", "year", "month", "week", "day", "hour"];
+const DAY = 86400000;
 
 function cutoffs() {
   return RANGES.slice(1).map((range) => moment().subtract(1, range).valueOf());
@@ -40,4 +41,30 @@ function allBoards() {
   return RANGES.map((_, i) => sortedBoard(rows, i + 1));
 }
 
-module.exports = { RANGES, serverStats, vibeCheck, allBoards };
+function chartSeries() {
+  const now = Date.now();
+  const servers = new Map();
+  let from = now;
+  for (const row of db.rankedServerBowlsByDay(DAY)) {
+    let server = servers.get(row.id);
+    if (!server) {
+      server = { name: row.name, total: 0, points: [] };
+      servers.set(row.id, server);
+    }
+    if (row.day === null) continue;
+    const dayStart = row.day * DAY;
+    if (dayStart < from) from = dayStart;
+    server.total += row.n;
+    server.points.push({ x: Math.min(dayStart + DAY, now), y: server.total });
+  }
+  const list = [...servers.values()]
+    .sort((a, b) => b.total - a.total)
+    .map((s) => {
+      const points = [{ x: from, y: 0 }, ...s.points];
+      if (points[points.length - 1].x < now) points.push({ x: now, y: s.total });
+      return { name: s.name, points };
+    });
+  return { from, to: now, servers: list };
+}
+
+module.exports = { RANGES, serverStats, vibeCheck, allBoards, chartSeries };

@@ -135,28 +135,39 @@
       <div id="leaderboards">
         <p class="error">hmm...looks like the server is down. my bad.</p>
         <h2 id="lb-title">leaderboards</h2>
-        <div id="tabs">
-          <a data-range="total">total</a>
-          <a data-range="year">year</a>
-          <a data-range="month">month</a>
-          <a data-range="week">week</a>
-          <a data-range="day">day</a>
-          <a data-range="hour">hour</a>
-          <span id="tab-indicator"></span>
+        <div id="boards">
+          <div id="tabs">
+            <a data-range="total">total</a>
+            <a data-range="year">year</a>
+            <a data-range="month">month</a>
+            <a data-range="week">week</a>
+            <a data-range="day">day</a>
+            <a data-range="hour">hour</a>
+            <span id="tab-indicator"></span>
+          </div>
+          <div id="board-head" class="row head">
+            <span class="rank">rank</span>
+            <span class="name">server</span>
+            <span class="bowls">bowls</span>
+          </div>
+          <div id="tables">
+            <div class="panel"><div id="board-total" class="board"></div></div>
+            <div class="panel"><div id="board-year" class="board"></div></div>
+            <div class="panel"><div id="board-month" class="board"></div></div>
+            <div class="panel"><div id="board-week" class="board"></div></div>
+            <div class="panel"><div id="board-day" class="board"></div></div>
+            <div class="panel"><div id="board-hour" class="board"></div></div>
+          </div>
         </div>
-        <div id="board-head" class="row head">
-          <span class="rank">rank</span>
-          <span class="name">server</span>
-          <span class="bowls">bowls</span>
+        <div id="chart">
+          <canvas id="chart-canvas"></canvas>
+          <span id="zoom-reset" hidden>(reset zoom)</span>
+          <div id="chart-tip" hidden>
+            <div class="tip-title"></div>
+            <div class="tip-row"><span class="tip-date"></span><span class="tip-count"></span></div>
+          </div>
         </div>
-        <div id="tables">
-          <div class="panel"><div id="board-total" class="board"></div></div>
-          <div class="panel"><div id="board-year" class="board"></div></div>
-          <div class="panel"><div id="board-month" class="board"></div></div>
-          <div class="panel"><div id="board-week" class="board"></div></div>
-          <div class="panel"><div id="board-day" class="board"></div></div>
-          <div class="panel"><div id="board-hour" class="board"></div></div>
-        </div>
+        <a id="btn-chart" class="link-btn">- view chart -</a>
         <p id="hint">include your server on the leaderboards with <span class="command">/enable rank</span></p>
         <div class="close">(close)</div>
       </div>
@@ -216,6 +227,11 @@
     crossorigin="anonymous"
   ></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+    integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
+    crossorigin="anonymous"
+  ></script>
   <script src="./vendor/counter/counter.js"></script>
   <script src="./js/client.js"></script>
 </html>

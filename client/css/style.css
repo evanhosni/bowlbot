@@ -7,6 +7,7 @@
   --brown: rgb(65, 42, 26);
   --darkbrown: rgb(24, 14, 10);
   --purp: rgb(175, 106, 255);
+  --darkpurp: rgb(108, 48, 190);
   --orange: rgb(194, 126, 0);
   --lit: rgb(174, 32, 0);
 }
@@ -257,9 +258,26 @@ main h1 {
   height: 70%;
   max-width: 520px;
   padding: 8vw;
+  position: relative;
+  transition:
+    width 0.5s ease,
+    max-width 0.5s ease;
+}
+
+#leaderboards::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 -5%;
   background-image: url("../images/smoke.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+#leaderboards.charting {
+  width: 92%;
+  max-width: 860px;
 }
 
 #leaderboards.down {
@@ -267,11 +285,98 @@ main h1 {
 }
 
 #leaderboards.down #lb-title,
-#leaderboards.down #tabs,
-#leaderboards.down #board-head,
-#leaderboards.down #tables,
+#leaderboards.down #boards,
+#leaderboards.down #chart,
+#leaderboards.down #btn-chart,
 #leaderboards.down #hint {
   display: none;
+}
+
+#boards {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#chart {
+  display: none;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 6px 3%;
+}
+
+#leaderboards.charting #boards {
+  display: none;
+}
+
+#leaderboards.charting #chart {
+  display: block;
+}
+
+#chart canvas {
+  cursor: crosshair;
+  touch-action: none;
+}
+
+#zoom-reset {
+  position: absolute;
+  top: 0;
+  right: 3%;
+  font-size: large;
+  line-height: 1;
+  color: var(--darkpurp);
+  cursor: pointer;
+  user-select: none;
+}
+
+#zoom-reset[hidden] {
+  display: none;
+}
+
+#zoom-reset:hover {
+  color: var(--orange);
+}
+
+#chart-tip {
+  position: absolute;
+  z-index: 1;
+  transform: translate(-50%, calc(-100% - 12px));
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: large;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+#chart-tip[hidden] {
+  display: none;
+}
+
+.tip-title {
+  font-weight: bold;
+}
+
+.tip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5em;
+}
+
+#btn-chart {
+  flex: none;
+  font-size: x-large;
+  line-height: 1;
+  margin-top: 0.3em;
+  color: var(--darkpurp);
+}
+
+#btn-chart:hover {
+  color: var(--orange);
 }
 
 #leaderboards.down .error {
@@ -493,6 +598,8 @@ main h1 {
 
   .command {
     font-size: large;
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -623,9 +730,14 @@ main h1 {
    width (measured per horizontal band — it is wispier at some heights than the
    average suggests), so the 13vw padding keeps rows inside that with margin. */
 @media screen and (max-width: 620px) {
-  #leaderboards {
+  #leaderboards,
+  #leaderboards.charting {
     width: 70%;
     padding: 9vw 13vw;
+  }
+
+  #leaderboards::before {
+    inset: 0 -2%;
   }
 }
 

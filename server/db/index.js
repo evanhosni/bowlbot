@@ -47,6 +47,14 @@ const stmt = {
     "SELECT strftime(?, schmokedAt / 1000, 'unixepoch') AS p, COUNT(*) AS n FROM bowls WHERE serverId = ? GROUP BY p",
   ),
   firstBowlAt: db.prepare("SELECT MIN(schmokedAt) AS t FROM bowls WHERE serverId = ?"),
+  rankedServerBowlsByDay: db.prepare(`
+    SELECT s.id AS id, s.name AS name, CAST(b.schmokedAt / ? AS INTEGER) AS day, COUNT(b.id) AS n
+    FROM servers s
+    LEFT JOIN bowls b ON b.serverId = s.id
+    WHERE s.rank = 1
+    GROUP BY s.id, day
+    ORDER BY day
+  `),
 
   upsertSesh: db.prepare(
     "INSERT OR REPLACE INTO seshes (serverId, voiceChannelId, textChannelId, minutes, startedAt, ukMode) VALUES (?, ?, ?, ?, ?, ?)",
@@ -121,6 +129,12 @@ function firstBowlAt(serverId) {
   return t === null ? null : Number(t);
 }
 
+function rankedServerBowlsByDay(dayMs) {
+  return stmt.rankedServerBowlsByDay
+    .all(dayMs)
+    .map((r) => ({ id: r.id, name: r.name, day: r.day === null ? null : Number(r.day), n: Number(r.n) }));
+}
+
 function upsertSesh({ serverId, voiceChannelId, textChannelId, minutes, startedAt, ukMode }) {
   stmt.upsertSesh.run(String(serverId), String(voiceChannelId), String(textChannelId), minutes, startedAt, ukMode ? 1 : 0);
 }
@@ -147,6 +161,7 @@ module.exports = {
   countServerBowlsByWindow,
   countServerBowlsByPeriod,
   firstBowlAt,
+  rankedServerBowlsByDay,
   upsertSesh,
   deleteSesh,
   findSeshes,

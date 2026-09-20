@@ -20,7 +20,7 @@ server/            everything that runs on Railway
   index.js         entry point: env, web server, then the bot
   log.js           guild-scoped error logging + process crash guards
   text.js          long user-facing strings (disclaimer, help, welcome)
-  leaderboards.js  per-server stats and the sorted boards the site asks for
+  leaderboards.js  per-server stats, the sorted boards, and the cumulative chart series the site asks for
   web/             Express static server + socket.io events
   bot/
     client.js      the discord.js Client

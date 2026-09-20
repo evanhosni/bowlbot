@@ -1,5 +1,5 @@
 const db = require("../db");
-const { allBoards } = require("../leaderboards");
+const { allBoards, chartSeries } = require("../leaderboards");
 
 const status = { online: false };
 let io = null;
@@ -12,6 +12,9 @@ function attach(server) {
     io.emit("init", db.countAllBowls());
     socket.on("leaderboards", () => {
       socket.emit("leaderboards", allBoards());
+    });
+    socket.on("chart", () => {
+      socket.emit("chart", chartSeries());
     });
   });
 }

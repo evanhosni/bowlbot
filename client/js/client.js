@@ -14,6 +14,21 @@ const indicator = document.querySelector("#tab-indicator");
 var activeIndex = RANGES.indexOf("week");
 var leaderboardsOpen = false;
 var disclaimerOpen = false;
+var charting = false;
+var chart = null;
+var chartData = null;
+const chartButton = document.querySelector("#btn-chart");
+const chartCanvas = document.querySelector("#chart-canvas");
+const zoomReset = document.querySelector("#zoom-reset");
+const chartEl = document.querySelector("#chart");
+const chartTip = document.querySelector("#chart-tip");
+var zoom = null;
+var zoomDrag = null;
+
+const SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"];
+const DAY = 86400000;
+const YEAR = 365 * DAY;
+const MIN_ZOOM = 7 * DAY;
 
 socket.on("init", (data) => {
   connectedToServer = true;
@@ -26,6 +41,7 @@ socket.on("init", (data) => {
 
 socket.on("bowlcount", (data) => {
   socket.emit("leaderboards");
+  if (leaderboardsOpen && charting) socket.emit("chart");
   setTimeout(() => {
     bowls.innerHTML = data;
   }, 3500);
@@ -41,6 +57,251 @@ socket.on("leaderboards", (data) => {
     renderBoard(boards[i], data[i] || []);
   }
   if (leaderboardsOpen) refreshMarquees();
+});
+
+socket.on("chart", (data) => {
+  chartData = data;
+  if (leaderboardsOpen && charting) renderChart();
+});
+
+function dateLabel(ms, spanMs) {
+  const d = new Date(ms);
+  const month = d.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
+  if (spanMs > YEAR) return `${month} '${String(d.getUTCFullYear()).slice(-2)}`;
+  return `${month} ${d.getUTCDate()}`;
+}
+
+function chartTicks(from, to) {
+  const ticks = [];
+  const months = (to - from) / (30 * DAY);
+  if (months < 2) {
+    const step = Math.max(1, Math.ceil((to - from) / DAY / 5)) * DAY;
+    for (let t = Math.ceil(from / DAY) * DAY; t <= to; t += step) ticks.push(t);
+    return ticks;
+  }
+  const step = months <= 6 ? 1 : months <= 14 ? 3 : months <= 48 ? 6 : 12;
+  const d = new Date(from);
+  let y = d.getUTCFullYear();
+  let m = Math.ceil((d.getUTCMonth() + (d.getUTCDate() > 1 ? 1 : 0)) / step) * step;
+  for (let t = Date.UTC(y, m, 1); t <= to; t = Date.UTC(y, (m += step), 1)) ticks.push(t);
+  return ticks;
+}
+
+function legendText(name) {
+  const max = window.innerWidth < 480 ? 18 : 28;
+  return name.length > max ? name.slice(0, max - 1).trimEnd() + "…" : name;
+}
+
+function renderChart() {
+  if (!chartData || typeof Chart === "undefined") return;
+  const { from, to, servers } = chartData;
+  const ink = getComputedStyle(leaderboardsEl).color;
+  const grid = "rgba(65, 42, 26, 0.18)";
+  const datasets = servers.map((s, i) => ({
+    label: s.name,
+    data: s.points,
+    borderColor: SERIES[i % SERIES.length],
+    backgroundColor: SERIES[i % SERIES.length],
+    borderWidth: 2,
+    borderDash: i >= SERIES.length ? [6, 4] : undefined,
+    pointRadius: 0,
+    pointHitRadius: 12,
+    pointHoverRadius: 4,
+  }));
+  if (chart) {
+    chart.data.datasets = datasets;
+    syncZoom();
+    chart.update("none");
+    return;
+  }
+  const small = window.innerWidth < 480;
+  Chart.defaults.font.family = '"Nanum Pen Script", cursive';
+  Chart.defaults.font.size = small ? 15 : 17;
+  Chart.defaults.color = ink;
+  chart = new Chart(chartCanvas, {
+    type: "line",
+    data: { datasets },
+    plugins: [zoomSelection],
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      parsing: false,
+      normalized: true,
+      interaction: { mode: "nearest", intersect: false },
+      layout: { padding: { right: 8 } },
+      scales: {
+        x: {
+          type: "linear",
+          min: from,
+          max: to,
+          grid: { color: grid },
+          border: { color: grid },
+          afterBuildTicks: (axis) => {
+            axis.ticks = chartTicks(axis.min, axis.max).map((value) => ({ value }));
+          },
+          ticks: {
+            maxRotation: 0,
+            autoSkip: true,
+            callback(v) {
+              return dateLabel(v, this.max - this.min);
+            },
+          },
+        },
+        y: {
+          beginAtZero: true,
+          suggestedMax: Math.max(0, ...servers.map((s) => s.points[s.points.length - 1].y)),
+          grid: { color: grid },
+          border: { color: grid },
+          ticks: { precision: 0, callback: (v) => v.toLocaleString() },
+        },
+      },
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: {
+            boxWidth: 14,
+            boxHeight: 3,
+            padding: small ? 6 : 10,
+            generateLabels: (c) =>
+              Chart.defaults.plugins.legend.labels.generateLabels(c).map((item) => ({ ...item, text: legendText(item.text) })),
+          },
+        },
+        tooltip: { enabled: false, external: showChartTip },
+      },
+    },
+  });
+}
+
+function showChartTip({ chart: c, tooltip: t }) {
+  const item = t.dataPoints && t.dataPoints[0];
+  if (!t.opacity || !item) {
+    chartTip.hidden = true;
+    return;
+  }
+  const points = item.dataset.data;
+  const n = item.parsed.y - (item.dataIndex > 0 ? points[item.dataIndex - 1].y : 0);
+  chartTip.querySelector(".tip-title").textContent = item.dataset.label;
+  chartTip.querySelector(".tip-date").textContent = dateLabel(item.parsed.x - 1, 0);
+  chartTip.querySelector(".tip-count").textContent = `${n.toLocaleString()} ${n === 1 ? "bowl" : "bowls"}`;
+  chartTip.hidden = false;
+  const half = chartTip.offsetWidth / 2;
+  const x = Math.max(half, Math.min(chartEl.clientWidth - half, c.canvas.offsetLeft + t.caretX));
+  chartTip.style.left = x + "px";
+  chartTip.style.top = c.canvas.offsetTop + t.caretY + "px";
+}
+
+function valueAt(points, x) {
+  let y = 0;
+  for (const p of points) {
+    if (p.x > x) break;
+    y = p.y;
+  }
+  return y;
+}
+
+function syncZoom() {
+  const { from, to, servers } = chartData;
+  if (zoom && (zoom.max - zoom.min >= to - from || zoom.min >= to)) zoom = null;
+  const min = zoom ? Math.max(from, zoom.min) : from;
+  const max = zoom ? Math.min(to, zoom.max) : to;
+  chart.options.scales.x.min = min;
+  chart.options.scales.x.max = max;
+  chart.options.scales.y.suggestedMax = Math.max(0, ...servers.map((s) => valueAt(s.points, max)));
+  zoomReset.hidden = !zoom;
+}
+
+function applyZoom(lo, hi) {
+  if (!chart || !chartData) return;
+  if (lo === null) {
+    zoom = null;
+  } else {
+    const { from, to } = chartData;
+    if (hi - lo < MIN_ZOOM) {
+      const mid = (lo + hi) / 2;
+      lo = mid - MIN_ZOOM / 2;
+      hi = mid + MIN_ZOOM / 2;
+    }
+    lo = Math.max(from, Math.min(lo, to - MIN_ZOOM));
+    hi = Math.min(to, Math.max(hi, lo + MIN_ZOOM));
+    zoom = { min: lo, max: hi };
+  }
+  syncZoom();
+  chart.update("none");
+}
+
+const zoomSelection = {
+  id: "zoomSelection",
+  afterDraw(c) {
+    if (!zoomDrag || !zoomDrag.moved) return;
+    const { top, bottom } = c.chartArea;
+    const x0 = Math.min(zoomDrag.start, zoomDrag.current);
+    const x1 = Math.max(zoomDrag.start, zoomDrag.current);
+    const ctx = c.ctx;
+    ctx.save();
+    ctx.fillStyle = "rgba(108, 48, 190, 0.15)";
+    ctx.fillRect(x0, top, x1 - x0, bottom - top);
+    ctx.strokeStyle = "rgba(108, 48, 190, 0.6)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x0 + 0.5, top + 0.5, x1 - x0 - 1, bottom - top - 1);
+    ctx.restore();
+  },
+};
+
+function clampX(x) {
+  const { left, right } = chart.chartArea;
+  return Math.max(left, Math.min(right, x));
+}
+
+chartCanvas.addEventListener("pointerdown", (e) => {
+  if (!chart || e.button !== 0) return;
+  const { left, right, top, bottom } = chart.chartArea;
+  if (e.offsetX < left || e.offsetX > right || e.offsetY < top || e.offsetY > bottom) return;
+  zoomDrag = { start: e.offsetX, current: e.offsetX, moved: false };
+  if (chartCanvas.hasPointerCapture) {
+    try {
+      chartCanvas.setPointerCapture(e.pointerId);
+    } catch {}
+  }
+});
+chartCanvas.addEventListener("pointermove", (e) => {
+  if (!zoomDrag) return;
+  zoomDrag.current = clampX(e.offsetX);
+  if (Math.abs(zoomDrag.current - zoomDrag.start) > 6) zoomDrag.moved = true;
+  chart.draw();
+});
+function endZoomDrag() {
+  if (!zoomDrag) return;
+  const { start, current, moved } = zoomDrag;
+  zoomDrag = null;
+  if (moved) {
+    const x = chart.scales.x;
+    applyZoom(x.getValueForPixel(Math.min(start, current)), x.getValueForPixel(Math.max(start, current)));
+  } else {
+    chart.draw();
+  }
+}
+chartCanvas.addEventListener("pointerup", endZoomDrag);
+chartCanvas.addEventListener("pointercancel", endZoomDrag);
+chartCanvas.addEventListener("dblclick", () => applyZoom(null));
+zoomReset.addEventListener("click", () => applyZoom(null));
+
+function setCharting(on) {
+  charting = on;
+  leaderboardsEl.classList.toggle("charting", on);
+  chartButton.textContent = on ? "- view boards -" : "- view chart -";
+  if (on) {
+    socket.emit("chart");
+    renderChart();
+  } else {
+    goTo(activeIndex, false);
+    refreshMarquees();
+  }
+}
+
+chartButton.addEventListener("click", () => {
+  setCharting(!charting);
+  if (charting) gaEvent("chart_open");
 });
 
 function ordinal(num) {
@@ -162,14 +423,14 @@ window.addEventListener("pointerup", endDrag);
 window.addEventListener("pointercancel", endDrag);
 
 window.addEventListener("resize", () => {
-  if (!leaderboardsOpen) return;
+  if (!leaderboardsOpen || charting) return;
   goTo(activeIndex, false);
   refreshMarquees();
 });
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && (leaderboardsOpen || disclaimerOpen)) closeModal();
-  if (!leaderboardsOpen) return;
+  if (!leaderboardsOpen || charting) return;
   if (e.key === "ArrowLeft") goTo(activeIndex - 1, true);
   if (e.key === "ArrowRight") goTo(activeIndex + 1, true);
 });
@@ -186,6 +447,11 @@ function leaderboards(range) {
   leaderboardsEl.classList.toggle("down", !connectedToServer);
   if (!connectedToServer) return;
 
+  if (charting) {
+    socket.emit("chart");
+    renderChart();
+    return;
+  }
   const idx = RANGES.indexOf(range);
   goTo(idx === -1 ? activeIndex : idx, false);
   refreshMarquees();
