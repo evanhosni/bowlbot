@@ -5,7 +5,7 @@ const db = require("../db");
 const { io } = require("../web");
 const { describeGuild, logGuildError, ownerLog, ownerWarn } = require("../log");
 
-const sesh = new Map(); // serverId -> { timer, minutes, startedAt, channel, ukMode, textChannelId }
+const sesh = new Map(); // serverId -> { timer, minutes, startedAt, voiceChannelId, voiceChannelName, textChannelId, ukMode }
 const AUDIO_DIR = path.join(__dirname, "..", "..", "audio");
 const TRANSIENT_VOICE = ["Unexpected server response", "ECONNRESET", "ETIMEDOUT"];
 const REJOIN_GRACE_MS = 5000;
@@ -85,25 +85,39 @@ function startSesh(guild, voiceChannel, textChannelId, minutes, ukMode, startedA
 
   const tick = () => {
     try {
-      if (voiceChannel.members.size <= 1) {
+      const here = guild.members.me && guild.members.me.voice.channel;
+      if (!here || here.members.filter((m) => !m.user.bot).size === 0) {
         announce(guild, textChannelId, bruh(ukMode) + " where'd everyone go");
         stopSesh(serverId);
         const current = discordVoice.getVoiceConnection(serverId);
         if (current) current.destroy();
-      } else {
-        player.play(
-          discordVoice.createAudioResource(path.join(AUDIO_DIR, ukMode ? "schmoke_a_spliff.mp3" : "schmoke_a_bowl.mp3")),
-        );
-        db.insertBowl(serverId);
-        io.emit("bowlcount", db.countAllBowls());
+        return;
       }
+      if (here.id !== entry.voiceChannelId) {
+        entry.voiceChannelId = here.id;
+        entry.voiceChannelName = here.name;
+        db.upsertSesh({ serverId, voiceChannelId: here.id, textChannelId, minutes, startedAt, ukMode });
+      }
+      player.play(
+        discordVoice.createAudioResource(path.join(AUDIO_DIR, ukMode ? "schmoke_a_spliff.mp3" : "schmoke_a_bowl.mp3")),
+      );
+      db.insertBowl(serverId);
+      io.emit("bowlcount", db.countAllBowls());
     } catch (err) {
       logGuildError("session tick", guild, err);
     }
   };
 
   const untilFirst = interval - ((Date.now() - startedAt) % interval);
-  const entry = { timer: null, minutes, startedAt, channel: voiceChannel.name, ukMode, textChannelId };
+  const entry = {
+    timer: null,
+    minutes,
+    startedAt,
+    voiceChannelName: voiceChannel.name,
+    voiceChannelId: voiceChannel.id,
+    ukMode,
+    textChannelId,
+  };
   entry.timer = setTimeout(() => {
     tick();
     entry.timer = setInterval(tick, interval);
