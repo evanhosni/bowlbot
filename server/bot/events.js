@@ -6,7 +6,7 @@ const { describeGuild, logGuildError, ownerLog, ownerError, flushLogs } = requir
 const { disclaimer, welcome } = require("../text");
 const { registerSlashCommands } = require("./slash");
 const { postableSystemChannel } = require("./channels");
-const { sesh, announce, resumeSeshes, beginShutdown } = require("./sesh");
+const { sesh, resumeSeshes, beginShutdown } = require("./sesh");
 
 bot.on("clientReady", () => {
   ownerLog(`[bot] ayyooo it's ${bot.user.tag}! live in ${bot.guilds.cache.size} servers`);
@@ -45,14 +45,8 @@ const SHUTDOWN_GRACE_MS = 5000;
 
 async function shutdown(signal) {
   beginShutdown();
-  const running = [...sesh.entries()];
-  ownerLog(`[bot] ${signal}, telling ${running.length} seshes brb`);
-  const notices = running.map(([serverId, s]) => {
-    const guild = bot.guilds.cache.get(serverId);
-    return guild ? announce(guild, s.textChannelId, "brb, i need to go get some water") : Promise.resolve();
-  });
-  const work = Promise.allSettled(notices).then(flushLogs);
-  await Promise.race([work, new Promise((r) => setTimeout(r, SHUTDOWN_GRACE_MS))]);
+  ownerLog(`[bot] ${signal}, ${sesh.size} seshes will resume after the restart`);
+  await Promise.race([flushLogs(), new Promise((r) => setTimeout(r, SHUTDOWN_GRACE_MS))]);
   process.exit(0);
 }
 

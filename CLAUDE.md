@@ -115,13 +115,14 @@ One object in `server/bot/commands.js` serves both `@keef <name>` and
   into the normal interval.
 - Owner-only DM commands live in `server/bot/dms.js`: `/servers`, `/seshes`,
   `/announcement`, `/help`.
-- Seshes survive a redeploy. The `shutdown` handler in
+- Seshes survive a redeploy silently. The `shutdown` handler in
   `server/bot/events.js` marks the process as shutting down (so nothing
-  deletes rows or announces a kick while the old container dies), posts
-  "brb" to every running sesh, flushes the owner log, and exits. On the next
-  `clientReady`, `resumeSeshes` rejoins each row's call, posts "ok i'm
-  back", and drops rows whose call is empty or gone. Keep the shutdown grace
-  short; Railway force-kills a container that lingers after SIGTERM.
+  deletes rows or announces a kick while the old container dies), flushes
+  the owner log, and exits. On the next `clientReady`, `resumeSeshes`
+  rejoins each row's call and drops rows whose call is empty or gone. Users
+  are told nothing: the restart is fast enough that keef never visibly
+  leaves the call. Keep the shutdown grace short; Railway force-kills a
+  container that lingers after SIGTERM.
 - Railway runs the old and new containers together for a few seconds. The
   new one rejoining while the old is still in the call relies on Discord
   handing the voice state to the most recent gateway session. Unverified on

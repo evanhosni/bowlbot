@@ -141,7 +141,8 @@ function resumeSeshes() {
         continue;
       }
       const voiceChannel = guild.channels.cache.get(row.voiceChannelId);
-      const humans = voiceChannel && voiceChannel.isVoiceBased() ? voiceChannel.members.filter((m) => !m.user.bot).size : 0;
+      const humans =
+        voiceChannel && voiceChannel.isVoiceBased() ? voiceChannel.members.filter((m) => !m.user.bot).size : 0;
       if (humans === 0) {
         db.deleteSesh(row.serverId);
         dropped.push(`${describeGuild(guild)}: call is empty or gone`);
@@ -149,14 +150,13 @@ function resumeSeshes() {
         continue;
       }
       startSesh(guild, voiceChannel, row.textChannelId, row.minutes, row.ukMode, row.startedAt);
-      announce(guild, row.textChannelId, "ok i'm back" + (row.ukMode ? " bruv" : ""));
       resumed++;
     } catch (err) {
       db.deleteSesh(row.serverId);
       dropped.push(`${describeGuild(guild)}: ${err && err.message ? err.message : err}`);
     }
   }
-  const summary = `[resume] resuming ${resumed} of ${rows.length} sesh(es)`;
+  const summary = `[bot] successfully resumed ${resumed} of ${rows.length} seshes`;
   if (dropped.length === 0) return ownerLog(summary);
   ownerWarn(summary + "\n  dropped: " + dropped.join("\n  dropped: "));
 }
