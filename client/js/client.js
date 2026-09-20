@@ -207,7 +207,9 @@ function renderChart() {
     pointHoverRadius: 4,
   }));
   if (chart) {
+    const hidden = new Set(chart.data.datasets.filter((_, i) => !chart.isDatasetVisible(i)).map((d) => d.label));
     chart.data.datasets = datasets;
+    datasets.forEach((d, i) => chart.setDatasetVisibility(i, !hidden.has(d.label)));
     syncZoom();
     chart.update("none");
     return;
