@@ -951,17 +951,24 @@ canvas.smoke {
 
 /* The smoke panel is content-box, so its real width is `width` + both paddings.
    At 85% + 8vw + 8vw that totals 101vw and runs off a phone screen, clipping the
-   smoke's soft edges while the rows sit right on the boundary. 76% + 10vw + 10vw
-   totals 96vw. The smoke is only reliably opaque between about 10% and 90% of
-   the panel's width (the fluid in js/smoke.js is anchored to the panel box and
-   holds full density to roughly 40% of the panel width either side of centre,
-   thinning outward with noise; smoke.png, the no-WebGL fallback, was measured
-   at 10.4% to 91.4%), so the 13vw padding keeps rows inside that with margin. */
+   smoke's soft edges. 96vw fits, and the fluid in js/smoke.js is anchored to the
+   panel box, so splitting that 96vw differently between width and padding moves
+   the rows without changing the smoke. The fluid holds full density to roughly
+   40% of the panel width either side of centre and thins outward with noise,
+   which still reads solid on a phone 5vw in, so that is the padding. smoke.png,
+   the no-WebGL fallback, was measured opaque only from 10.4% to 91.4% of its
+   width, so it keeps the old 10vw. */
 @media screen and (max-width: 620px) {
   #leaderboards,
   #leaderboards.charting {
-    width: 70%;
-    padding: 12vw 13vw 9vw;
+    width: 86%;
+    padding: 12vw 5vw 9vw;
+  }
+
+  html:not(.smoke-gl) #leaderboards,
+  html:not(.smoke-gl) #leaderboards.charting {
+    width: 76%;
+    padding-inline: 10vw;
   }
 
   #leaderboards::before {
@@ -974,6 +981,14 @@ canvas.smoke {
     -webkit-mask-image: none;
     mask-image: none;
     animation: none;
+  }
+
+  #chart-box {
+    inset: 6px 0;
+  }
+
+  #legend-list {
+    padding: 0;
   }
 }
 
