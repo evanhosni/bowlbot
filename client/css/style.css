@@ -949,15 +949,9 @@ canvas.smoke {
   }
 }
 
-/* The smoke panel is content-box, so its real width is `width` + both paddings.
-   At 85% + 8vw + 8vw that totals 101vw and runs off a phone screen, clipping the
-   smoke's soft edges. 96vw fits, and the fluid in js/smoke.js is anchored to the
-   panel box, so splitting that 96vw differently between width and padding moves
-   the rows without changing the smoke. The fluid holds full density to roughly
-   40% of the panel width either side of centre and thins outward with noise,
-   which still reads solid on a phone 5vw in, so that is the padding. smoke.png,
-   the no-WebGL fallback, was measured opaque only from 10.4% to 91.4% of its
-   width, so it keeps the old 10vw. */
+/* 86% + 5vw + 5vw is 96vw: the panel is content-box, and wider than that clips
+   the smoke's soft edges off a phone screen. smoke.png, the no-WebGL fallback,
+   is opaque only from 10.4% to 91.4% of its width, so that path stays inset. */
 @media screen and (max-width: 620px) {
   #leaderboards,
   #leaderboards.charting {
