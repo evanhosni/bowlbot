@@ -149,6 +149,7 @@ function startSesh(guild, voiceChannel, textChannelId, minutes, ukMode, startedA
   };
   entry.timer = setTimeout(() => {
     tick();
+    if (sesh.get(serverId) !== entry) return;
     entry.timer = setInterval(tick, interval);
   }, untilFirst);
   sesh.set(serverId, entry);
