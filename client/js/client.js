@@ -328,15 +328,21 @@ function valueAt(points, x) {
   return y;
 }
 
+function rebase(points, min) {
+  const base = valueAt(points, min);
+  return points.map((p) => (p.x <= min ? { x: min, y: 0 } : { x: p.x, y: p.y - base }));
+}
+
 function syncZoom() {
   const { from, to } = chartData;
-  const servers = chartData.servers.filter((s, i) => chart.isDatasetVisible(i));
   if (zoom && (zoom.max - zoom.min >= to - from || zoom.min >= to)) zoom = null;
   const min = zoom ? Math.max(from, zoom.min) : from;
   const max = zoom ? Math.min(to, zoom.max) : to;
+  chart.data.datasets.forEach((ds, i) => (ds.data = rebase(chartData.servers[i].points, min)));
+  const visible = chart.data.datasets.filter((_, i) => chart.isDatasetVisible(i));
   chart.options.scales.x.min = min;
   chart.options.scales.x.max = max;
-  chart.options.scales.y.suggestedMax = Math.max(0, ...servers.map((s) => valueAt(s.points, max)));
+  chart.options.scales.y.suggestedMax = Math.max(0, ...visible.map((ds) => valueAt(ds.data, max)));
   zoomReset.hidden = !zoom;
 }
 
