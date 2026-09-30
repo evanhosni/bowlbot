@@ -74,7 +74,7 @@ nav p {
     color 1s;
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
   padding: 0 12px;
-  background: 0 0 4px rgba(0, 0, 0, 0.69);
+  background: rgba(0, 0, 0, 0.69);
   backdrop-filter: blur(1px);
   border: 4px solid var(--darkbrown);
   border-radius: 999px;
