@@ -2,7 +2,7 @@ const bot = require("./client");
 const db = require("../db");
 const { setBotStatus } = require("../web/socket");
 const { vibeCheck } = require("../leaderboards");
-const { describeGuild, logGuildError, ownerLog, ownerError, flushLogs } = require("../log");
+const { describeGuild, logSendError, ownerLog, ownerWarn, ownerError, flushLogs } = require("../log");
 const { disclaimer, welcome } = require("../text");
 const { registerSlashCommands } = require("./slash");
 const { postableSystemChannel } = require("./channels");
@@ -19,15 +19,19 @@ bot.on("clientReady", () => {
 bot.on("guildCreate", (guild) => {
   db.findOrCreateServer(guild.id, guild.name);
   ownerLog(`[guild create] bowlbot added to: ${describeGuild(guild)}`);
-  const { channel, reason, canMentionEveryone } = postableSystemChannel(guild);
+  const { channel, blocked, reason, canMentionEveryone } = postableSystemChannel(guild);
   if (!channel) {
-    ownerLog(`[guild create] ${describeGuild(guild)}: ${reason}, skipping welcome message`);
+    const log = blocked ? ownerWarn : ownerLog;
+    log(`[guild create] ${describeGuild(guild)}: ${reason}, skipping welcome message`);
     return;
   }
   const ping = canMentionEveryone ? "@everyone\n\n" : "";
   channel.send(welcome).then(
-    () => channel.send(ping + disclaimer).catch((err) => logGuildError("disclaimer", guild, err)),
-    (err) => logGuildError("welcome", guild, err),
+    () =>
+      channel
+        .send(ping + disclaimer)
+        .catch((err) => logSendError("disclaimer", guild, channel, err, "disclaimer not sent")),
+    (err) => logSendError("welcome", guild, channel, err, "welcome and disclaimer not sent"),
   );
 });
 

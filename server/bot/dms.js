@@ -2,7 +2,7 @@ const bot = require("./client");
 const db = require("../db");
 const { sesh } = require("./sesh");
 const { say } = require("./context");
-const { logGuildError, ownerLog, ownerError, sendLogsTo } = require("../log");
+const { logGuildError, logSendError, ownerLog,ownerError, sendLogsTo } = require("../log");
 const { postableSystemChannel } = require("./channels");
 
 // Discord rejects a message over 2000.
@@ -84,7 +84,9 @@ function broadcast(text) {
       return;
     }
     sent++;
-    channel.send({ content: text }).catch((err) => logGuildError("announcement", guild, err));
+    channel
+      .send({ content: text })
+      .catch((err) => logSendError("announcement", guild, channel, err, "announcement not delivered there"));
   });
   return `announced to ${sent} servers` + (skipped.length ? `\nskipped: ${skipped.join(", ")}` : "");
 }

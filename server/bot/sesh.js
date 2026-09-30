@@ -4,7 +4,7 @@ const discordVoice = require("@discordjs/voice");
 const bot = require("./client");
 const db = require("../db");
 const { io } = require("../web");
-const { describeGuild, logGuildError, ownerLog, ownerWarn } = require("../log");
+const { describeGuild, logGuildError, logSendError, ownerLog, ownerWarn } = require("../log");
 
 const sesh = new Map(); // serverId -> { timer, minutes, startedAt, voiceChannelId, textChannelId, ukMode }
 const AUDIO_DIR = path.join(__dirname, "..", "..", "audio");
@@ -27,7 +27,7 @@ function announce(guild, textChannelId, content) {
     ownerWarn(`[send message] ${describeGuild(guild)}: text channel ${textChannelId} is gone, dropping message`);
     return Promise.resolve();
   }
-  return channel.send({ content }).catch((err) => logGuildError("send message", guild, err));
+  return channel.send({ content }).catch((err) => logSendError("send message", guild, channel, err));
 }
 
 function logVoiceError(guild, err) {

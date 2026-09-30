@@ -1,11 +1,13 @@
 const Discord = require("discord.js");
-const { describeGuild, logGuildError, ownerWarn } = require("../log");
+const { describeGuild, logGuildError, logSendError, ownerWarn } = require("../log");
 
 // Discord refuses a response: the 3s window closed, or something else answered first.
 const UNANSWERABLE = { 10062: "unknown interaction", 40060: "already acknowledged" };
 
 function say(message, payload) {
-  return message.channel.send(payload).catch((err) => logGuildError("send message", message.guild, err));
+  return message.channel
+    .send(payload)
+    .catch((err) => logSendError("send message", message.guild, message.channel, err, "reply dropped"));
 }
 
 function messageContext(message) {
@@ -69,7 +71,9 @@ function interactionContext(interaction) {
         ownerWarn(`[send message] ${describeGuild(interaction.guild)}: no channel on interaction, dropping message`);
         return Promise.resolve();
       }
-      return interaction.channel.send(rest).catch((err) => logGuildError("send message", interaction.guild, err));
+      return interaction.channel
+        .send(rest)
+        .catch((err) => logSendError("send message", interaction.guild, interaction.channel, err));
     },
   };
 }

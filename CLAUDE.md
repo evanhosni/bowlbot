@@ -18,7 +18,7 @@ not repeat it here. The bot calls itself keef; "bowlbot" is the project.
 
 ## Logging
 
-Everything the bot process logs goes through `server/log.js`. The four
+Everything the bot process logs goes through `server/log.js`. These
 functions print to the Railway console **and** batch into DMs to the
 application owner, so every line is read by a person on a phone.
 
@@ -26,8 +26,9 @@ application owner, so every line is read by a person on a phone.
 | --- | --- | --- |
 | `ownerError` | 🛑 | Something unexpected in bowlbot's own code, or something that stopped the bot working. Include the stack. |
 | `ownerWarn` | ⚠️ | An outside service (Discord, QuickChart) let a user down but the bot behaved and recovered. One line, no stack. |
-| `ownerLog` | none | Facts and lifecycle: startup, shutdown, joins, a server's permission setup. Never a user action such as a kick. |
+| `ownerLog` | none | Facts and lifecycle: startup, shutdown, joins, a server with no system channel. Never a user action such as a kick. |
 | `logGuildError(where, guild, err)` | 🛑 | The error path when a guild is in scope. Builds the standard format below with the error code and stack. |
+| `logSendError(where, guild, channel, err, consequence?)` | ⚠️ or 🛑 | The `.catch` on any channel send. A permission refusal is one warn line; anything else goes to `logGuildError`. |
 
 **Format.** Every line starts with a bracketed category, then the guild if
 one is in scope, then what happened and what the consequence was:
@@ -52,9 +53,12 @@ one is in scope, then what happened and what the consequence was:
 
 **Level rules that have been decided.**
 
-- A permission fact about a server (no system channel, keef cannot post
-  there) is `ownerLog`, not a warning. Nothing on our side can change it.
-  Check with `postableSystemChannel(guild)` from `server/bot/channels.js`
+- Any time keef tries to post and permissions stop it is `ownerWarn`, one
+  line naming the channel, whether or not a user was waiting on the message.
+  Route every channel send's `.catch` through `logSendError(where, guild,
+  channel, err, consequence)`: it warns on 50001/50013 and falls back to
+  `logGuildError` for anything else. A server with no system channel at all
+  is not a permission problem and stays `ownerLog`. Check with `postableSystemChannel(guild)` from `server/bot/channels.js`
   before sending to a system channel; a non-null `guild.systemChannel` proves
   nothing, because the guild payload lists channels keef cannot see.
 - A known-transient external failure is `ownerWarn` with the reason in words:

@@ -4,6 +4,8 @@ const MAX_DM = 1900; // Discord rejects a message over 2000
 const FLUSH_MS = 2000; // batch a burst into one DM instead of racing the DM rate limit
 const MAX_QUEUED = 40;
 
+const NO_PERMISSION = { 50001: "missing access", 50013: "missing permissions" };
+
 // Discord colours an ```ansi block by escape code; the emoji survives where colour doesn't.
 const STYLE = {
   log: { emoji: "", color: "" },
@@ -89,6 +91,13 @@ function logGuildError(where, guild, err) {
   ownerError(`[${where}] ${describeGuild(guild)}${code}: ${detail}`);
 }
 
+function logSendError(where, guild, channel, err, consequence = "message dropped") {
+  const why = err && NO_PERMISSION[err.code];
+  if (!why) return logGuildError(where, guild, err);
+  const name = channel && channel.name ? `#${channel.name}` : "the channel";
+  ownerWarn(`[${where}] ${describeGuild(guild)}: can't post in ${name} (${why}), ${consequence}`);
+}
+
 process.on("unhandledRejection", (reason) => {
   ownerError("[unhandled rejection]", reason && reason.stack ? reason.stack : reason);
 });
@@ -98,4 +107,4 @@ process.on("uncaughtException", (err) => {
   ownerError("[uncaught exception]", err && err.stack ? err.stack : err);
 });
 
-module.exports = { describeGuild, logGuildError, ownerLog, ownerWarn, ownerError, sendLogsTo, flushLogs: flush };
+module.exports = { describeGuild, logGuildError, logSendError,ownerLog, ownerWarn, ownerError, sendLogsTo, flushLogs: flush };

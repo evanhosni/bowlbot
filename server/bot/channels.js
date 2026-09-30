@@ -7,7 +7,7 @@ function postableSystemChannel(guild) {
   if (!channel) return { channel: null, reason: "no system channel" };
   const perms = channel.permissionsFor(guild.members.me);
   if (perms && !perms.has(POST)) {
-    return { channel: null, reason: `can't post in system channel #${channel.name}` };
+    return { channel: null, blocked: true, reason:`can't post in system channel #${channel.name}` };
   }
   return { channel, canMentionEveryone: !perms || perms.has(Discord.PermissionFlagsBits.MentionEveryone) };
 }
