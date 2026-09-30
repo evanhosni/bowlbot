@@ -3,7 +3,6 @@
   --green: rgb(5, 63, 5);
   --lightgreen: rgb(10, 104, 10);
   --yellowwhite: rgb(255, 249, 165);
-  --clearbrown: rgba(20, 14, 8, 0.69);
   --brown: rgb(52, 32, 22);
   --darkbrown: rgb(24, 14, 10);
   --purp: rgb(175, 106, 255);
@@ -75,7 +74,8 @@ nav p {
     color 1s;
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
   padding: 0 12px;
-  background: var(--clearbrown);
+  background: 0 0 4px rgba(0, 0, 0, 0.69);
+  backdrop-filter: blur(1px);
   border: 4px solid var(--darkbrown);
   border-radius: 999px;
   box-shadow: 0 0 5px var(--darkbrown);
