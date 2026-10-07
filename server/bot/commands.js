@@ -30,10 +30,9 @@ const commands = [
         ctx.reply({ content: "sorry " + (ukMode ? "bruv" : "bud") + " i have work in the morning" });
         return;
       }
-      if (msg == 420) {
-        ctx.reply({ content: "ayyy lmao" });
-      }
-      ctx.reply({ content: `schmoke a ` + (ukMode ? "spliff" : "bowl") + ` every ${msg} min` });
+      ctx.reply({
+        content: (msg == 420 ? "ayyy lmao " : "") + `schmoke a ` + (ukMode ? "spliff" : "bowl") + ` every ${msg} min`,
+      });
       startSesh(ctx.guild, userVoiceChannel, ctx.channelId, Number(msg), ukMode);
     },
   },
