@@ -128,7 +128,9 @@ One object in `server/bot/commands.js` serves both `@keef <name>` and
   `server/bot/events.js` marks the process as shutting down (so nothing
   deletes rows or announces a kick while the old container dies), flushes
   the owner log, and exits. On the next `clientReady`, `resumeSeshes`
-  rejoins each row's call and drops rows whose call is empty or gone. Users
+  rejoins each row's call, even an empty one, and drops rows whose call is
+  gone. An empty call is left to the next bowl's tick, which posts "where'd
+  everyone go" and leaves, exactly as without a restart. Users
   are told nothing: the restart is fast enough that keef never visibly
   leaves the call. Keep the shutdown grace short; Railway force-kills a
   container that lingers after SIGTERM.

@@ -30,7 +30,6 @@ function interactionContext(interaction) {
   let replied = false;
   let deferred = false;
   let unanswerable = false;
-  let last = Promise.resolve();
   const received = Date.now() - interaction.createdTimestamp;
   const replyFailed = (err) => {
     const reason = err && UNANSWERABLE[err.code];
@@ -59,14 +58,12 @@ function interactionContext(interaction) {
       if (unanswerable) return Promise.resolve();
       const { quiet, ...rest } = payload;
       if (quiet) rest.flags = Discord.MessageFlags.Ephemeral;
-      const send = replied
-        ? () => interaction.followUp(rest)
-        : deferred
-          ? () => interaction.editReply(rest)
-          : () => interaction.reply(rest);
+      let p;
+      if (replied) p = interaction.followUp(rest);
+      else if (deferred) p = interaction.editReply(rest);
+      else p = interaction.reply(rest);
       replied = true;
-      last = last.then(() => (unanswerable ? undefined : send().catch(replyFailed)));
-      return last;
+      return p.catch(replyFailed);
     },
     announce(payload) {
       const { quiet, ...rest } = payload;

@@ -171,12 +171,9 @@ function resumeSeshes() {
         continue;
       }
       const voiceChannel = guild.channels.cache.get(row.voiceChannelId);
-      const humans =
-        voiceChannel && voiceChannel.isVoiceBased() ? voiceChannel.members.filter((m) => !m.user.bot).size : 0;
-      if (humans === 0) {
+      if (!voiceChannel || !voiceChannel.isVoiceBased()) {
         db.deleteSesh(row.serverId);
-        dropped.push(`${describeGuild(guild)}: call is empty or gone`);
-        announce(guild, row.textChannelId, bruh(row.ukMode) + " where'd everyone go");
+        dropped.push(`${describeGuild(guild)}: call is gone`);
         continue;
       }
       startSesh(guild, voiceChannel, row.textChannelId, row.minutes, row.ukMode, row.startedAt);
