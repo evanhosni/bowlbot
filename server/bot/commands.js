@@ -22,6 +22,10 @@ const commands = [
         return;
       }
 
+      if (!Number.isInteger(Number(msg))) {
+        ctx.reply({ content: "integers only, " + (ukMode ? "bruv" : "homie") });
+        return;
+      }
       if (msg < 1) {
         ctx.reply({ content: "woah slow down " + (ukMode ? "bruv" : "buddy") });
         return;
